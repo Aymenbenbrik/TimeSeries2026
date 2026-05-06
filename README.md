@@ -94,7 +94,7 @@ cd chapitre1-statistics && pdflatex slides.tex && pdflatex slides.tex
 | 5 | Ch.4 — Non-stationarity | ✅ |
 | 6 | Ch.5 — ARMA models | ✅ |
 | 7 | Ch.6 — ARCH / GARCH | ✅ |
-| 8 | Final assembled lecture book | ⏳ |
+| 8 | Final assembled lecture book | ✅ |
 | 9 | Final integrative project | ⏳ |
 | 10 | Reflective activity | ⏳ |
 | 11 | ECUE sheet (French) + LIVRABLE.md (AA / AAP) | ⏳ |

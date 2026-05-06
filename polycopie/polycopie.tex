@@ -1,0 +1,246 @@
+% =========================================================
+% Final lecture notes -- Time Series Analysis
+% 6 chapters: Basic statistics, Decomposition, Stationarity,
+%             Non-stationarity, ARMA, ARCH/GARCH
+% Author : Aymen Ben Brik (aymen.benbrik@esprit.tn)
+% Esprit School of Business
+%
+% Compile: pdflatex polycopie.tex (twice for TOC and cross-references)
+% =========================================================
+\documentclass[a4paper,11pt,oneside]{book}
+
+\input{../preamble/poly-preamble.tex}
+
+\title{\moduleNom}
+\author{\auteurNom}
+\date{\anneeUniversitaire}
+
+\begin{document}
+
+% =========================================================
+% Frontmatter: title page, foreword, table of contents
+% =========================================================
+\frontmatter
+\pagestyle{empty}
+
+% --- Title page ---
+\begin{titlepage}
+\centering
+\vspace*{1.5cm}
+{\scshape\large \auteurInstitution \par}
+\vspace{0.3cm}
+{\large Academic year \anneeUniversitaire \par}
+\vspace{2.0cm}
+
+\rule{\textwidth}{1.2pt}\par
+\vspace{0.5cm}
+{\Huge\bfseries \moduleNom \par}
+\vspace{0.4cm}
+{\Large Statistics $\cdot$ Decomposition $\cdot$ Stationarity $\cdot$
+        Non-stationarity $\cdot$ ARMA $\cdot$ ARCH / GARCH \par}
+\vspace{0.5cm}
+\rule{\textwidth}{1.2pt}\par
+
+\vspace{2.0cm}
+{\large Lecture notes \par}
+
+\vfill
+{\Large\bfseries \auteurNom \par}
+\vspace{0.4cm}
+{\large \auteurRole \par}
+\vspace{0.3cm}
+{\large \href{mailto:\auteurEmail}{\auteurEmail} \par}
+
+\vspace{1.0cm}
+\end{titlepage}
+
+% --- Copyright / version page ---
+\thispagestyle{empty}
+\vspace*{\fill}
+\noindent\small
+\textbf{\moduleNom} --- Lecture notes.\\[2pt]
+Author: \auteurNom\ (\auteurRole), \auteurInstitution.\\[2pt]
+Contact: \href{mailto:\auteurEmail}{\auteurEmail}.\\[2pt]
+Academic year: \anneeUniversitaire.\\[6pt]
+Compiled on: \today.\\[6pt]
+Document distributed to students of the GAMMA, MDSI, MKD, MBA, LFG
+and LFIG programmes of \auteurInstitution. Any reproduction or
+public distribution requires the author's prior agreement.
+\vspace*{1cm}
+\newpage
+
+% --- Foreword ---
+\chapter*{Foreword}
+\addcontentsline{toc}{chapter}{Foreword}
+\pagestyle{fancy}
+
+These lecture notes accompany the \emph{\moduleNom} course taught at
+\auteurInstitution. They gather, in a single document, six
+chapters that build progressively the modern toolbox of applied
+time-series analysis.
+
+\medskip
+\textbf{Chapter~\ref{ch:basic-stats}} reviews the basic
+statistical concepts (moments, estimation, sampling distributions,
+inference) needed throughout the course. It serves both as a
+refresher and as the conceptual reference for the chapters that
+follow.
+
+\medskip
+\textbf{Chapter~\ref{ch:decomposition}} presents the
+\emph{classical decomposition} of a time series into trend,
+seasonality, and residual. Trend estimation by polynomial fitting
+and centred moving averages, and seasonality estimation by
+seasonal averaging or Fourier coefficients, are derived
+explicitly.
+
+\medskip
+\textbf{Chapter~\ref{ch:stationarity}} introduces \emph{strict} and
+\emph{weak} stationarity, the autocovariance and partial
+autocorrelation functions, the Wold decomposition, and the
+Box--Jenkins reading of the sample ACF/PACF. The Ljung--Box test
+for white noise is stated and proved at the level required for
+the labs.
+
+\medskip
+\textbf{Chapter~\ref{ch:nonstationarity}} addresses
+\emph{non-stationary} series. The backshift $B$ and difference
+$\Delta$ operators are introduced, integration order $I(d)$ is
+defined, and the unit-root tests --- Augmented
+Dickey--Fuller (ADF), KPSS, Phillips--Perron --- are presented in
+detail. ARIMA$(p, d, q)$ and SARIMA$(p, d, q)(P, D, Q)_s$ models
+close the chapter.
+
+\medskip
+\textbf{Chapter~\ref{ch:arma}} is the central chapter on ARMA
+models. AR$(p)$, MA$(q)$ and ARMA$(p, q)$ are defined in lag-operator
+form; stationarity and invertibility are stated as polynomial-root
+conditions; and the full Box--Jenkins workflow ---
+identification, MLE estimation, AIC/BIC selection, residual
+diagnostics, forecasting --- is laid out.
+
+\medskip
+\textbf{Chapter~\ref{ch:arch-garch}} closes the module with
+ARCH$(q)$ and GARCH$(p, q)$ models for conditional
+heteroskedasticity. Volatility clustering, Engle's LM test,
+quasi-MLE estimation, and one-day Value-at-Risk are presented;
+the chapter mentions the EGARCH and GJR-GARCH extensions for the
+leverage effect.
+
+\medskip
+Each chapter is delivered with a Beamer Metropolis 16:9 slide
+deck, a Python lab (statement, solution, student skeleton,
+reference code), and a project consolidating the chapter's notions.
+A final integrative project, a reflective activity, and the
+official ECUE module sheet (in French) complete the module.
+
+\medskip\medskip
+\noindent
+Happy reading.\par\medskip
+\hfill\auteurNom\par
+\hfill\textit{\auteurEmail}\par
+
+\vspace*{2cm}
+
+% --- Table of contents ---
+\tableofcontents
+\thispagestyle{fancy}
+
+% =========================================================
+% Mainmatter: the six chapters
+% =========================================================
+\mainmatter
+
+\input{../chapitre1-statistics/chapitre.tex}
+
+\input{../chapitre2-decomposition/chapitre.tex}
+
+\input{../chapitre3-stationarity/chapitre.tex}
+
+\input{../chapitre4-nonstationarity/chapitre.tex}
+
+\input{../chapitre5-arma/chapitre.tex}
+
+\input{../chapitre6-arch-garch/chapitre.tex}
+
+% =========================================================
+% Backmatter: indicative bibliography
+% =========================================================
+\backmatter
+
+\chapter*{Indicative references}
+\addcontentsline{toc}{chapter}{Indicative references}
+
+\noindent\textbf{Foundations and decomposition.}
+\begin{itemize}
+  \item P.~J.~Brockwell, R.~A.~Davis, \emph{Introduction to Time
+        Series and Forecasting}, Springer, 3rd edition, 2016.
+  \item C.~Chatfield, \emph{The Analysis of Time Series: An
+        Introduction}, Chapman \& Hall/CRC, 7th edition, 2019.
+  \item R.~J.~Hyndman, G.~Athanasopoulos, \emph{Forecasting:
+        Principles and Practice}, OTexts, 3rd edition, 2021
+        (open-access companion: \texttt{otexts.com/fpp3/}).
+\end{itemize}
+
+\noindent\textbf{Stationarity, ARMA and forecasting.}
+\begin{itemize}
+  \item G.~E.~P.~Box, G.~M.~Jenkins, G.~C.~Reinsel, G.~M.~Ljung,
+        \emph{Time Series Analysis: Forecasting and Control},
+        Wiley, 5th edition, 2015.
+  \item P.~J.~Brockwell, R.~A.~Davis, \emph{Time Series: Theory
+        and Methods}, Springer, 2nd edition, 2009.
+  \item J.~D.~Hamilton, \emph{Time Series Analysis}, Princeton
+        University Press, 1994.
+  \item R.~H.~Shumway, D.~S.~Stoffer, \emph{Time Series Analysis
+        and Its Applications: With R Examples}, Springer, 4th
+        edition, 2017.
+\end{itemize}
+
+\noindent\textbf{Unit roots and non-stationarity.}
+\begin{itemize}
+  \item D.~A.~Dickey, W.~A.~Fuller, \emph{Distribution of the
+        Estimators for Autoregressive Time Series with a Unit
+        Root}, Journal of the American Statistical Association,
+        1979.
+  \item P.~C.~B.~Phillips, P.~Perron, \emph{Testing for a Unit
+        Root in Time Series Regression}, Biometrika, 1988.
+  \item D.~Kwiatkowski, P.~C.~B.~Phillips, P.~Schmidt, Y.~Shin,
+        \emph{Testing the Null Hypothesis of Stationarity Against
+        the Alternative of a Unit Root}, Journal of Econometrics,
+        1992.
+  \item C.~W.~J.~Granger, P.~Newbold, \emph{Spurious Regressions
+        in Econometrics}, Journal of Econometrics, 1974.
+\end{itemize}
+
+\noindent\textbf{ARCH, GARCH and volatility.}
+\begin{itemize}
+  \item R.~F.~Engle, \emph{Autoregressive Conditional
+        Heteroscedasticity with Estimates of the Variance of
+        United Kingdom Inflation}, Econometrica, 1982.
+  \item T.~Bollerslev, \emph{Generalized Autoregressive
+        Conditional Heteroskedasticity}, Journal of Econometrics,
+        1986.
+  \item L.~R.~Glosten, R.~Jagannathan, D.~E.~Runkle, \emph{On the
+        Relation between the Expected Value and the Volatility of
+        the Nominal Excess Return on Stocks}, Journal of
+        Finance, 1993.
+  \item D.~B.~Nelson, \emph{Conditional Heteroskedasticity in
+        Asset Returns: A New Approach}, Econometrica, 1991.
+  \item B.~Mandelbrot, \emph{The Variation of Certain Speculative
+        Prices}, Journal of Business, 1963.
+  \item P.~H.~Kupiec, \emph{Techniques for Verifying the
+        Accuracy of Risk Measurement Models}, Journal of
+        Derivatives, 1995.
+\end{itemize}
+
+\noindent\textbf{Software documentation.}
+\begin{itemize}
+  \item S.~Seabold, J.~Perktold, \emph{statsmodels:
+        Econometric and Statistical Modeling with Python}, Proc.\
+        9th Python in Science Conf., 2010
+        (\texttt{statsmodels.org}).
+  \item K.~Sheppard, \emph{ARCH Toolbox for Python}
+        (\texttt{arch} package, \texttt{bashtage.github.io/arch}).
+\end{itemize}
+
+\end{document}
