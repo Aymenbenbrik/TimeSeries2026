@@ -10,6 +10,10 @@
 > statistics to ARCH/GARCH volatility models. Lectures and labs
 > in **English**, lecture sheet (`Fiche Module`) in **French**.
 
+<p align="center">
+  <img src="assets/polycopie-cover.png" alt="Polycopié cover" width="320" />
+</p>
+
 ---
 
 ## Course outline
@@ -33,6 +37,33 @@ A **final assembled lecture book** (`polycopie/polycopie.pdf`),
 a **final integrative project** (`projet-final/`), a **reflective
 activity** (`activite-reflexive/`) and the **official ECUE sheet**
 in French (`Fiche Module/Fiche_TimeSeries.docx`) complete the module.
+
+## Slide previews
+
+| | | |
+|---|---|---|
+| ![Ch.1 Basic statistics](assets/slides-ch1-title.png) | ![Ch.2 Decomposition](assets/slides-ch2-title.png) | ![Ch.3 Stationarity](assets/slides-ch3-title.png) |
+| Ch.1 — Basic statistics | Ch.2 — Decomposition | Ch.3 — Stationarity |
+| ![Ch.4 Non-stationarity](assets/slides-ch4-title.png) | ![Ch.5 ARMA](assets/slides-ch5-title.png) | ![Ch.6 ARCH/GARCH](assets/slides-ch6-title.png) |
+| Ch.4 — Non-stationarity | Ch.5 — ARMA models | Ch.6 — ARCH / GARCH |
+
+## Final integrative project — highlights
+
+The final project chains every chapter into a single risk-management
+study (synthetic daily prices with hidden GARCH$(1,1)$ dynamics):
+
+<p align="center">
+  <img src="assets/projet-final-garch-sigma.png" alt="GARCH conditional sigma envelope" width="48%" />
+  <img src="assets/projet-final-backtest.png" alt="Kupiec back-test of 1-day VaR(5%)" width="48%" />
+</p>
+
+The right panel shows the rolling 1-day VaR(5%) (red line) on the
+last 250 business days of the test set; red dots are realised
+exceedances. The reference solution recovers $(\alpha_1, \beta_1) =
+(0.073, 0.884)$ for the GARCH (close to the hidden truth) and the
+**Kupiec proportion-of-failures test passes** with $LR = 3.09 < 3.84$
+(19 exceedances vs. expected 12.5) — i.e., the dynamic VaR is
+well-calibrated.
 
 ## Repository layout
 
@@ -98,6 +129,6 @@ cd chapitre1-statistics && pdflatex slides.tex && pdflatex slides.tex
 | 9 | Final integrative project | ✅ |
 | 10 | Reflective activity | ✅ |
 | 11 | ECUE sheet (French) + LIVRABLE.md (AA / AAP) | ✅ |
-| 12 | Final compile + README screenshots | ⏳ |
+| 12 | Final compile + README screenshots | ✅ |
 | 13 | v1.0.0 release tag + memory file | ⏳ |
 | 14 | Push to GitHub `Aymenbenbrik/TimeSeries2026` | ⏳ |
