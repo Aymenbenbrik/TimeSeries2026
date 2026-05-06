@@ -1,0 +1,504 @@
+% =========================================================
+% Slides Beamer Metropolis 16:9 -- Chapter 5 (ARMA models)
+% Time Series Analysis -- Aymen Ben Brik (aymen.benbrik@esprit.tn)
+%
+% Migrated from _archives/source-slides/Stationnarite.tex
+% sections "Modeles AR/MA/ARMA" (1083-1575), "Analyse des residus"
+% (1575-1762), "Forecasting" (1762-1950).
+% =========================================================
+\documentclass[aspectratio=169]{beamer}
+
+\input{../preamble/slides-preamble.tex}
+
+\title[\moduleNom\ -- Ch.5]{ARMA Models}
+\subtitle{AR $\cdot$ MA $\cdot$ ARMA $\cdot$ Estimation $\cdot$ Diagnostics $\cdot$ Forecasting}
+\author{\auteurNom \\ \footnotesize\auteurEmail}
+\institute{\auteurInstitution}
+\date{\anneeUniversitaire}
+
+\begin{document}
+
+\begin{frame}\titlepage\end{frame}
+
+\begin{frame}{Learning objectives}
+  By the end of this chapter, you will be able to:
+  \begin{itemize}
+    \item write an AR$(p)$, MA$(q)$, ARMA$(p,q)$ model in lag-operator
+          form;
+    \item state the stationarity and invertibility conditions in
+          terms of polynomial roots;
+    \item read the ACF/PACF \emph{signatures} of AR, MA, ARMA;
+    \item estimate an ARMA model by maximum likelihood;
+    \item validate the model with residual diagnostics
+          (Ljung--Box, normality);
+    \item produce $h$-step-ahead forecasts with confidence
+          intervals.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Chapter outline}
+  \begin{enumerate}
+    \item Autoregressive process AR$(p)$
+    \item Moving-average process MA$(q)$
+    \item ARMA$(p,q)$
+    \item Box--Jenkins identification (ACF / PACF signatures)
+    \item Estimation: MLE, conditional sum of squares
+    \item Model selection: AIC / BIC
+    \item Residual diagnostics
+    \item Forecasting: point forecast and confidence interval
+  \end{enumerate}
+\end{frame}
+
+% =====================================================================
+\section{Autoregressive process AR$(p)$}
+
+\begin{frame}{1.~Autoregressive process AR$(p)$}
+  \begin{block}{Definition}
+    An autoregressive process of order $p$ satisfies
+    \[
+      X_t = \phi_1 X_{t-1} + \phi_2 X_{t-2} + \dots + \phi_p X_{t-p}
+            + \varepsilon_t,
+      \qquad \varepsilon_t \sim WN(0, \sigma^2).
+    \]
+    The current value depends on a finite history of \emph{past
+    values} of the series, plus an innovation $\varepsilon_t$.
+  \end{block}
+  \pause
+  Special case AR$(1)$:
+  \[
+    X_t = \phi X_{t-1} + \varepsilon_t.
+  \]
+  \begin{itemize}
+    \item $\phi$ controls persistence.
+    \item Large $|\phi|$ $\Rightarrow$ slow mean reversion.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{AR$(p)$ in lag-operator form}
+  Recall $L X_t = X_{t-1}$ and define the AR polynomial
+  \[
+    \Phi(z) = 1 - \phi_1 z - \phi_2 z^2 - \dots - \phi_p z^p.
+  \]
+  The AR$(p)$ writes compactly as
+  \[
+    \Phi(L)\, X_t = \varepsilon_t.
+  \]
+  \begin{block}{Stationarity condition}
+    AR$(p)$ admits a (unique, causal) stationary solution if and only
+    if all roots of $\Phi(z) = 0$ lie \emph{strictly outside} the
+    unit disc, i.e.\ $|z_i| > 1$ for $i = 1, \dots, p$.
+  \end{block}
+  AR$(1)$: root is $z = 1/\phi$, condition becomes $|\phi| < 1$.
+\end{frame}
+
+\begin{frame}{AR$(1)$: moments and ACF}
+  Assume $|\phi| < 1$. Iterating
+  $X_t = \phi X_{t-1} + \varepsilon_t$ backward gives
+  \[
+    X_t = \sum_{j=0}^{\infty} \phi^j \varepsilon_{t-j}
+    \qquad\text{(MA$(\infty)$ representation)}.
+  \]
+  \pause
+  Hence
+  \[
+    \E[X_t] = 0,
+    \qquad
+    \Var(X_t) = \frac{\sigma^2}{1 - \phi^2},
+    \qquad
+    \rho(h) = \phi^{|h|}.
+  \]
+  \begin{itemize}
+    \item ACF \textbf{decays geometrically} with rate $\phi$.
+    \item PACF \textbf{cuts off} after lag~$1$:
+          $\alpha(1) = \phi$, $\alpha(h) = 0$ for $h \geq 2$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{AR$(2)$: stationarity triangle}
+  \[
+    X_t = \phi_1 X_{t-1} + \phi_2 X_{t-2} + \varepsilon_t.
+  \]
+  Stationarity $\Leftrightarrow$ $(\phi_1, \phi_2)$ in the triangle
+  \[
+    \phi_1 + \phi_2 < 1, \qquad
+    \phi_2 - \phi_1 < 1, \qquad
+    -1 < \phi_2 < 1.
+  \]
+  \pause
+  Yule--Walker equations give the ACF recursively:
+  \[
+    \rho(h) = \phi_1 \rho(h-1) + \phi_2 \rho(h-2),
+    \qquad h \geq 1.
+  \]
+  with $\rho(0) = 1$,
+  $\rho(1) = \phi_1 / (1 - \phi_2)$.
+\end{frame}
+
+% =====================================================================
+\section{Moving-average process MA$(q)$}
+
+\begin{frame}{2.~Moving-average process MA$(q)$}
+  \begin{block}{Definition}
+    \[
+      X_t = \varepsilon_t + \theta_1 \varepsilon_{t-1}
+            + \dots + \theta_q \varepsilon_{t-q},
+      \qquad \varepsilon_t \sim WN(0, \sigma^2).
+    \]
+    The current value is a finite linear combination of \emph{present
+    and past shocks}.
+  \end{block}
+  \pause
+  Compact form with $\Theta(z) = 1 + \theta_1 z + \dots + \theta_q z^q$:
+  \[
+    X_t = \Theta(L)\, \varepsilon_t.
+  \]
+  \alert{Every MA$(q)$ is stationary} (finite linear combination of
+  white noise).
+\end{frame}
+
+\begin{frame}{MA$(q)$: moments and ACF}
+  \[
+    \E[X_t] = 0,
+    \qquad
+    \Var(X_t) = \sigma^2 \bigl(1 + \theta_1^2 + \dots + \theta_q^2\bigr).
+  \]
+  Autocovariance:
+  \[
+    \gamma(h) =
+    \begin{cases}
+      \sigma^2 \bigl(\theta_h + \theta_1 \theta_{h+1} + \dots
+                     + \theta_{q-h}\theta_q\bigr) & 1 \leq h \leq q, \\[2pt]
+      0                                          & h > q.
+    \end{cases}
+  \]
+  \pause
+  \begin{itemize}
+    \item ACF \textbf{cuts off} at lag $q$ -- the defining MA
+          signature.
+    \item PACF decays geometrically (no cutoff).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Invertibility of MA$(q)$}
+  An MA$(q)$ is \emph{invertible} if it can be rewritten as an
+  AR$(\infty)$:
+  \[
+    \varepsilon_t = X_t - \pi_1 X_{t-1} - \pi_2 X_{t-2} - \dots
+  \]
+  with $\sum |\pi_j| < \infty$.
+  \begin{block}{Invertibility condition}
+    All roots of $\Theta(z) = 0$ lie \emph{strictly outside} the unit
+    disc: $|z_j| > 1$ for $j = 1, \dots, q$.
+  \end{block}
+  \pause
+  MA$(1)$ example: $X_t = \varepsilon_t + \theta \varepsilon_{t-1}$
+  is invertible iff $|\theta| < 1$. Without invertibility, two
+  parameter sets give the same ACF -- the model is not identifiable.
+\end{frame}
+
+% =====================================================================
+\section{ARMA$(p,q)$}
+
+\begin{frame}{3.~ARMA$(p,q)$}
+  \begin{block}{Definition}
+    \[
+      \Phi(L)\, X_t = \Theta(L)\, \varepsilon_t,
+    \]
+    or, expanded,
+    \[
+      X_t = \sum_{i=1}^{p} \phi_i X_{t-i}
+          + \varepsilon_t + \sum_{j=1}^{q} \theta_j \varepsilon_{t-j}.
+    \]
+  \end{block}
+  \pause
+  \begin{itemize}
+    \item AR part captures persistence in past values.
+    \item MA part captures persistence of past shocks.
+    \item Special cases: ARMA$(p, 0) = $ AR$(p)$,
+          ARMA$(0, q) = $ MA$(q)$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{ARMA$(p,q)$: existence and identifiability}
+  \begin{block}{Conditions}
+    \begin{itemize}
+      \item \textbf{Stationarity}: roots of $\Phi(z) = 0$ outside the
+            unit disc.
+      \item \textbf{Invertibility}: roots of $\Theta(z) = 0$ outside
+            the unit disc.
+      \item \textbf{Identifiability}: $\Phi$ and $\Theta$ have no common
+            root (no AR/MA cancellation).
+    \end{itemize}
+  \end{block}
+  \pause
+  Under these three conditions, the ARMA process is a stationary
+  causal invertible solution of the equation, with absolutely
+  summable MA$(\infty)$ representation $X_t = \Phi^{-1}(L)\Theta(L)
+  \varepsilon_t$.
+\end{frame}
+
+% =====================================================================
+\section{Box--Jenkins identification}
+
+\begin{frame}{4.~ACF / PACF signatures}
+  \begin{center}
+  \renewcommand{\arraystretch}{1.4}
+  \begin{tabular}{lll}
+  \toprule
+  Model       & ACF $\rho(h)$         & PACF $\alpha(h)$ \\
+  \midrule
+  AR$(p)$     & exponential decay     & \textbf{cuts off} after lag $p$ \\
+  MA$(q)$     & \textbf{cuts off} after lag $q$ & exponential decay \\
+  ARMA$(p,q)$ & exponential decay (after lag $q$) & exponential decay (after lag $p$) \\
+  \bottomrule
+  \end{tabular}
+  \end{center}
+  \vspace{0.2cm}
+  \pause
+  \begin{block}{Box--Jenkins identification rule}
+    \begin{itemize}
+      \item PACF cuts off at lag $p$ \& ACF decays $\Rightarrow$ AR$(p)$.
+      \item ACF cuts off at lag $q$ \& PACF decays $\Rightarrow$ MA$(q)$.
+      \item Both decay $\Rightarrow$ ARMA -- compare AIC/BIC across orders.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Cutoff vs decay: visual cue}
+  Bartlett bands $\pm 1.96/\sqrt{T}$ delimit ``zero''.
+  \begin{itemize}
+    \item ``Cuts off after lag $k$'' means
+          $\widehat\rho(h)$ (or $\widehat\alpha(h)$) drops inside the
+          band for all $h > k$.
+    \item ``Decays exponentially'' means $\widehat\rho(h)$ stays
+          outside the band for many lags but shrinks.
+  \end{itemize}
+  \pause
+  \alert{Caveat:} on real data, the picture is often noisy.
+  Identification gives \emph{candidate} orders -- the final choice
+  uses information criteria and residual diagnostics.
+\end{frame}
+
+% =====================================================================
+\section{Estimation}
+
+\begin{frame}{5.~Estimation -- Yule--Walker for AR$(p)$}
+  Multiplying $X_t = \sum \phi_i X_{t-i} + \varepsilon_t$ by
+  $X_{t-h}$ and taking expectations gives the Yule--Walker system:
+  \[
+    \rho(h) = \phi_1 \rho(h-1) + \dots + \phi_p \rho(h-p),
+    \qquad h = 1, \dots, p.
+  \]
+  In matrix form $\bm R \bm\phi = \bm r$:
+  \[
+    \begin{pmatrix}
+      1 & \rho(1) & \cdots & \rho(p-1) \\
+      \rho(1) & 1 & \cdots & \rho(p-2) \\
+      \vdots & & \ddots & \vdots \\
+      \rho(p-1) & \cdots & \rho(1) & 1
+    \end{pmatrix}
+    \begin{pmatrix}\phi_1 \\ \vdots \\ \phi_p\end{pmatrix}
+    =
+    \begin{pmatrix}\rho(1) \\ \vdots \\ \rho(p)\end{pmatrix}.
+  \]
+  Plug $\widehat\rho$ in place of $\rho$ to obtain
+  $\widehat\phi_{\text{YW}}$. Method-of-moments style; consistent but
+  not efficient.
+\end{frame}
+
+\begin{frame}{Estimation -- Conditional sum of squares}
+  Conditioning on the first $p$ observations and assuming
+  $\varepsilon_t = 0$ for $t \leq 0$:
+  \[
+    \widehat{\bm\theta}_{\text{CSS}}
+    = \arg\min_{\bm\theta}
+      \sum_{t = p+1}^{T} \widehat\varepsilon_t(\bm\theta)^2,
+  \]
+  with $\widehat\varepsilon_t$ obtained recursively from the model
+  equation. Equivalent to MLE under Gaussian innovations and large
+  $T$, easier to compute.
+\end{frame}
+
+\begin{frame}{Estimation -- Maximum likelihood}
+  Under $\varepsilon_t \iid \mathcal N(0, \sigma^2)$, the joint
+  likelihood of $(X_1, \dots, X_T)$ is multivariate normal with
+  covariance $\Gamma_T(\bm\theta)$:
+  \[
+    \log \mathcal L(\bm\theta, \sigma^2)
+    = -\tfrac{T}{2}\log(2\pi)
+      -\tfrac{1}{2}\log|\Gamma_T|
+      -\tfrac{1}{2} \bm X^\top \Gamma_T^{-1} \bm X.
+  \]
+  \pause
+  Maximised numerically (state-space + Kalman filter; the standard
+  backend of \texttt{statsmodels.SARIMAX}). Provides asymptotic
+  standard errors and $t$-statistics for each coefficient.
+\end{frame}
+
+\begin{frame}[fragile]{Estimation -- Python (statsmodels)}
+\begin{lstlisting}[language=Python]
+from statsmodels.tsa.arima.model import ARIMA
+
+model = ARIMA(y, order=(2, 0, 1))   # ARMA(2,1)
+fit   = model.fit()
+print(fit.summary())
+print("AIC =", fit.aic, " BIC =", fit.bic)
+print("Coefs:", fit.params)
+\end{lstlisting}
+  \begin{itemize}
+    \item \texttt{order=(p, d, q)} -- here $d = 0$ for ARMA.
+    \item \texttt{fit.summary()} prints estimates, standard errors,
+          $z$-statistics, $p$-values, AIC, BIC, Ljung--Box.
+    \item \texttt{fit.resid} gives the residuals; use them in
+          diagnostics.
+  \end{itemize}
+\end{frame}
+
+% =====================================================================
+\section{Model selection}
+
+\begin{frame}{6.~Information criteria}
+  Compare candidate orders by penalised log-likelihood:
+  \[
+    \mathrm{AIC} = -2\, \log \mathcal L + 2\,k,
+    \qquad
+    \mathrm{BIC} = -2\, \log \mathcal L + k \log T,
+  \]
+  where $k = p + q + 1$ is the number of free parameters.
+  \pause
+  \begin{itemize}
+    \item AIC favours predictive accuracy; can over-fit on small $T$.
+    \item BIC penalises complexity more (consistent under the true
+          order assumption).
+  \end{itemize}
+  \alert{Practical rule:} when AIC and BIC disagree, prefer the
+  parsimonious BIC choice and check it with residual diagnostics.
+\end{frame}
+
+% =====================================================================
+\section{Residual diagnostics}
+
+\begin{frame}{7.~Residual diagnostics}
+  Once $\widehat{\bm\theta}$ is obtained, compute the residuals
+  $\widehat\varepsilon_t = X_t - \widehat X_{t \mid t-1}$.
+  A well-fitted model satisfies:
+  \begin{itemize}
+    \item $\widehat\varepsilon_t$ should be \textbf{white noise};
+    \item residual ACF inside the Bartlett band;
+    \item Ljung--Box test does not reject $H_0$ (white noise);
+    \item residuals approximately normal (QQ-plot, Jarque--Bera).
+  \end{itemize}
+  \pause
+  Failure of any test $\Rightarrow$ revisit identification: try a
+  larger AR/MA order, or look for a structural break / volatility
+  effect (Chapter 6).
+\end{frame}
+
+\begin{frame}{Ljung--Box test on residuals}
+  Test
+  \[
+    Q_{\text{LB}}(m)
+    = T(T+2) \sum_{h=1}^{m}
+      \frac{\widehat\rho_{\widehat\varepsilon}(h)^2}{T - h}.
+  \]
+  Under $H_0$ (residuals are WN), and after fitting an ARMA$(p,q)$,
+  \[
+    Q_{\text{LB}}(m) \xrightarrow{d} \chi^2_{m - p - q}
+    \qquad\text{(degrees of freedom adjusted for fitted parameters)}.
+  \]
+  \pause
+  \alert{Convention.} Test at $m = 12, 24$ for monthly data; $m =
+  10, 20$ for short series. Reject if $p$-value $< 0.05$.
+\end{frame}
+
+% =====================================================================
+\section{Forecasting}
+
+\begin{frame}{8.~Forecasting an ARMA$(p,q)$}
+  Best linear forecast at horizon $h$:
+  \[
+    \widehat X_{T+h \mid T}
+    = \E\bigl[X_{T+h} \mid X_T, X_{T-1}, \dots\bigr].
+  \]
+  For AR$(1)$:
+  $\widehat X_{T+h \mid T} = \phi^h X_T \to 0$ as $h \to \infty$.
+  \pause
+  Forecast error variance grows with $h$:
+  \[
+    \Var\bigl(X_{T+h} - \widehat X_{T+h \mid T}\bigr)
+    = \sigma^2 \sum_{j=0}^{h-1} \psi_j^2,
+  \]
+  where $\psi_j$ are the MA$(\infty)$ coefficients
+  ($X_t = \sum \psi_j \varepsilon_{t-j}$).
+\end{frame}
+
+\begin{frame}{Forecast confidence intervals}
+  Under Gaussian innovations, a $95\%$ confidence interval for
+  $X_{T+h}$ is
+  \[
+    \widehat X_{T+h \mid T}
+    \;\pm\; 1.96\, \sigma\,
+        \sqrt{\sum_{j=0}^{h-1} \psi_j^2}.
+  \]
+  \pause
+  \begin{itemize}
+    \item For stationary ARMA, the CI width tends to a finite limit
+          (standard deviation of the unconditional distribution).
+    \item For ARIMA (with $d \geq 1$), the CI grows without bound --
+          consistent with the unit root.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Forecasting -- Python (statsmodels)}
+\begin{lstlisting}[language=Python]
+fit = ARIMA(y, order=(2, 0, 1)).fit()
+
+fc      = fit.get_forecast(steps=12)
+mean    = fc.predicted_mean
+ci_low  = fc.conf_int(alpha=0.05).iloc[:, 0]
+ci_high = fc.conf_int(alpha=0.05).iloc[:, 1]
+
+import matplotlib.pyplot as plt
+plt.plot(y, label="observed")
+plt.plot(range(len(y), len(y) + 12), mean, "r-", label="forecast")
+plt.fill_between(range(len(y), len(y) + 12), ci_low, ci_high,
+                 color="red", alpha=0.2)
+plt.legend(); plt.show()
+\end{lstlisting}
+\end{frame}
+
+% =====================================================================
+\section{Box--Jenkins workflow}
+
+\begin{frame}{The Box--Jenkins workflow}
+  \begin{enumerate}
+    \item \textbf{Stationarise} (Chapter 4): differencing,
+          log-transform if needed.
+    \item \textbf{Identify} candidate $(p, q)$ from ACF / PACF
+          signatures.
+    \item \textbf{Estimate} each candidate by MLE.
+    \item \textbf{Select} the model with lowest AIC / BIC, subject to
+          parsimony.
+    \item \textbf{Diagnose} the residuals (Ljung--Box, QQ-plot).
+    \item \textbf{Forecast} with confidence bands.
+  \end{enumerate}
+  \pause
+  \alert{If diagnostics fail}, return to step~2 with a richer order or
+  consider seasonal effects (SARIMA) or volatility (Chapter 6).
+\end{frame}
+
+\begin{frame}{Take-home messages}
+  \begin{itemize}
+    \item ARMA combines past values (AR) and past shocks (MA).
+    \item Stationarity = AR roots outside the unit disc;
+          invertibility = MA roots outside the unit disc.
+    \item ACF / PACF tell you the order: \emph{cutoff} reveals AR or
+          MA; \emph{double decay} suggests ARMA.
+    \item Estimation: MLE in \texttt{statsmodels}; selection by AIC /
+          BIC; residuals must be white noise.
+    \item Forecast intervals widen with horizon at a rate dictated
+          by the MA$(\infty)$ representation.
+  \end{itemize}
+\end{frame}
+
+\end{document}

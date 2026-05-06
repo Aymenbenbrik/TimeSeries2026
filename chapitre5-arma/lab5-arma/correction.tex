@@ -1,0 +1,148 @@
+\documentclass[a4paper,11pt]{article}
+
+\newcommand{\TPnumero}{Lab 5 -- Solution}
+\input{../../preamble/td-tp-preamble.tex}
+
+\title{Lab 5: ARMA estimation, diagnostics and forecasting\\
+\large \emph{Reference solution}}
+\author{\auteurNom\\\auteurEmail\\\auteurInstitution}
+\date{\anneeUniversitaire}
+
+\begin{document}
+\maketitle
+
+\noindent\emph{Reference Python code in \texttt{correction.py}.
+All numerical values below are obtained with}
+\texttt{numpy.random.seed(42)}.
+
+\setcounter{excounter}{0}
+
+% =========================================================
+\begin{exercise}[AR$(2)$ simulation and estimation]\end{exercise}
+
+\begin{solution}
+The PACF of the simulated series cuts off after lag $2$, suggesting
+AR$(2)$. Fit comparison:
+\begin{center}
+\begin{tabular}{lrrrr}
+\toprule
+order        & log-lik. & AIC      & BIC      & LB$(24)$ $p$ \\
+\midrule
+$(1,0,0)$    & $-720.28$ & $1446.55$ & $1459.19$ & $0.0000$ \\
+$(2,0,0)$    & $-684.91$ & $\bm{1377.81}$ & $\bm{1394.67}$ & $0.7506$ \\
+$(3,0,0)$    & $-684.84$ & $1379.68$ & $1400.76$ & $0.7498$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+The MLE on $(2, 0, 0)$ gives
+$\widehat\phi_1 = +0.7051$, $\widehat\phi_2 = -0.3645$, close to the
+true $(0.6, -0.3)$ given $T = 500$. AR$(1)$ is rejected by both AIC
+and Ljung--Box; AR$(3)$ has a marginally larger BIC --- AR$(2)$ is
+the parsimonious choice.
+\end{solution}
+
+% =========================================================
+\begin{exercise}[MA$(1)$ identification]\end{exercise}
+
+\begin{solution}
+Empirical $\widehat\rho(h)$ for $h = 1, \dots, 5$:
+\[
+  (0.517,\ 0.024,\ -0.059,\ -0.073,\ -0.069),
+\]
+the ACF cuts off at lag~$1$. The theoretical $\rho(1) = 0.7 /
+1.49 = 0.4698$ is recovered to within $\pm 0.05$.
+
+Fit comparison:
+\begin{center}
+\begin{tabular}{lrrrr}
+\toprule
+order        & log-lik. & AIC      & BIC      & LB$(24)$ $p$ \\
+\midrule
+$(0,0,1)$    & $-688.01$ & $\bm{1382.02}$ & $\bm{1394.67}$ & $0.6726$ \\
+$(1,0,0)$    & $-732.61$ & $1471.22$ & $1483.86$ & $0.0000$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+$\widehat\theta = +0.7558$ (true $0.7$). The AR$(1)$ alternative
+fails Ljung--Box because an MA$(1)$ has only one non-zero
+autocorrelation, while AR$(\infty)$ is needed to reproduce that
+single spike via an autoregressive model: an AR$(1)$ approximation
+leaves persistence on every lag, hence the residual autocorrelation.
+\end{solution}
+
+% =========================================================
+\begin{exercise}[ARMA$(1, 1)$ on simulated data]\end{exercise}
+
+\begin{solution}
+\begin{center}
+\begin{tabular}{lrrrr}
+\toprule
+order        & log-lik. & AIC      & BIC      & LB$(24)$ $p$ \\
+\midrule
+$(1,0,0)$    & $-720.66$ & $1447.31$ & $1459.96$ & $0.0000$ \\
+$(0,0,1)$    & $-728.47$ & $1462.93$ & $1475.58$ & $0.0000$ \\
+$(1,0,1)$    & $-687.45$ & $1382.91$ & $\bm{1399.77}$ & $0.6568$ \\
+$(2,0,2)$    & $-684.82$ & $\bm{1381.64}$ & $1406.93$ & $0.8687$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+AIC marginally favours $(2, 0, 2)$, BIC favours $(1, 0, 1)$. The
+$(2, 0, 2)$ model adds three extra parameters for a $1.27$-point
+gain in log-likelihood --- classic over-fitting (AR/MA cancellation
+between the spurious factors). The parsimonious choice is
+$(1, 0, 1)$ with $\widehat\phi = +0.5093$ and
+$\widehat\theta = +0.4730$, very close to the true $(0.5, 0.4)$.
+\end{solution}
+
+% =========================================================
+\begin{exercise}[Box--Jenkins on the Atlanta residual]\end{exercise}
+
+\begin{solution}
+On the Atlanta decomposition residual ($n = 1644$, sd $= 2.884$):
+\begin{center}
+\begin{tabular}{lrrrrr}
+\toprule
+order        & log-lik. & AIC      & BIC      & $\widehat\sigma^2$ & LB$(24)$ $p$ \\
+\midrule
+$(1,0,0)$    & $-4071.62$ & $8149.24$ & $8165.46$ & $8.293$ & $0.0000$ \\
+$(2,0,0)$    & $-4065.35$ & $8138.70$ & $8160.32$ & $8.230$ & $0.0000$ \\
+$(0,0,1)$    & $-4071.22$ & $8148.44$ & $8164.65$ & $8.289$ & $0.0000$ \\
+$(1,0,1)$    & $-3928.70$ & $7865.39$ & $7887.01$ & $6.945$ & $0.0000$ \\
+$(2,0,1)$    & $-3871.89$ & $\bm{7753.78}$ & $\bm{7780.81}$ & $6.480$ & $0.0000$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+ARMA$(2, 1)$ wins both AIC and BIC. The Ljung--Box test still
+rejects, however: the residual carries structure beyond what a
+linear ARMA can capture (residual seasonality / volatility
+clusters --- to be addressed in Chapter~6).
+
+Best parsimonious choice: \textbf{ARMA$(2, 1)$} as a useful
+approximation, with the caveat that the model is not a perfect
+fit.
+\end{solution}
+
+% =========================================================
+\begin{exercise}[Forecasting]\end{exercise}
+
+\begin{solution}
+With ARMA$(2, 1)$, the $24$-step forecast (figure
+\texttt{lab5\_ex5\_forecast.png}) returns smoothly to the
+unconditional mean of zero, and the $95\%$ confidence band widens
+toward
+\[
+  \pm 1.96\, \widehat\sigma\,
+        \sqrt{\sum_{j = 0}^{\infty} \psi_j^2}
+  \;=\; \pm 1.96\, \cdot \,\text{(unconditional sd of $X_t$)}.
+\]
+
+\textbf{Hold-out validation.} Splitting at $80\%$ ($n_{\text{train}}
+= 1315$, $n_{\text{test}} = 329$): out-of-sample RMSE $= 2.699$,
+to be compared with the in-sample residual sd $= 2.598$. The
+out-of-sample error is only $\approx 4\%$ larger than the in-sample
+sd: the model generalises reasonably well, but the seasonal /
+volatility structure noted in Exercise~$4$ shows up as small
+systematic forecast errors.
+\end{solution}
+
+\end{document}

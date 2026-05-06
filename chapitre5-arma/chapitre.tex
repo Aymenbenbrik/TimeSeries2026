@@ -1,0 +1,417 @@
+% =========================================================
+% Chapter 5 -- ARMA models
+% Author : Aymen Ben Brik (aymen.benbrik@esprit.tn)
+% =========================================================
+
+\chapter{ARMA models}
+\label{ch:arma}
+
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
+
+Chapter~\ref{ch:stationarity} introduced stationarity and the
+sample ACF/PACF; Chapter~\ref{ch:nonstationarity} showed how to
+turn a non-stationary series into a stationary one by differencing.
+This chapter assembles the central modelling family for stationary
+time series: the \emph{autoregressive moving-average} processes,
+ARMA$(p, q)$. We give their precise definitions, state the
+stationarity and invertibility conditions in terms of polynomial
+roots, derive their ACF/PACF \emph{signatures}, and detail the
+practical workflow --- the Box--Jenkins method --- for identification,
+estimation, diagnostics and forecasting.
+
+% =========================================================
+\section{Autoregressive process AR$(p)$}
+\label{sec:ar}
+
+\begin{defbox}[Autoregressive process AR$(p)$]
+\label{def:ar}
+A process $(X_t)_{t \in \Z}$ is autoregressive of order $p$ if
+\[
+  X_t = \phi_1 X_{t-1} + \phi_2 X_{t-2} + \dots + \phi_p X_{t-p}
+        + \varepsilon_t,
+  \qquad \varepsilon_t \sim \WN(0, \sigma^2),
+\]
+with $\phi_p \neq 0$. Equivalently, with $\Phi(z) = 1 - \phi_1 z -
+\dots - \phi_p z^p$,
+\[
+  \Phi(B)\, X_t = \varepsilon_t.
+\]
+\end{defbox}
+
+\begin{propbox}[Stationarity of AR$(p)$]
+\label{prop:ar-stationary}
+Equation $\Phi(B)\, X_t = \varepsilon_t$ admits a unique causal
+stationary solution if and only if every root $z_i$ of
+$\Phi(z) = 0$ satisfies $\abs{z_i} > 1$. In that case
+\[
+  X_t = \Phi^{-1}(B)\, \varepsilon_t
+      = \sum_{j = 0}^{\infty} \psi_j\, \varepsilon_{t-j},
+\]
+with $\sum_{j} \abs{\psi_j} < \infty$.
+\end{propbox}
+
+\begin{exbox}[AR$(1)$ moments]
+\label{ex:ar1}
+For $X_t = \phi X_{t-1} + \varepsilon_t$ with $\abs\phi < 1$,
+iterating gives
+$X_t = \sum_{j \geq 0} \phi^j\, \varepsilon_{t - j}$, hence
+\[
+  \E[X_t] = 0,
+  \qquad
+  \Var(X_t) = \frac{\sigma^2}{1 - \phi^2},
+  \qquad
+  \rho(h) = \phi^{\abs h}.
+\]
+The ACF \textbf{decays geometrically} and the PACF \textbf{cuts off}
+after lag~$1$ ($\alpha(1) = \phi$, $\alpha(h) = 0$ for $h \geq 2$).
+\end{exbox}
+
+\begin{propbox}[Yule--Walker equations]
+\label{prop:yw}
+Let $X_t \sim \AR{p}$ be stationary. Multiplying the equation by
+$X_{t - h}$ and taking expectations gives, for $h = 1, \dots, p$,
+\[
+  \rho(h) = \phi_1\, \rho(h - 1) + \phi_2\, \rho(h - 2)
+          + \dots + \phi_p\, \rho(h - p).
+\]
+In matrix form $\bm R \bm \phi = \bm r$, the system is invertible
+under the stationarity condition; replacing $\rho$ by the sample
+ACF $\widehat\rho$ gives the Yule--Walker estimator
+$\widehat\phi_{\text{YW}}$.
+\end{propbox}
+
+\begin{exbox}[AR$(2)$ stationarity triangle]
+For $X_t = \phi_1 X_{t-1} + \phi_2 X_{t-2} + \varepsilon_t$, the
+roots of $1 - \phi_1 z - \phi_2 z^2 = 0$ lie outside the unit disk
+iff
+\[
+  \phi_1 + \phi_2 < 1,
+  \qquad
+  \phi_2 - \phi_1 < 1,
+  \qquad
+  -1 < \phi_2 < 1.
+\]
+This is the Schur stability condition for the AR(2) polynomial.
+\end{exbox}
+
+% =========================================================
+\section{Moving-average process MA$(q)$}
+\label{sec:ma}
+
+\begin{defbox}[Moving-average process MA$(q)$]
+\label{def:ma}
+A process $(X_t)_{t \in \Z}$ is moving-average of order $q$ if
+\[
+  X_t = \varepsilon_t + \theta_1 \varepsilon_{t-1}
+        + \dots + \theta_q \varepsilon_{t-q},
+  \qquad \varepsilon_t \sim \WN(0, \sigma^2),
+\]
+with $\theta_q \neq 0$. Equivalently, $X_t = \Theta(B)\,
+\varepsilon_t$ with $\Theta(z) = 1 + \theta_1 z + \dots + \theta_q
+z^q$.
+\end{defbox}
+
+\begin{propbox}[Moments and ACF of MA$(q)$]
+\label{prop:ma-acf}
+Every MA$(q)$ is (weakly) stationary, with
+\[
+  \E[X_t] = 0,
+  \qquad
+  \Var(X_t) = \sigma^2 (1 + \theta_1^2 + \dots + \theta_q^2),
+\]
+and autocovariance
+\[
+  \gamma(h) =
+  \begin{cases}
+    \sigma^2 \bigl(\theta_h + \theta_1 \theta_{h+1} + \dots
+                 + \theta_{q-h} \theta_q\bigr)
+                                & 1 \leq h \leq q, \\[4pt]
+    0                           & h > q,
+  \end{cases}
+\]
+with $\theta_0 = 1$. In particular $\rho(h) = 0$ for $h > q$:
+the ACF \textbf{cuts off} at lag~$q$.
+\end{propbox}
+
+\begin{defbox}[Invertibility]
+\label{def:invert}
+An MA$(q)$ is \emph{invertible} if it admits an AR$(\infty)$
+representation
+\[
+  \varepsilon_t = X_t - \pi_1 X_{t-1} - \pi_2 X_{t-2} - \dots,
+  \qquad \sum_{j} \abs{\pi_j} < \infty.
+\]
+This holds if and only if every root of $\Theta(z) = 0$ lies
+\emph{outside} the closed unit disk.
+\end{defbox}
+
+\begin{rembox}[Why invertibility matters]
+Without invertibility, two parameter sets give the same ACF and so
+are indistinguishable from the data. The MA$(1)$ models
+$X_t = \varepsilon_t + \theta \varepsilon_{t-1}$ and
+$X_t = \tilde\varepsilon_t + (1/\theta)\, \tilde\varepsilon_{t-1}$
+have identical autocovariance functions; we conventionally choose
+the invertible one, $\abs\theta < 1$.
+\end{rembox}
+
+% =========================================================
+\section{ARMA$(p, q)$}
+\label{sec:arma}
+
+\begin{defbox}[ARMA$(p, q)$]
+\label{def:arma}
+A process $(X_t)$ is ARMA$(p, q)$ if it satisfies
+\[
+  \Phi(B)\, X_t = \Theta(B)\, \varepsilon_t,
+  \qquad \varepsilon_t \sim \WN(0, \sigma^2),
+\]
+with $\Phi(z) = 1 - \phi_1 z - \dots - \phi_p z^p$,
+$\Theta(z) = 1 + \theta_1 z + \dots + \theta_q z^q$, and $\Phi$,
+$\Theta$ sharing no common root.
+\end{defbox}
+
+\begin{propbox}[Stationarity, invertibility and existence]
+\label{prop:arma}
+The equation $\Phi(B) X_t = \Theta(B) \varepsilon_t$ admits a
+unique causal stationary invertible solution if and only if
+\[
+  \abs{z_i} > 1 \text{ for every root of } \Phi,
+  \qquad
+  \abs{z_j} > 1 \text{ for every root of } \Theta.
+\]
+The solution is then
+\[
+  X_t = \Phi^{-1}(B)\, \Theta(B)\, \varepsilon_t
+      = \sum_{j = 0}^{\infty} \psi_j\, \varepsilon_{t-j}.
+\]
+\end{propbox}
+
+\begin{rembox}
+The MA$(\infty)$ coefficients $(\psi_j)$ are obtained by polynomial
+division of $\Theta(z)$ by $\Phi(z)$ around $z = 0$. They
+control both the autocovariance and the forecast variance
+(Section~\ref{sec:forecasting}).
+\end{rembox}
+
+% =========================================================
+\section{Box--Jenkins identification}
+\label{sec:identification}
+
+The choice of $(p, q)$ is guided by the sample ACF and PACF, whose
+\emph{signatures} differ across model classes:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{lll}
+\toprule
+Model        & ACF $\rho(h)$              & PACF $\alpha(h)$ \\
+\midrule
+AR$(p)$      & exponential decay          & cuts off after lag $p$ \\
+MA$(q)$      & cuts off after lag $q$     & exponential decay \\
+ARMA$(p, q)$ & exponential decay (after $q$) & exponential decay (after $p$) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{rembox}[Bartlett bands]
+``Cuts off'' is read as $\widehat\rho(h)$ falling \emph{inside} the
+$\pm 1.96 / \sqrt T$ band for $h$ larger than the cutoff lag.
+``Decays'' means the values stay outside the band but shrink in
+absolute value.
+\end{rembox}
+
+\begin{exbox}[Reading a sample ACF/PACF]
+On a series of length $T = 200$, the sample PACF shows
+$\widehat\alpha(1) = 0.62$, $\widehat\alpha(2) = -0.04$,
+$\widehat\alpha(3) = 0.02$ and the sample ACF decays geometrically.
+The Bartlett band is $\pm 1.96 / \sqrt{200} \approx \pm 0.139$, so
+$\widehat\alpha(h)$ is inside the band for $h \geq 2$:
+the PACF cuts off at lag~$1$, suggesting AR$(1)$.
+\end{exbox}
+
+% =========================================================
+\section{Estimation}
+\label{sec:arma-estimation}
+
+\subsection{Yule--Walker (AR only)}
+
+For pure AR$(p)$, plug $\widehat\rho$ into
+Proposition~\ref{prop:yw} to obtain the Yule--Walker estimate.
+This is method-of-moments: \emph{consistent} but not asymptotically
+efficient.
+
+\subsection{Conditional sum of squares (CSS)}
+
+Conditioning on the first $p$ observations and assuming
+$\varepsilon_t = 0$ for $t \leq 0$, the CSS estimator is
+\[
+  \widehat{\bm\theta}_{\text{CSS}}
+  = \arg\min_{\bm\theta} \sum_{t = p + 1}^{T}
+        \widehat\varepsilon_t(\bm\theta)^2,
+\]
+where $\widehat\varepsilon_t$ is computed recursively from the
+ARMA equation. CSS is fast and equivalent to MLE in large samples
+under Gaussian innovations.
+
+\subsection{Maximum likelihood (MLE)}
+
+Under $\varepsilon_t \iid \mathcal N(0, \sigma^2)$, the joint
+distribution of $(X_1, \dots, X_T)$ is multivariate normal with
+covariance matrix $\Gamma_T(\bm\theta)$. The log-likelihood
+\[
+  \log \mathcal L(\bm\theta, \sigma^2)
+  = -\tfrac{T}{2}\log(2\pi)
+    -\tfrac{1}{2}\log \det \Gamma_T(\bm\theta)
+    -\tfrac{1}{2} \bm X^\top \Gamma_T(\bm\theta)^{-1} \bm X
+\]
+is maximised numerically. The standard implementation in
+\texttt{statsmodels} uses a state-space representation and the
+Kalman filter, which scale linearly in $T$ and provide asymptotic
+standard errors.
+
+\begin{thbox}[Asymptotic distribution of the MLE]
+Under regularity assumptions (stationarity, invertibility, no
+common roots), as $T \to \infty$,
+\[
+  \sqrt{T}\, (\widehat{\bm\theta}_{\text{MLE}} - \bm\theta_0)
+  \;\xrightarrow{d}\; \mathcal N(0, I(\bm\theta_0)^{-1}),
+\]
+where $I(\bm\theta_0)$ is the Fisher information matrix evaluated
+at the true parameter $\bm\theta_0$.
+\end{thbox}
+
+% =========================================================
+\section{Model selection}
+\label{sec:selection}
+
+\begin{defbox}[Information criteria]
+\label{def:aic-bic}
+For a fitted ARMA$(p, q)$ with $k = p + q + 1$ free parameters
+(including $\sigma^2$),
+\[
+  \mathrm{AIC} = -2 \log \widehat{\mathcal L} + 2 k,
+  \qquad
+  \mathrm{BIC} = -2 \log \widehat{\mathcal L} + k \log T.
+\]
+The chosen order minimises the criterion.
+\end{defbox}
+
+\begin{rembox}[AIC vs BIC]
+AIC favours predictive accuracy and tends to over-fit on small
+samples; BIC penalises complexity more and is consistent for
+the true order under standard assumptions. When the two disagree,
+prefer the BIC choice for parsimony and confirm with the residual
+diagnostics.
+\end{rembox}
+
+% =========================================================
+\section{Residual diagnostics}
+\label{sec:diagnostics}
+
+\begin{rembox}[Adequacy checks]
+A well-specified ARMA model produces residuals
+$\widehat\varepsilon_t = X_t - \widehat X_{t \mid t-1}$ that are
+\emph{indistinguishable from white noise}. Standard checks:
+\begin{itemize}
+  \item time plot of $\widehat\varepsilon_t$ -- mean stable around
+        zero, variance constant;
+  \item sample ACF of $\widehat\varepsilon_t$ -- spikes inside
+        Bartlett bands;
+  \item Ljung--Box test;
+  \item QQ-plot vs $\mathcal N(0, 1)$ for normality (Jarque--Bera
+        test).
+\end{itemize}
+\end{rembox}
+
+\begin{thbox}[Ljung--Box test on residuals]
+\label{th:lb-residuals}
+\[
+  Q_{\text{LB}}(m)
+  = T(T + 2) \sum_{h = 1}^{m}
+        \frac{\widehat\rho_{\widehat\varepsilon}(h)^2}{T - h}.
+\]
+Under the null that $\widehat\varepsilon_t$ is white noise, after
+fitting an ARMA$(p, q)$,
+\[
+  Q_{\text{LB}}(m) \;\xrightarrow{d}\; \chi^2_{m - p - q}.
+\]
+Reject the null if $Q_{\text{LB}}(m)$ exceeds the
+$\chi^2_{m - p - q, 1 - \alpha}$ quantile.
+\end{thbox}
+
+% =========================================================
+\section{Forecasting}
+\label{sec:forecasting}
+
+\begin{defbox}[Best linear forecast]
+\label{def:forecast}
+The minimum mean-squared-error linear forecast at horizon $h$,
+given the past $\mathcal F_T = \sigma(X_T, X_{T-1}, \dots)$, is
+\[
+  \widehat X_{T + h \mid T}
+  = \E\bigl[X_{T + h} \mid \mathcal F_T \bigr].
+\]
+The forecast error is
+$e_{T + h} = X_{T + h} - \widehat X_{T + h \mid T}$.
+\end{defbox}
+
+\begin{propbox}[Forecast error variance]
+\label{prop:forecast-var}
+With the MA$(\infty)$ representation
+$X_t = \sum_{j \geq 0} \psi_j\, \varepsilon_{t - j}$,
+\[
+  e_{T + h} = \sum_{j = 0}^{h - 1} \psi_j\, \varepsilon_{T + h - j},
+\]
+hence
+\[
+  \E\bigl[e_{T + h}\bigr] = 0,
+  \qquad
+  \Var\bigl(e_{T + h}\bigr)
+  = \sigma^2 \sum_{j = 0}^{h - 1} \psi_j^2.
+\]
+\end{propbox}
+
+\begin{exbox}[Forecast for AR$(1)$]
+With $X_t = \phi X_{t-1} + \varepsilon_t$, $\abs\phi < 1$:
+\[
+  \widehat X_{T + h \mid T} = \phi^h X_T,
+  \qquad
+  \Var(e_{T + h}) = \sigma^2 \frac{1 - \phi^{2h}}{1 - \phi^2}.
+\]
+As $h \to \infty$, $\widehat X_{T + h \mid T} \to 0$ (the
+unconditional mean) and the variance tends to
+$\sigma^2 / (1 - \phi^2)$ (the unconditional variance).
+\end{exbox}
+
+\begin{rembox}[Confidence intervals]
+Under Gaussian innovations, the $1 - \alpha$ confidence interval is
+\[
+  \widehat X_{T + h \mid T}
+  \;\pm\; z_{1 - \alpha / 2}\, \sigma\,
+        \sqrt{\sum_{j = 0}^{h - 1} \psi_j^2}.
+\]
+For stationary ARMA, the width converges to a finite limit; for
+ARIMA (Chapter~\ref{ch:nonstationarity}), it grows without bound.
+\end{rembox}
+
+% =========================================================
+\section*{Summary}
+\addcontentsline{toc}{section}{Summary}
+
+\noindent\textbf{Key takeaways.}
+\begin{itemize}
+  \item AR$(p)$ depends on past values; MA$(q)$ depends on past
+        shocks; ARMA$(p, q)$ combines both.
+  \item Stationarity = roots of $\Phi$ outside the unit disk;
+        invertibility = roots of $\Theta$ outside the unit disk.
+  \item ACF/PACF signatures: AR cuts the PACF, MA cuts the ACF,
+        ARMA shows double exponential decay.
+  \item Estimation: Yule--Walker for pure AR; CSS or MLE for
+        general ARMA. \texttt{statsmodels.tsa.arima.ARIMA} provides
+        both.
+  \item Model selection by AIC / BIC; validate with Ljung--Box on
+        residuals.
+  \item Forecasts widen with horizon according to
+        $\Var(e_{T + h}) = \sigma^2 \sum_{j = 0}^{h - 1} \psi_j^2$.
+\end{itemize}

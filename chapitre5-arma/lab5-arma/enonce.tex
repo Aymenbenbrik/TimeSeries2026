@@ -1,0 +1,125 @@
+\documentclass[a4paper,11pt]{article}
+
+\newcommand{\TPnumero}{Lab 5 -- ARMA}
+\input{../../preamble/td-tp-preamble.tex}
+
+\title{Lab 5: ARMA estimation, diagnostics and forecasting\\
+\large Box--Jenkins on simulated and real series}
+\author{\auteurNom\\\auteurEmail\\\auteurInstitution}
+\date{\anneeUniversitaire}
+
+\begin{document}
+\maketitle
+
+\section*{Goals}
+\begin{itemize}
+  \item Identify candidate ARMA orders from sample ACF/PACF.
+  \item Estimate AR, MA and ARMA models in \texttt{statsmodels}.
+  \item Compare candidates by AIC and BIC.
+  \item Validate the chosen model with Ljung--Box on residuals.
+  \item Produce point forecasts and confidence intervals.
+\end{itemize}
+
+\section*{Setup}
+\begin{itemize}
+  \item Python 3 with \texttt{numpy}, \texttt{matplotlib},
+        \texttt{statsmodels}.
+  \item \texttt{numpy.random.seed(42)}.
+  \item Data: \texttt{data/AvTempAtlanta.txt} (Chapter 2/3 dataset).
+\end{itemize}
+
+% =========================================================
+\begin{exercise}[AR$(2)$ simulation and estimation]
+\textbf{(1)} Simulate $T = 500$ observations of
+\[
+  X_t = 0.6\, X_{t-1} - 0.3\, X_{t-2} + \varepsilon_t,
+  \qquad \varepsilon_t \iid \mathcal N(0, 1).
+\]
+Plot the series, the sample ACF, and the sample PACF up to lag~$20$.
+
+\textbf{(2)} Read the PACF: at which lag does it cut off? What
+order does this suggest?
+
+\textbf{(3)} Fit \texttt{ARIMA(order=(2, 0, 0))}. Report
+$\widehat\phi_1$, $\widehat\phi_2$, their standard errors, and the
+AIC. Compare with the true values $(0.6, -0.3)$.
+
+\textbf{(4)} Repeat with order $(1, 0, 0)$ and $(3, 0, 0)$. Use AIC
+to confirm that $(2, 0, 0)$ is best.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[MA$(1)$ identification]
+\textbf{(1)} Simulate $T = 500$ of
+\[
+  X_t = \varepsilon_t + 0.7\, \varepsilon_{t-1},
+  \qquad \varepsilon_t \iid \mathcal N(0, 1).
+\]
+
+\textbf{(2)} Plot ACF/PACF up to lag~$10$. Verify that
+$\widehat\rho(1) \approx \theta / (1 + \theta^2) = 0.7 / 1.49
+\approx 0.470$ and $\widehat\rho(h) \approx 0$ for $h \geq 2$.
+
+\textbf{(3)} Fit \texttt{ARIMA(order=(0, 0, 1))}. Report
+$\widehat\theta$ and AIC.
+
+\textbf{(4)} Fit \texttt{ARIMA(order=(1, 0, 0))} on the same data.
+Why does the AR(1) fit fit slightly less well? Explain in two
+sentences using the invertibility argument.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[ARMA$(1, 1)$ on simulated data]
+\textbf{(1)} Simulate $T = 500$ of
+\[
+  X_t = 0.5\, X_{t-1} + \varepsilon_t + 0.4\, \varepsilon_{t-1}.
+\]
+
+\textbf{(2)} Fit four candidates:
+$(1, 0, 0)$, $(0, 0, 1)$, $(1, 0, 1)$, $(2, 0, 2)$.
+Build a comparison table with columns: order, log-likelihood, AIC,
+BIC, Ljung--Box($24$) $p$-value.
+
+\textbf{(3)} Which candidate wins on AIC? On BIC? Why does
+$(2, 0, 2)$ over-fit?
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Box--Jenkins on the Atlanta residual]
+Reload the Atlanta residual obtained in Lab~3 (centred MA $k = 6$ +
+seasonal averaging on \texttt{data/AvTempAtlanta.txt}).
+
+\textbf{(1)} Plot ACF/PACF of the residual up to lag~$36$.
+
+\textbf{(2)} Fit AR$(1)$, AR$(2)$, MA$(1)$, ARMA$(1, 1)$ and
+ARMA$(2, 1)$. Report AIC, BIC, $\sigma^2$, Ljung--Box($24$).
+
+\textbf{(3)} Pick the best model on the (AIC, BIC, Ljung--Box)
+triplet. Justify in 5 lines.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Forecasting the chosen model]
+\textbf{(1)} On the chosen model from Exercise~$4$, produce a
+$24$-step forecast. Plot the in-sample fit and the forecast with a
+$95\%$ confidence band.
+
+\textbf{(2)} How does the CI width evolve with the horizon? What
+limit does it converge to? Express that limit in terms of
+$\widehat\sigma$ and the $\psi_j$ coefficients.
+
+\textbf{(3) [bonus]} Fit the same model on the first $80\%$ of the
+data and forecast the last $20\%$. Compute the RMSE on the
+hold-out. Comment.
+\end{exercise}
+
+\bigskip
+\begin{warning}
+The function \texttt{ARIMA(order=(p, 0, q)).fit()} returns an
+object whose \texttt{.summary()} prints the table you need;
+\texttt{.params} stores the coefficient vector;
+\texttt{.aic}, \texttt{.bic}, \texttt{.llf} hold the criteria;
+\texttt{.resid} stores the in-sample residuals.
+\end{warning}
+
+\end{document}

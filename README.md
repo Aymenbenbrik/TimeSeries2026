@@ -92,7 +92,7 @@ cd chapitre1-statistics && pdflatex slides.tex && pdflatex slides.tex
 | 3 | Ch.2 — Decomposition | ✅ |
 | 4 | Ch.3 — Stationarity | ✅ |
 | 5 | Ch.4 — Non-stationarity | ✅ |
-| 6 | Ch.5 — ARMA models | ⏳ |
+| 6 | Ch.5 — ARMA models | ✅ |
 | 7 | Ch.6 — ARCH / GARCH | ⏳ |
 | 8 | Final assembled lecture book | ⏳ |
 | 9 | Final integrative project | ⏳ |

@@ -1,0 +1,150 @@
+\documentclass[a4paper,11pt]{article}
+
+\newcommand{\TPnumero}{Project 5}
+\newcommand{\macrosPath}{../../preamble/macros.tex}
+\input{../../preamble/td-tp-preamble.tex}
+
+\title{Project 5: Full Box--Jenkins ARMA study with forecasting\\
+\large Identification $\cdot$ Estimation $\cdot$ Diagnostics $\cdot$ Forecast}
+\author{\auteurNom\\\auteurEmail\\\auteurInstitution}
+\date{\anneeUniversitaire}
+
+\begin{document}
+\maketitle
+
+\section*{Context}
+
+This project consolidates all of Chapters~3--5: stationarisation,
+ACF/PACF identification, ARMA estimation, residual diagnostics and
+forecasting. You will produce a complete Box--Jenkins study on the
+Souvenir Sales data, on the differenced log-scale, where an
+ARMA model is appropriate.
+
+The deliverable serves two purposes: it will be re-used in
+Chapter~6 (ARCH/GARCH) where you will check the residuals for
+volatility clustering.
+
+\section*{Deliverables}
+\begin{itemize}
+  \item Reproducible \texttt{project5\_<name>.py} with seed $42$.
+  \item Report PDF (8--10 pages) including all figures, all
+        numerical outputs, and a final back-transformed forecast
+        with $95\%$ CI.
+  \item Optional 10-min oral defence.
+\end{itemize}
+
+% =========================================================
+\begin{exercise}[Stationarisation]
+\textbf{(1)} Load \texttt{data/SouvenirSales.csv}. Compute
+$y_t = \log(\text{sales}_t)$.
+
+\textbf{(2)} Apply the seasonal log-difference
+$w_t = (1 - L)(1 - L^{12}) y_t$. Verify by ADF/KPSS that $w_t$ is
+stationary.
+
+\textbf{(3)} From now on, model $w_t$ as an \emph{ARMA} on the
+stationary scale. Plot $w_t$, its sample ACF and PACF up to
+lag~$36$.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Identification]
+\textbf{(1)} Read the ACF/PACF of $w_t$ at the regular lags
+($1$--$11$): which (small) AR or MA orders look plausible?
+
+\textbf{(2)} Read at the seasonal lags ($12, 24, 36$): does the
+spike at lag~$12$ persist or disappear after one differencing?
+
+\textbf{(3)} Propose three candidate orders, e.g.\
+$(0, 1)$, $(1, 0)$, $(1, 1)$ on the regular part (and you may add a
+seasonal component if needed; see Chapter~4).
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Estimation and selection]
+\textbf{(1)} Fit each candidate by MLE
+(\texttt{statsmodels.tsa.arima.ARIMA}). For each, report:
+\begin{itemize}
+  \item the estimated coefficients with standard errors;
+  \item the log-likelihood, AIC, BIC, $\widehat\sigma^2$;
+  \item the Ljung--Box $p$-value at $m = 12$ and $m = 24$.
+\end{itemize}
+
+\textbf{(2)} Choose the best model on the (AIC, BIC, Ljung--Box)
+triplet. Justify in 5 lines.
+
+\textbf{(3)} Plot the model residuals: time plot, sample ACF,
+QQ-plot vs $\mathcal N(0, 1)$. Are they convincingly white noise?
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Forecasting on the stationary scale]
+\textbf{(1)} On the chosen ARMA, produce a 12-step forecast of
+$w_{T+1}, \dots, w_{T+12}$ with $95\%$ CI.
+
+\textbf{(2)} Check that the forecast returns to the unconditional
+mean $\E[w] \approx 0$ as $h$ grows.
+
+\textbf{(3)} Plot the in-sample fit and the forecast with the CI
+band.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Back to the original scale]
+\textbf{(1)} Recall $w_t = (1 - L)(1 - L^{12}) y_t$. Inverting one
+step at a time, derive the recursion that takes
+$\widehat w_{T+h}$ back to $\widehat y_{T+h}$ (telescope sum on the
+seasonal and the regular difference).
+
+\textbf{(2)} Implement the back-recursion in Python. Plot $y_t$
+together with $\widehat y_{T+h}$ and the back-transformed CI.
+
+\textbf{(3)} Take the exponential to recover sales:
+\[
+  \widehat{\text{Sales}}_{T+h}
+  = \exp\bigl(\widehat y_{T+h} + \widehat\sigma_h^2 / 2\bigr)
+\]
+(conditional mean) or $\exp(\widehat y_{T+h})$ (median).
+Report the predicted sales for the 12 months following December
+2001.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Bonus: hold-out validation]
+\textbf{(1)} Split: train $=$ Jan 1995 -- Dec 2000 ($72$ obs),
+test $=$ Jan -- Dec 2001 ($12$ obs).
+
+\textbf{(2)} Re-fit the chosen ARMA on the training set (with the
+same differencing recipe), forecast the test horizon, back-transform.
+
+\textbf{(3)} Report MAE, RMSE, MAPE on the original scale. Discuss:
+does the model under- or over-estimate the December peak?
+\end{exercise}
+
+% =========================================================
+\section*{Marking grid (out of 100)}
+
+\begin{center}
+\begin{tabular}{p{8cm}rl}
+\toprule
+\textbf{Criterion} & \textbf{Points} & \\
+\midrule
+Stationarisation $+$ ADF/KPSS verification        & 10 \\
+ACF/PACF identification of three candidates       & 15 \\
+MLE estimation $+$ AIC/BIC selection              & 20 \\
+Residual diagnostics (time, ACF, QQ, LB)          & 15 \\
+Forecast on the stationary scale + CI             & 10 \\
+Back-transform to the original scale              & 10 \\
+Bonus: hold-out validation (RMSE/MAPE)            & 10 \\
+Reproducibility + report quality                  & 10 \\
+\midrule
+\textbf{Total}                                    & \textbf{100} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\bigskip
+\hfill\auteurNom\par
+\hfill\auteurEmail\par
+
+\end{document}
