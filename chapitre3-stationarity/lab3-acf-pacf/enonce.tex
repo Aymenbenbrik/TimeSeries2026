@@ -1,0 +1,114 @@
+\documentclass[a4paper,11pt]{article}
+
+\newcommand{\TPnumero}{Lab 3 -- ACF / PACF}
+\input{../../preamble/td-tp-preamble.tex}
+
+\title{Lab 3: ACF, PACF, and white-noise tests\\
+\large Sample autocorrelations on simulated and real series}
+\author{\auteurNom\\\auteurEmail\\\auteurInstitution}
+\date{\anneeUniversitaire}
+
+\begin{document}
+\maketitle
+
+\section*{Goals}
+\begin{itemize}
+  \item Compute and visualise the sample ACF and PACF.
+  \item Verify Bartlett's bands on a simulated white noise.
+  \item Check the theoretical ACF/PACF signatures of AR(1) and MA(1)
+        against simulations.
+  \item Apply ACF/PACF to the Atlanta series and run the Ljung--Box
+        test to assess white-noise residuals.
+\end{itemize}
+
+\section*{Setup}
+\begin{itemize}
+  \item Python 3 with \texttt{numpy}, \texttt{statsmodels},
+        \texttt{matplotlib}.
+  \item \texttt{numpy.random.seed(42)}.
+  \item Dataset: \texttt{data/AvTempAtlanta.txt} (1656 monthly obs).
+\end{itemize}
+
+% =========================================================
+\begin{exercise}[White noise simulation and ACF]
+\textbf{(1)} Simulate a Gaussian white noise of length $T = 500$:
+$\varepsilon_t \iid \mathcal{N}(0, 1)$.
+
+\textbf{(2)} Plot $\varepsilon_t$ vs.\ $t$. Plot the sample ACF up to
+lag $30$ with the $\pm 1.96 / \sqrt{T}$ Bartlett bands.
+
+\textbf{(3)} Count the proportion of lags $h \in \{1, \dots, 30\}$
+where $\abs{\widehat\rho(h)} > 1.96 / \sqrt{T}$. Under $H_0$ this should
+be close to $5\%$. Comment.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[AR(1) simulation and theoretical ACF]
+\textbf{(1)} For $\phi \in \{0.3, 0.7, -0.7, 0.95\}$, simulate
+$X_t = \phi X_{t-1} + \varepsilon_t$ of length $T = 500$ with
+$\varepsilon_t \iid \mathcal{N}(0, 1)$, $X_0 = 0$.
+
+\textbf{(2)} For each $\phi$, plot the empirical ACF up to lag 20 and
+overlay $\rho_{\text{theo}}(h) = \phi^h$ as red points.
+
+\textbf{(3)} Plot the empirical PACF for $\phi = 0.7$. Is it cut off
+at lag 1, as the theory predicts?
+
+\textbf{(4)} For $\phi = 0.95$, the series is \emph{nearly} non-stationary.
+What does the empirical ACF look like? How does it differ from the
+theoretical $0.95^h$ on a finite sample of size 500?
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[MA(1) simulation]
+\textbf{(1)} For $\theta \in \{0.5, -0.5, 0.9\}$, simulate
+$X_t = \varepsilon_t + \theta \varepsilon_{t-1}$ of length $T = 500$.
+
+\textbf{(2)} Plot the empirical ACF and verify that:
+\begin{itemize}
+  \item $\widehat\rho(1) \approx \theta / (1 + \theta^2)$;
+  \item $\widehat\rho(h) \approx 0$ for $h \geq 2$.
+\end{itemize}
+
+\textbf{(3)} Plot the empirical PACF: is it decaying as expected?
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[ACF / PACF on Atlanta temperatures]
+Load \texttt{data/AvTempAtlanta.txt} and stack to a monthly series
+($n = 1656$).
+
+\textbf{(1)} Plot the raw ACF up to lag 60. What do you see?
+Justify the strong spikes at lags 12, 24, 36.
+
+\textbf{(2)} Decompose the series (Chapter 2, additive workflow with
+$2 \times 12$ MA + seasonal averaging) and compute the residual
+$\widehat\varepsilon_t$.
+
+\textbf{(3)} Plot the ACF and PACF of $\widehat\varepsilon_t$. Are
+the spikes at lags 12, 24, 36 still present? What does this say about
+the quality of the decomposition?
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Ljung--Box test]
+\textbf{(1)} Use \texttt{statsmodels.stats.diagnostic.acorr\_ljungbox}
+to test, on the residual $\widehat\varepsilon_t$ of Exercise 4:
+$H_0$: residuals are white noise, vs.\ $H_1$: residuals have
+autocorrelation, at lags $m \in \{12, 24, 36\}$ and significance level
+$\alpha = 5\%$.
+
+\textbf{(2)} Report the test statistic, $p$-value, and conclusion at
+each lag. What does this tell you about the residual?
+
+\textbf{(3) [bonus]} Apply the same test to the simulated white noise
+of Exercise 1 — you should \emph{not} reject $H_0$.
+\end{exercise}
+
+\bigskip
+\begin{warning}
+The functions \texttt{statsmodels.graphics.tsaplots.plot\_acf} and
+\texttt{plot\_pacf} draw the Bartlett bands automatically.
+\end{warning}
+
+\end{document}

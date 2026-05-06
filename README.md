@@ -90,7 +90,7 @@ cd chapitre1-statistics && pdflatex slides.tex && pdflatex slides.tex
 | 1 | Repo + skeleton + reusable preambles + archive of legacy material | ✅ |
 | 2 | Ch.1 — Basic statistics (slides + chapter + Lab1 + Project 1) | ✅ |
 | 3 | Ch.2 — Decomposition | ✅ |
-| 4 | Ch.3 — Stationarity | ⏳ |
+| 4 | Ch.3 — Stationarity | ✅ |
 | 5 | Ch.4 — Non-stationarity | ⏳ |
 | 6 | Ch.5 — ARMA models | ⏳ |
 | 7 | Ch.6 — ARCH / GARCH | ⏳ |

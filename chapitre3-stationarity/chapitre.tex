@@ -1,0 +1,332 @@
+% =========================================================
+% Chapter 3 — Stationary time series
+% Author : Aymen Ben Brik (aymen.benbrik@esprit.tn)
+% =========================================================
+
+\chapter{Stationary time series}
+\label{ch:stationarity}
+
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
+
+After decomposing the observed series into trend, seasonality and
+residual (Chapter~\ref{ch:decomposition}), we usually want the residual
+to be \emph{stationary} so that the modelling tools of
+Chapter~\ref{ch:arma} apply. This chapter formalises stationarity,
+introduces the autocovariance and autocorrelation functions (ACF and
+PACF), states the Wold decomposition theorem, and provides
+\emph{white-noise tests} (Box--Pierce, Ljung--Box) to validate model
+residuals.
+
+% =========================================================
+\section{Stationarity}
+\label{sec:stationarity}
+
+\subsection{Strict and weak stationarity}
+
+\begin{defbox}[Strict (strong) stationarity]
+\label{def:strict-stat}
+A process $\{X_t\}_{t \in \Z}$ is \emph{strictly stationary} if, for
+every integer $k$, every $t_1 < \dots < t_k$ and every $h \in \Z$,
+\[
+  (X_{t_1}, X_{t_2}, \dots, X_{t_k})
+  \overset{\text{d}}{=}
+  (X_{t_1 + h}, X_{t_2 + h}, \dots, X_{t_k + h}).
+\]
+\end{defbox}
+
+\begin{defbox}[Weak (covariance) stationarity]
+\label{def:weak-stat}
+A process $\{X_t\}$ with $\E[X_t^2] < \infty$ is \emph{weakly
+stationary} if there exist $\mu \in \R$ and a function
+$\gamma : \Z \to \R$ such that
+\[
+  \E[X_t] = \mu, \qquad
+  \Cov(X_t, X_{t+h}) = \gamma(h) \quad \text{for all } t, h \in \Z.
+\]
+The function $\gamma$ is the \emph{autocovariance function} (ACVF).
+\end{defbox}
+
+\begin{propbox}[Strict $\Rightarrow$ weak (under $L^2$)]
+\label{prop:strict-weak}
+If $\{X_t\}$ is strictly stationary with $\E[X_t^2] < \infty$, then
+$\{X_t\}$ is weakly stationary.
+\end{propbox}
+
+\begin{proof}
+By strict stationarity, $X_t \overset{\text{d}}{=} X_0$, so
+$\E[X_t] = \E[X_0] = \mu$ does not depend on $t$. Similarly,
+$(X_t, X_{t+h}) \overset{\text{d}}{=} (X_0, X_h)$, hence
+$\Cov(X_t, X_{t+h}) = \Cov(X_0, X_h)$ depends only on $h$.
+\end{proof}
+
+\begin{rembox}[The converse is false in general]
+A process can be weakly stationary without being strictly stationary
+if it has time-varying higher-order moments. For Gaussian processes
+(only mean and covariance matter), the two notions coincide.
+\end{rembox}
+
+\subsection{Two canonical examples}
+
+\begin{defbox}[White noise]
+\label{def:wn}
+$(\varepsilon_t)$ is a \emph{white noise} $\WN(0, \sigma^2)$ if
+$\E[\varepsilon_t] = 0$, $\Var[\varepsilon_t] = \sigma^2$ and
+$\Cov(\varepsilon_t, \varepsilon_{t+h}) = 0$ for $h \neq 0$.
+A \emph{strong white noise} requires the $\varepsilon_t$ to be
+i.i.d.; a Gaussian white noise has $\varepsilon_t \iid \mathcal{N}(0, \sigma^2)$.
+\end{defbox}
+
+\begin{exbox}[Random walk is \emph{not} stationary]
+\label{ex:random-walk}
+Let $\varepsilon_t \iid \WN(0, \sigma^2)$ and
+$X_t = X_{t-1} + \varepsilon_t$ with $X_0 = 0$. Then
+$X_t = \sum_{s = 1}^{t} \varepsilon_s$ and
+\[
+  \E[X_t] = 0,
+  \quad
+  \Var[X_t] = t\, \sigma^2,
+  \quad
+  \Cov(X_t, X_{t+h}) = t\, \sigma^2 \text{ for } h \geq 0.
+\]
+The variance grows linearly in $t$, so $X_t$ is non-stationary. This
+is the canonical example used by unit-root tests in
+Chapter~\ref{ch:nonstationarity}.
+\end{exbox}
+
+% =========================================================
+\section{Autocovariance and autocorrelation}
+\label{sec:acf}
+
+\begin{defbox}[ACVF and ACF]
+For a weakly stationary process with mean $\mu$:
+\[
+  \gamma(h) = \Cov(X_t, X_{t+h}),
+  \qquad
+  \rho(h) = \frac{\gamma(h)}{\gamma(0)} \;\in\; [-1, 1].
+\]
+\end{defbox}
+
+\begin{propbox}[Properties of $\gamma$]
+\label{prop:acvf}
+\begin{enumerate}
+  \item $\gamma(0) = \Var[X_t] \geq 0$;
+  \item $\abs{\gamma(h)} \leq \gamma(0)$ (Cauchy--Schwarz);
+  \item $\gamma$ is even: $\gamma(-h) = \gamma(h)$;
+  \item $\gamma$ is positive semidefinite: for any $n$ and any
+        $a_1, \dots, a_n \in \R$,
+        $\sum_{i, j = 1}^{n} a_i\, a_j\, \gamma(t_i - t_j) \geq 0$.
+\end{enumerate}
+\end{propbox}
+
+\begin{proof}
+(1) and (3) follow from the definition. (2) follows from Cauchy--Schwarz
+applied to $X_t - \mu$ and $X_{t+h} - \mu$. (4) is the standard fact
+that any matrix of the form $\Sigma_{ij} = \gamma(t_i - t_j)$ is the
+covariance matrix of $(X_{t_1}, \dots, X_{t_n})$, hence positive
+semidefinite.
+\end{proof}
+
+\subsection{Sample ACF and Bartlett bands}
+
+\begin{defbox}[Sample ACVF and ACF]
+For $X_1, \dots, X_T$ with sample mean $\bar X$:
+\[
+  \widehat\gamma(h) = \frac{1}{T}\sum_{t = 1}^{T - h}
+    (X_t - \bar X)(X_{t+h} - \bar X),
+  \qquad
+  \widehat\rho(h) = \frac{\widehat\gamma(h)}{\widehat\gamma(0)}.
+\]
+\end{defbox}
+
+\begin{thbox}[Bartlett's formula for white noise]
+\label{th:bartlett}
+If $\{X_t\}$ is a white noise with finite fourth moment, then for any
+fixed $h \geq 1$:
+\[
+  \sqrt{T}\,\widehat\rho(h) \;\xrightarrow{d}\; \mathcal{N}(0, 1).
+\]
+The standard test bands $\pm 1.96 / \sqrt{T}$ on the ACF plot are
+asymptotic 95\% confidence intervals \emph{under the white-noise null}.
+\end{thbox}
+
+\begin{rembox}
+Bartlett's formula gives a more general result for non-white processes
+(involves a sum over the squared autocorrelations); see Brockwell \&
+Davis, \emph{Time Series: Theory and Methods}, Chapter 7.
+\end{rembox}
+
+% =========================================================
+\section{Partial autocorrelation}
+\label{sec:pacf}
+
+\begin{defbox}[Partial autocorrelation function]
+\label{def:pacf}
+The PACF $\alpha(h)$ at lag $h$ is the correlation between $X_t$ and
+$X_{t+h}$ \emph{after removing the linear effect} of the intermediate
+observations $X_{t+1}, \dots, X_{t+h-1}$:
+\[
+  \alpha(h) = \Corr\bigl(X_t - \widehat X_t,\; X_{t+h} - \widehat X_{t+h}\bigr),
+\]
+where $\widehat X_t$ and $\widehat X_{t+h}$ are the linear projections
+of $X_t$ and $X_{t+h}$ on the span of $\{X_{t+1}, \dots, X_{t+h-1}\}$.
+\end{defbox}
+
+\begin{rembox}[Recursive computation]
+The PACF is computed by the \emph{Durbin--Levinson} algorithm: it
+solves the Yule--Walker equations of order $h$ and reads off the
+coefficient of $X_{t+h-h} = X_t$ in the linear regression of $X_{t+h}$
+on $X_{t+1}, \dots, X_{t+h}$. Most software (Python
+\texttt{statsmodels}, R \texttt{stats}) returns the PACF in $O(h)$
+operations per lag.
+\end{rembox}
+
+% =========================================================
+\section{ACF / PACF signatures of standard processes}
+\label{sec:acf-signatures}
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Process} & \textbf{$\rho(h)$ behaviour} & \textbf{$\alpha(h)$ behaviour} \\
+\midrule
+$\WN$           & $\rho(h) = 0$ for $h \neq 0$         & $\alpha(h) = 0$ for $h \geq 1$ \\
+$\AR{p}$        & decays (exp.\ / sinusoidal)          & cuts off at $h = p$ \\
+$\MAm{q}$       & cuts off at $h = q$                  & decays \\
+$\ARMA{p}{q}$   & decays after $h > q$                 & decays after $h > p$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\medskip
+\noindent\textbf{Box--Jenkins identification.} Plot the sample ACF and
+PACF, then use the table above to read off candidate orders $(p, q)$.
+
+\subsection{AR(1) and MA(1) — closed-form ACF}
+
+\begin{exbox}[AR(1) ACF]
+\label{ex:ar1-acf}
+For $X_t = \phi X_{t-1} + \varepsilon_t$ with
+$\varepsilon_t \sim \WN(0, \sigma^2)$ and $\abs\phi < 1$:
+\[
+  \rho(h) = \phi^{\abs h}, \quad h \in \Z,
+  \qquad
+  \alpha(1) = \phi, \quad \alpha(h) = 0 \text{ for } h \geq 2.
+\]
+The ACF decays exponentially; the PACF cuts off at lag 1.
+\end{exbox}
+
+\begin{exbox}[MA(1) ACF]
+\label{ex:ma1-acf}
+For $X_t = \varepsilon_t + \theta \varepsilon_{t-1}$ with
+$\varepsilon_t \sim \WN(0, \sigma^2)$:
+\[
+  \rho(0) = 1, \qquad
+  \rho(1) = \frac{\theta}{1 + \theta^2}, \qquad
+  \rho(h) = 0 \text{ for } h \geq 2.
+\]
+The ACF cuts off at lag 1; the PACF decays.
+\end{exbox}
+
+\begin{proof}[Proof of $\rho(1) = \theta / (1 + \theta^2)$ in MA(1)]
+$\Var[X_t] = \E[(\varepsilon_t + \theta\varepsilon_{t-1})^2]
+= (1 + \theta^2)\sigma^2$. Then
+$\Cov(X_t, X_{t+1}) = \E[(\varepsilon_t + \theta\varepsilon_{t-1})
+(\varepsilon_{t+1} + \theta\varepsilon_t)] = \theta\,\sigma^2$ since
+$\varepsilon_t$'s are uncorrelated. Hence $\rho(1) =
+\theta\sigma^2 / [(1 + \theta^2)\sigma^2] = \theta / (1 + \theta^2)$.
+\end{proof}
+
+% =========================================================
+\section{Wold decomposition}
+\label{sec:wold}
+
+\begin{thbox}[Wold's theorem, 1938]
+\label{th:wold}
+Every \emph{purely non-deterministic} weakly stationary process
+$\{X_t\}$ admits a unique representation
+\[
+  X_t \;=\; \mu \;+\; \sum_{j = 0}^{\infty} \psi_j\, \varepsilon_{t - j},
+  \qquad
+  \psi_0 = 1, \qquad \sum_{j = 0}^{\infty} \psi_j^2 < \infty,
+\]
+where $(\varepsilon_t)$ is a white-noise process (the
+\emph{innovations}) of variance
+$\sigma^2 = \Var[\varepsilon_t]$.
+\end{thbox}
+
+\begin{rembox}[Why it matters]
+\begin{itemize}
+  \item \textbf{Universality:} every stationary process can be viewed
+        as an \emph{infinite MA process}.
+  \item \textbf{Justification of ARMA:} ARMA models are
+        finite-dimensional approximations of the Wold representation
+        (with a rational $\psi(z)$).
+  \item \textbf{Forecasting:} optimal linear predictors and their
+        prediction errors are obtained from the Wold coefficients.
+\end{itemize}
+\end{rembox}
+
+% =========================================================
+\section{White-noise tests}
+\label{sec:wn-tests}
+
+After fitting a decomposition or an ARMA model, the residuals
+$\widehat\varepsilon_t$ should look like white noise. Two classical
+tests check this jointly across several lags.
+
+\begin{defbox}[Box--Pierce and Ljung--Box statistics]
+\label{def:lb}
+For sample ACF $\widehat\rho(h)$ of the residuals up to lag $m$:
+\[
+  Q_{\text{BP}} = T \sum_{h = 1}^{m} \widehat\rho(h)^2,
+  \qquad
+  Q_{\text{LB}} = T(T + 2) \sum_{h = 1}^{m} \frac{\widehat\rho(h)^2}{T - h}.
+\]
+\end{defbox}
+
+\begin{thbox}[Asymptotic distribution under $H_0$]
+\label{th:lb}
+Under $H_0 :$ \emph{the residuals are white noise}, both statistics
+are asymptotically $\chi^2_{m - p - q}$, where $p + q$ is the number
+of fitted ARMA parameters (zero if no parametric model has been
+fitted).
+\end{thbox}
+
+\paragraph{Decision rule.} Reject $H_0$ at level $\alpha$ if
+$Q > \chi^2_{m - p - q,\, 1 - \alpha}$, equivalently $p$-value $< \alpha$.
+
+\paragraph{Choosing $m$.} A few rules of thumb:
+\begin{itemize}
+  \item For yearly data: $m \in \{10, 20\}$.
+  \item For monthly data: $m \in \{12, 24, 36\}$ (covers seasonality).
+  \item For high-frequency data: $m$ proportional to expected
+        autocorrelation length.
+\end{itemize}
+
+\begin{warnbox}
+The Ljung--Box test is preferred over Box--Pierce in finite samples:
+its small-sample distribution is closer to the $\chi^2$ asymptotic
+limit, especially when $m / T$ is not negligible.
+\end{warnbox}
+
+% =========================================================
+\section*{Summary}
+\addcontentsline{toc}{section}{Summary}
+
+\noindent\textbf{Key takeaways.}
+\begin{itemize}
+  \item \emph{Strict stationarity} = invariance of all finite-dimensional
+        distributions; \emph{weak stationarity} = only first two moments.
+        Strict $\Rightarrow$ weak (under $L^2$); converse holds for
+        Gaussian processes.
+  \item The \emph{autocovariance} $\gamma(h)$ describes the dependence
+        structure; the \emph{autocorrelation} $\rho(h)$ is its
+        normalised version.
+  \item ACF and PACF have characteristic patterns that allow
+        \emph{Box--Jenkins identification} of AR(p) / MA(q) / ARMA(p,q).
+  \item \emph{Wold decomposition}: every stationary process is an
+        infinite moving average of innovations.
+  \item \emph{Ljung--Box test} validates that residuals look like
+        white noise.
+\end{itemize}

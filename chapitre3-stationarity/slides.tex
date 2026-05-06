@@ -1,0 +1,367 @@
+% =========================================================
+% Slides Beamer Metropolis 16:9 — Chapter 3 (Stationarity)
+% Time Series Analysis — Aymen Ben Brik (aymen.benbrik@esprit.tn)
+%
+% Migrated from _archives/source-slides/Stationnarité.tex (1950 L,
+% Madrid). Only stationarity + ACF/PACF + WN tests; AR/MA/ARMA goes
+% to Ch.5, ADF/KPSS tests to Ch.4.
+% =========================================================
+\documentclass[aspectratio=169]{beamer}
+
+\input{../preamble/slides-preamble.tex}
+
+\title[\moduleNom\ -- Ch.3]{Stationary Time Series}
+\subtitle{Definitions $\cdot$ Autocovariance $\cdot$ ACF \& PACF $\cdot$ Wold}
+\author{\auteurNom \\ \footnotesize\auteurEmail}
+\institute{\auteurInstitution}
+\date{\anneeUniversitaire}
+
+\begin{document}
+
+\begin{frame}\titlepage\end{frame}
+
+\begin{frame}{Learning objectives}
+  By the end of this chapter, you will be able to:
+  \begin{itemize}
+    \item state the definitions of \emph{strict} and \emph{weak (covariance)
+          stationarity};
+    \item compute and interpret the \emph{autocovariance}
+          $\gamma(h)$ and \emph{autocorrelation} $\rho(h)$ functions;
+    \item read the \emph{ACF} and \emph{PACF} of an empirical series
+          and identify candidate AR/MA orders;
+    \item state the \emph{Wold decomposition} and its consequences;
+    \item run a \emph{white-noise test} (Box--Pierce, Ljung--Box) to
+          assess residuals.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Chapter outline}
+  \begin{enumerate}
+    \item Strict vs weak stationarity
+    \item Autocovariance and autocorrelation
+    \item Partial autocorrelation (PACF)
+    \item ACF / PACF signatures of standard processes
+    \item Wold decomposition
+    \item White-noise tests
+  \end{enumerate}
+\end{frame}
+
+% =====================================================================
+\section{Stationarity}
+
+\begin{frame}{1.~Why stationarity?}
+  Most classical time-series tools (estimation, forecasting,
+  inference) require the data-generating process to have
+  \emph{stable statistical properties} over time. Without
+  stationarity:
+  \begin{itemize}
+    \item the sample mean and variance lose their interpretation;
+    \item ACF estimates become inconsistent;
+    \item forecasts diverge and confidence intervals are wrong.
+  \end{itemize}
+  \medskip
+  \begin{infobox}
+    The decomposition step (Chapter 2) extracts trend and seasonality;
+    the residual is what we hope is stationary.
+  \end{infobox}
+\end{frame}
+
+\begin{frame}{1.~Strict (strong) stationarity}
+  \begin{defbox}[Strict stationarity]
+    A process $\{X_t\}_{t \in \Z}$ is \emph{strictly stationary} if for
+    every integer $k$, every $t_1 < \dots < t_k$ and every shift $h$,
+    the joint distribution
+    \[
+      (X_{t_1}, X_{t_2}, \dots, X_{t_k})
+      \overset{\text{d}}{=}
+      (X_{t_1+h}, X_{t_2+h}, \dots, X_{t_k+h}).
+    \]
+  \end{defbox}
+  \medskip
+  \begin{itemize}
+    \item Strong: \emph{all} finite-dimensional distributions are time-invariant.
+    \item Implies stationarity of all moments (when they exist).
+    \item Strict but rare; in practice we work with the weaker version.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{1.~Weak (covariance) stationarity}
+  \begin{defbox}[Weak stationarity]
+    A process $\{X_t\}$ with $\E[X_t^2] < \infty$ is \emph{weakly
+    stationary} if there exist $\mu \in \R$ and $\gamma : \Z \to \R$ such that
+    \[
+      \E[X_t] = \mu, \qquad \Cov(X_t, X_{t+h}) = \gamma(h)
+      \quad \text{for all } t, h \in \Z.
+    \]
+  \end{defbox}
+  \medskip
+  \begin{itemize}
+    \item Constant mean, constant variance ($\gamma(0)$), and
+          autocovariance depending only on the lag $h$.
+    \item Strict $\Rightarrow$ weak (under finite second moments);
+          the converse fails in general (it holds for Gaussian processes).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{1.~Strict vs weak stationarity}
+  \begin{center}
+  \begin{tabular}{lcc}
+    \toprule
+    \textbf{Property}                & \textbf{Strict} & \textbf{Weak} \\
+    \midrule
+    Joint distribution invariant     & yes             & not required \\
+    Mean constant                    & yes             & yes          \\
+    Variance constant                & yes             & yes          \\
+    $\gamma(h)$ depends only on $h$  & yes             & yes          \\
+    Higher moments invariant         & yes             & not required \\
+    Useful for AR / MA / ARMA        & yes (overkill)  & yes          \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \medskip
+  \begin{infobox}
+    Throughout this course, ``stationary'' means \emph{weakly
+    stationary} unless otherwise specified.
+  \end{infobox}
+\end{frame}
+
+\begin{frame}{1.~White noise: the canonical stationary process}
+  \begin{defbox}[White noise]
+    $(\varepsilon_t)$ is a \emph{white noise} of variance $\sigma^2$
+    (denoted $\WN(0, \sigma^2)$) if:
+    \[
+      \E[\varepsilon_t] = 0, \quad \Var[\varepsilon_t] = \sigma^2,
+      \quad \Cov(\varepsilon_t, \varepsilon_{t+h}) = 0 \text{ for all } h \neq 0.
+    \]
+    Stronger: \emph{strong} white noise if the $\varepsilon_t$ are i.i.d.
+  \end{defbox}
+  \medskip
+  \begin{itemize}
+    \item ACF: $\rho(0) = 1$, $\rho(h) = 0$ for $h \neq 0$.
+    \item No structure to exploit. Used as input to AR/MA models.
+    \item In Python: \texttt{np.random.normal(0, sigma, n)} (Gaussian WN).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{1.~Random walk: a canonical \emph{non}-stationary process}
+  \begin{defbox}[Random walk]
+    $X_t = X_{t-1} + \varepsilon_t$ with $\varepsilon_t \sim \WN(0, \sigma^2)$
+    and $X_0 = 0$. Equivalently $X_t = \sum_{s=1}^{t}\varepsilon_s$.
+  \end{defbox}
+  \medskip
+  \textbf{Why not stationary?}
+  \[
+    \Var[X_t] = t\, \sigma^2 \;\to\; \infty,
+    \qquad
+    \Cov(X_t, X_{t+h}) = t\, \sigma^2 \quad (\text{depends on } t).
+  \]
+  \medskip
+  \begin{warnbox}
+    Variance grows linearly with $t$. Many financial price series
+    behave like a random walk; Chapter 4 introduces tools to test
+    for it (ADF, KPSS).
+  \end{warnbox}
+\end{frame}
+
+% =====================================================================
+\section{Autocovariance and ACF}
+
+\begin{frame}{2.~Autocovariance and autocorrelation}
+  \begin{defbox}[ACVF and ACF]
+    For a weakly stationary process with mean $\mu$:
+    \[
+      \gamma(h) \;=\; \Cov(X_t, X_{t+h}) = \E[(X_t - \mu)(X_{t+h} - \mu)],
+    \]
+    \[
+      \rho(h) \;=\; \frac{\gamma(h)}{\gamma(0)} \;\in\; [-1, 1].
+    \]
+  \end{defbox}
+  \medskip
+  \textbf{Properties.}
+  \begin{itemize}
+    \item $\gamma(0) = \Var[X_t] \geq 0$.
+    \item $\abs{\gamma(h)} \leq \gamma(0)$ (Cauchy--Schwarz).
+    \item $\gamma(-h) = \gamma(h)$ — even function.
+    \item $\gamma$ is a \emph{positive-definite} function.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{2.~Sample ACF}
+  Given observations $X_1, \dots, X_T$:
+  \[
+    \widehat{\gamma}(h) \;=\; \frac{1}{T}\sum_{t = 1}^{T - h}
+      \bigl(X_t - \bar{X}\bigr)\bigl(X_{t+h} - \bar{X}\bigr),
+    \qquad
+    \widehat{\rho}(h) \;=\; \frac{\widehat{\gamma}(h)}{\widehat{\gamma}(0)}.
+  \]
+  \medskip
+  \begin{thbox}[Bartlett's formula, white noise]
+    Under $\WN(0, \sigma^2)$, for fixed $h \geq 1$:
+    \[
+      \sqrt{T}\,\widehat{\rho}(h) \;\xrightarrow{d}\; \mathcal{N}(0, 1).
+    \]
+  \end{thbox}
+  \medskip
+  \textbf{Practical bands.} On the ACF plot, draw $\pm 1.96/\sqrt{T}$
+  bands; spikes outside are ``significant'' at the 5\% level.
+\end{frame}
+
+% =====================================================================
+\section{Partial autocorrelation (PACF)}
+
+\begin{frame}{3.~Partial autocorrelation}
+  \begin{defbox}[PACF]
+    $\alpha(h)$ is the correlation between $X_t$ and $X_{t+h}$
+    \emph{after removing} the linear effect of $X_{t+1}, \dots, X_{t+h-1}$:
+    \[
+      \alpha(h) \;=\; \Corr\bigl(X_t - \widehat{X}_t,\; X_{t+h} - \widehat{X}_{t+h}\bigr),
+    \]
+    where $\widehat{X}_t$ and $\widehat{X}_{t+h}$ are the linear projections
+    on $\{X_{t+1}, \dots, X_{t+h-1}\}$.
+  \end{defbox}
+  \medskip
+  \begin{itemize}
+    \item ACF: \emph{total} correlation (direct + indirect).
+    \item PACF: \emph{direct} correlation only.
+    \item Computed recursively (\emph{Durbin--Levinson} algorithm).
+  \end{itemize}
+\end{frame}
+
+% =====================================================================
+\section{ACF / PACF signatures}
+
+\begin{frame}{4.~Theoretical ACF and PACF}
+  \begin{center}
+  \begin{tabular}{lll}
+    \toprule
+    \textbf{Process} & \textbf{ACF $\rho(h)$}             & \textbf{PACF $\alpha(h)$} \\
+    \midrule
+    White noise      & $\rho(h) = 0$ for $h \neq 0$       & $\alpha(h) = 0$ for $h \geq 1$ \\
+    AR$(p)$          & decays exponentially / sinusoidally & cuts off at $h = p$       \\
+    MA$(q)$          & cuts off at $h = q$                & decays exponentially       \\
+    ARMA$(p, q)$     & decays after $h > q$               & decays after $h > p$       \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \medskip
+  \begin{infobox}
+    \emph{Box--Jenkins identification.} Plot the sample ACF and PACF;
+    use the cutoff/decay patterns above to choose tentative $(p, q)$.
+  \end{infobox}
+\end{frame}
+
+\begin{frame}{4.~AR(1) example: $X_t = \phi X_{t-1} + \varepsilon_t$, $\abs\phi < 1$}
+  Theoretical autocorrelation:
+  \[
+    \rho(h) \;=\; \phi^{\,\abs{h}}.
+  \]
+  \medskip
+  \begin{itemize}
+    \item $\phi = 0.8$: $\rho(1) = 0.8$, $\rho(2) = 0.64$, $\rho(5) = 0.328$, $\rho(10) = 0.107$.
+    \item $\phi = -0.8$: alternating sign, same magnitudes.
+    \item PACF cuts off at lag 1: $\alpha(1) = \phi$, $\alpha(h) = 0$
+          for $h \geq 2$.
+  \end{itemize}
+  \medskip
+  \begin{warnbox}
+    Stationarity of AR(1) requires $\abs\phi < 1$. If $\phi = 1$, we
+    obtain the random walk (non-stationary).
+  \end{warnbox}
+\end{frame}
+
+\begin{frame}{4.~MA(1) example: $X_t = \varepsilon_t + \theta \varepsilon_{t-1}$}
+  Theoretical autocorrelation:
+  \[
+    \rho(0) = 1,
+    \quad
+    \rho(1) = \frac{\theta}{1 + \theta^2},
+    \quad
+    \rho(h) = 0 \text{ for } h \geq 2.
+  \]
+  \medskip
+  \begin{itemize}
+    \item ACF \emph{cuts off} at lag 1: clean signature.
+    \item PACF \emph{decays exponentially} (no cutoff).
+    \item For $\theta = 0.5$: $\rho(1) = 0.4$.
+  \end{itemize}
+\end{frame}
+
+% =====================================================================
+\section{Wold decomposition}
+
+\begin{frame}{5.~Wold decomposition (1938)}
+  \begin{thbox}
+    Every \emph{purely non-deterministic} weakly stationary process
+    $X_t$ admits a unique decomposition
+    \[
+      X_t \;=\; \mu \;+\; \sum_{j = 0}^{\infty} \psi_j\, \varepsilon_{t - j},
+      \qquad \sum_{j = 0}^{\infty} \psi_j^2 < \infty,
+    \]
+    with $\psi_0 = 1$ and $(\varepsilon_t)$ a white noise of variance
+    $\sigma^2$ (the \emph{innovations}).
+  \end{thbox}
+  \medskip
+  \begin{itemize}
+    \item Existence and uniqueness: any stationary process is an
+          \emph{infinite moving average} of innovations.
+    \item Foundation of ARMA modelling: ARMA processes are
+          finite-dimensional approximations of the Wold representation.
+  \end{itemize}
+\end{frame}
+
+% =====================================================================
+\section{White-noise tests}
+
+\begin{frame}{6.~Box--Pierce and Ljung--Box tests}
+  Test $H_0$: the residuals are white noise (no autocorrelation up to
+  lag $m$).
+  \medskip
+  \begin{defbox}[Test statistics]
+    \[
+      Q_{\text{BP}} = T \sum_{h = 1}^{m} \widehat\rho(h)^2,
+      \qquad
+      Q_{\text{LB}} = T(T + 2) \sum_{h = 1}^{m} \frac{\widehat\rho(h)^2}{T - h}.
+    \]
+    Under $H_0$, $Q_{\text{LB}} \overset{a}{\sim} \chi^2_{m - p - q}$
+    where $p + q$ is the number of estimated ARMA parameters
+    (or simply $m$ if no model has been fitted).
+  \end{defbox}
+  \medskip
+  \begin{itemize}
+    \item Reject $H_0$ if $Q_{\text{LB}} > \chi^2_{m - p - q,\, 1 - \alpha}$.
+    \item Choose $m$ a few (10--40); for monthly data, $m \in \{12, 24, 36\}$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{6.~Ljung--Box in Python}
+\begin{lstlisting}
+from statsmodels.stats.diagnostic import acorr_ljungbox
+
+# residuals after decomposition / ARMA fitting
+out = acorr_ljungbox(residuals, lags=[12, 24, 36], return_df=True)
+print(out)
+#       lb_stat  lb_pvalue
+# 12     ...     ...
+# 24     ...     ...
+# 36     ...     ...
+\end{lstlisting}
+  \medskip
+  Small $p$-value ($< 0.05$) $\Rightarrow$ residuals are \emph{not}
+  white noise: there is structure left to model.
+\end{frame}
+
+\begin{frame}{Up next}
+  \textbf{Chapter 4.} Non-stationary time series: random walk,
+  unit-root tests (ADF, KPSS), differencing, ARIMA.
+  \medskip
+  \begin{itemize}
+    \item How to formally test for stationarity.
+    \item Transformations to achieve stationarity (differencing, log).
+    \item Integrated processes.
+  \end{itemize}
+  \medskip
+  \begin{center}\Large\bfseries Thank you.\end{center}
+  \begin{center}\footnotesize\auteurNom\ -- \auteurEmail\ -- \auteurInstitution\end{center}
+\end{frame}
+
+\end{document}

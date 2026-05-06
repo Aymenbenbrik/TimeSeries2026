@@ -1,0 +1,125 @@
+\documentclass[a4paper,11pt]{article}
+
+\newcommand{\TPnumero}{Project 3}
+\newcommand{\macrosPath}{../../preamble/macros.tex}
+\input{../../preamble/td-tp-preamble.tex}
+
+\title{Project 3: Stationarity diagnostic on a real series\\
+\large Decomposition $+$ ACF/PACF $+$ Ljung-Box}
+\author{\auteurNom\\\auteurEmail\\\auteurInstitution}
+\date{\anneeUniversitaire}
+
+\begin{document}
+\maketitle
+
+\section*{Context}
+
+This project builds on Project 2 (decomposition of \texttt{SouvenirSales.csv})
+and asks you to assess the stationarity of the residual after
+log-decomposition. You will produce a complete stationarity diagnostic
+combining visual tools (ACF, PACF) and a formal test (Ljung--Box).
+
+The point is to determine whether the residual is white noise (in
+which case decomposition is sufficient) or whether it carries
+exploitable autocorrelation that should be modelled with ARMA in
+Chapter 5.
+
+\section*{Deliverables}
+\begin{itemize}
+  \item Reproducible \texttt{project3\_<name>.py} with seed $42$.
+  \item Report PDF of 4--6 pages including all figures and a final
+        recommendation.
+  \item Optional 5-min oral defence.
+\end{itemize}
+
+% =========================================================
+\begin{exercise}[Setup and decomposition]
+\textbf{(1)} Load \texttt{data/SouvenirSales.csv}, take logs.
+
+\textbf{(2)} On $\log Y_t$, fit a model
+$\log Y_t = \beta_0 + \beta_1\,t + \sum_{j=1}^{2}[a_j \cos(j\omega t)
++ b_j \sin(j\omega t)] + \varepsilon_t$ with $\omega = 2\pi / 12$ by OLS.
+
+\textbf{(3)} Compute the residual $\widehat\varepsilon_t$. Plot it
+versus $t$. Comment on its visual stationarity (mean stable around
+$0$? variance constant?).
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Sample autocorrelation]
+\textbf{(1)} Plot the sample ACF of $\widehat\varepsilon_t$ up to lag
+24, with Bartlett bands.
+
+\textbf{(2)} Plot the sample PACF up to lag 24.
+
+\textbf{(3)} From the ACF/PACF patterns, propose a tentative ARMA
+order $(p, q)$. Justify your choice using the signature table of
+Chapter 3.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Ljung--Box test]
+\textbf{(1)} Run the Ljung--Box test on $\widehat\varepsilon_t$ at
+lags $m \in \{6, 12, 18, 24\}$.
+
+\textbf{(2)} Build a small table with columns: $m$, $Q_{\text{LB}}$,
+critical value $\chi^2_{m, 0.95}$, $p$-value, decision.
+
+\textbf{(3)} Conclude: is $\widehat\varepsilon_t$ white noise at the
+$5\%$ level? Why does the answer typically differ between $m = 6$
+and $m = 24$?
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Comparison: pre-decomposition vs.\ post-decomposition]
+\textbf{(1)} Run the same Ljung--Box test on the raw $\log Y_t$ (no
+decomposition) at the same lags. What happens?
+
+\textbf{(2)} Compute the variance ratio
+$\Var[\widehat\varepsilon] / \Var[\log Y]$. What does it tell you
+about the explanatory power of the decomposition?
+
+\textbf{(3)} Discuss in 5 lines: even if the residual fails the
+Ljung--Box test, the decomposition is still useful — why?
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Bonus: AR(1) modelling of the residual]
+If the Ljung--Box test rejects white noise, fit an AR(1) on
+$\widehat\varepsilon_t$:
+\[
+  \widehat\varepsilon_t = \phi\, \widehat\varepsilon_{t-1} + \eta_t.
+\]
+\textbf{(1)} Estimate $\widehat\phi$ by OLS.
+
+\textbf{(2)} Plot the residuals $\widehat\eta_t$ and re-run the
+Ljung--Box test.
+
+\textbf{(3)} Has the AR(1) absorbed the remaining autocorrelation?
+\end{exercise}
+
+% =========================================================
+\section*{Marking grid (out of 100)}
+
+\begin{center}
+\begin{tabular}{p{8cm}rl}
+\toprule
+\textbf{Criterion} & \textbf{Points} & \\
+\midrule
+OLS decomposition + residual plot                & 15 \\
+ACF / PACF visualisation + Box-Jenkins reading   & 25 \\
+Ljung-Box table + interpretation                 & 25 \\
+Comparison pre/post + variance reduction         & 15 \\
+Bonus AR(1) fit + residual diagnostics           & 10 \\
+Reproducibility + report quality                 & 10 \\
+\midrule
+\textbf{Total}                                   & \textbf{100} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\bigskip
+\hfill\auteurNom\par
+\hfill\auteurEmail\par
+
+\end{document}

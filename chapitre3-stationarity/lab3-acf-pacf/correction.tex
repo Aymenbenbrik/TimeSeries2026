@@ -1,0 +1,84 @@
+\documentclass[a4paper,11pt]{article}
+
+\newcommand{\TPnumero}{Lab 3 -- Solution}
+\input{../../preamble/td-tp-preamble.tex}
+
+\title{Lab 3: ACF / PACF\\\large \emph{Reference solution}}
+\author{\auteurNom\\\auteurEmail\\\auteurInstitution}
+\date{\anneeUniversitaire}
+
+\begin{document}
+\maketitle
+
+\noindent\emph{Reference Python code in \texttt{correction.py}.}
+
+\setcounter{excounter}{0}
+\begin{exercise}[White noise]\end{exercise}
+
+\begin{solution}
+On 500 i.i.d.\ $\mathcal{N}(0, 1)$ draws (seed 42), the empirical ACF
+spikes at $\abs{\widehat\rho(h)}$ are essentially all within
+$1.96 / \sqrt{500} \approx 0.088$. Out of 30 lags tested,
+typically $1$ or $2$ exceed the band — close to the expected
+$0.05 \times 30 = 1.5$ false positives.
+\end{solution}
+
+\begin{exercise}[AR(1) simulation]\end{exercise}
+
+\begin{solution}
+Empirical ACF agrees well with $\rho(h) = \phi^h$ for $\phi = 0.3, 0.7,
+-0.7$. For $\phi = 0.95$, the empirical ACF \emph{decays slower} than
+the theoretical exponential due to finite-sample bias: with $T = 500$
+the series is close to a random walk, and $\widehat\rho$ often
+overestimates persistence at high lags.
+
+The empirical PACF for $\phi = 0.7$ shows $\widehat\alpha(1) \approx 0.7$
+and $\widehat\alpha(h) \approx 0$ for $h \geq 2$ — the cutoff signature
+of an AR(1).
+\end{solution}
+
+\begin{exercise}[MA(1) simulation]\end{exercise}
+
+\begin{solution}
+Theoretical $\rho(1) = \theta / (1 + \theta^2)$:
+\begin{itemize}
+  \item $\theta = 0.5$: $\rho(1) = 0.5 / 1.25 = 0.4$.
+  \item $\theta = -0.5$: $\rho(1) = -0.4$.
+  \item $\theta = 0.9$: $\rho(1) = 0.9 / 1.81 \approx 0.497$.
+\end{itemize}
+Empirical ACF on $T = 500$ samples confirms these values to within
+$\pm 0.05$. PACF decays geometrically, never cuts off — opposite
+signature to AR(1).
+\end{solution}
+
+\begin{exercise}[Atlanta ACF/PACF]\end{exercise}
+
+\begin{solution}
+\textbf{(1)} The raw ACF of the Atlanta series shows strong, slowly
+decaying autocorrelations at lags $12, 24, 36, \dots$ (annual
+seasonality) and high values at small lags from the remaining trend.
+The series is far from white noise.
+
+\textbf{(2)} After decomposition (centred MA $k = 6$ + seasonal
+averaging) the residual standard deviation is $\approx 2.88^\circ$F.
+
+\textbf{(3)} The residual ACF is much cleaner: the seasonal spikes
+disappear, but a few short-lag autocorrelations remain (the
+residuals are approximately AR(1) with $\phi \approx 0.3$). The
+Atlanta residual is \emph{not exactly white noise} — there is short-term
+weather persistence to capture with an ARMA model (Chapter 5).
+\end{solution}
+
+\begin{exercise}[Ljung--Box]\end{exercise}
+
+\begin{solution}
+On the Atlanta residual, the Ljung--Box statistic at $m = 12$ is
+$\approx 200$ with $p$-value $\approx 0$: \textbf{reject} the
+white-noise hypothesis. The same conclusion holds at $m = 24, 36$.
+
+On the simulated white noise (Exercise 1), $Q_{\text{LB}}(m=12)
+\approx 6$--$15$ with $p$-value $> 0.10$: \textbf{do not reject} —
+correct behaviour under $H_0$.
+\end{solution}
+
+\end{document}
