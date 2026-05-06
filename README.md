@@ -96,7 +96,7 @@ cd chapitre1-statistics && pdflatex slides.tex && pdflatex slides.tex
 | 7 | Ch.6 — ARCH / GARCH | ✅ |
 | 8 | Final assembled lecture book | ✅ |
 | 9 | Final integrative project | ✅ |
-| 10 | Reflective activity | ⏳ |
+| 10 | Reflective activity | ✅ |
 | 11 | ECUE sheet (French) + LIVRABLE.md (AA / AAP) | ⏳ |
 | 12 | Final compile + README screenshots | ⏳ |
 | 13 | v1.0.0 release tag + memory file | ⏳ |

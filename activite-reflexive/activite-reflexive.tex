@@ -1,0 +1,199 @@
+% =========================================================
+% Reflective activity -- Time Series Analysis module
+% Author : Aymen Ben Brik (aymen.benbrik@esprit.tn)
+% Esprit School of Business
+% =========================================================
+\documentclass[a4paper,11pt]{article}
+
+\newcommand{\TPnumero}{Reflective activity}
+\newcommand{\macrosPath}{../preamble/macros.tex}
+\input{../preamble/td-tp-preamble.tex}
+
+\title{End-of-module reflective activity\\
+\large \moduleNom\ -- guided self-assessment}
+\author{\auteurNom\\\auteurEmail\\\auteurInstitution}
+\date{\anneeUniversitaire}
+
+\begin{document}
+\maketitle
+
+\section*{Instructions}
+
+This \emph{ungraded} activity is intended to help you:
+\begin{itemize}
+  \item identify which notions of the module you have mastered and
+        which ones still need work;
+  \item formalise what you retain from the six chapters;
+  \item plan your revision for the final exam and the integrative
+        project.
+\end{itemize}
+
+\noindent
+Take about \textbf{45 minutes} to answer in writing (handwritten or
+in LaTeX). Be honest: this document will not be collected and the
+benefit lies in the metacognitive effort you invest.
+
+% =========================================================
+\begin{question}[1.~Self-positioning by chapter]
+For each chapter, give yourself a \emph{perceived mastery} score
+from $1$ (very fuzzy) to $5$ (I could explain it to a classmate)
+and justify in one sentence.
+
+\medskip
+\begin{tabular}{lcl}
+\toprule
+\textbf{Chapter} & \textbf{Score 1--5} & \textbf{Justification (one sentence)} \\
+\midrule
+Ch.1 -- Basic statistics       & \rule{1cm}{0.4pt} & \dotfill \\
+Ch.2 -- Decomposition          & \rule{1cm}{0.4pt} & \dotfill \\
+Ch.3 -- Stationarity (ACF/PACF) & \rule{1cm}{0.4pt} & \dotfill \\
+Ch.4 -- Non-stationarity (ADF/KPSS) & \rule{1cm}{0.4pt} & \dotfill \\
+Ch.5 -- ARMA models            & \rule{1cm}{0.4pt} & \dotfill \\
+Ch.6 -- ARCH/GARCH             & \rule{1cm}{0.4pt} & \dotfill \\
+\bottomrule
+\end{tabular}
+\end{question}
+
+% =========================================================
+\begin{question}[2.~The hardest notion and why]
+Identify the notion of the module that you found most
+\emph{difficult}. Describe:
+\begin{itemize}
+  \item what makes it difficult for you (algebra, intuition,
+        probability, the link with the code\dots);
+  \item one concrete strategy to work on it next week (revisit a
+        specific example, redo a lab exercise, draw a diagram,
+        re-derive a formula by hand\dots).
+\end{itemize}
+\end{question}
+
+% =========================================================
+\begin{question}[3.~Sketch the Box--Jenkins workflow from memory]
+Without looking at the lecture notes, sketch the Box--Jenkins
+workflow from a raw series $X_t$ all the way to a validated ARIMA
+forecast. Make sure your diagram includes:
+\[
+  \text{raw } X_t
+  \;\to\; \text{stationarise}
+  \;\to\; \text{identify }(p, q)
+  \;\to\; \text{estimate}
+  \;\to\; \text{validate}
+  \;\to\; \text{forecast.}
+\]
+For each arrow, write the \emph{tool} you would use (e.g.\ ADF,
+ACF, MLE, Ljung--Box, MA$(\infty)$ variance). Then compare with the
+\emph{Box--Jenkins identification} section of Chapter~5 in the
+lecture notes and correct any missing or misplaced step.
+\end{question}
+
+% =========================================================
+\begin{question}[4.~Quick mental computations]
+\textbf{(a)} For $X_t = 0.7\, X_{t-1} + \varepsilon_t$ with
+$\varepsilon_t \iid \mathcal N(0, 1)$, write the values of
+$\rho(1), \rho(2), \rho(3)$. Is the PACF of this AR(1) larger than
+the ACF at lag~$2$? Why?
+
+\medskip
+\textbf{(b)} For an MA(1) process $X_t = \varepsilon_t + \theta
+\varepsilon_{t-1}$ with $\theta = 0.5$, what is $\rho(1)$? At
+which value of $\theta$ does the maximum of $|\rho(1)|$ occur?
+
+\medskip
+\textbf{(c)} For a GARCH(1,1) with $(\alpha_0, \alpha_1, \beta_1) =
+(0.05, 0.10, 0.85)$, compute the unconditional variance
+$\sigma^2$ and the half-life of a volatility shock (number of days
+$\tau$ such that $(\alpha_1 + \beta_1)^{\tau} = 1/2$).
+
+\medskip
+\textbf{(d)} You run an ADF test and obtain stat $= -1.5$, while
+KPSS gives stat $= 1.8$. Both at $5\%$ levels. In which cell of
+the ADF/KPSS combination matrix does this land? What action would
+you take?
+\end{question}
+
+% =========================================================
+\begin{question}[5.~From maths to code]
+Pick \emph{one} mathematical formula from the module and explain:
+\begin{itemize}
+  \item how you \emph{implemented} it in a lab (in NumPy / pandas /
+        statsmodels / arch);
+  \item one pitfall or bug you encountered (shape mismatch,
+        off-by-one indexing, time-zone, log-difference vs simple
+        difference, $\sigma^2$ versus $\sigma$, units (\% vs.\
+        fraction)\dots);
+  \item how you fixed it.
+\end{itemize}
+This question exercises the \emph{maths $\leftrightarrow$ code}
+translation skill, which is one of the key competences of the
+module.
+\end{question}
+
+% =========================================================
+\begin{question}[6.~The thread that ties the six chapters]
+In $5$--$10$ lines, explain why these six chapters are gathered
+into a single module. What is the \emph{common thread}? What would
+be lost by studying any one of them in isolation?
+
+\medskip
+\textit{Hint.} Think of the role of the residual $\widehat
+\varepsilon_t$, which:
+\begin{enumerate}
+  \item appears in Chapter~2 as the residual of decomposition;
+  \item is the object whose stationarity is tested in Chapter~3
+        (ACF, Ljung--Box);
+  \item is the object the unit-root tests are run on in Chapter~4;
+  \item is what an ARMA model in Chapter~5 tries to make white;
+  \item is the object whose conditional variance is modelled in
+        Chapter~6.
+\end{enumerate}
+\end{question}
+
+% =========================================================
+\begin{question}[7.~Connecting to the integrative project]
+Look back at the seven parts (A--G) of the final integrative
+project (\texttt{projet-final/sujet.pdf}). For each part, write the
+chapter it builds on:
+
+\medskip
+\begin{tabular}{ll}
+\toprule
+\textbf{Project part} & \textbf{Chapter mobilised} \\
+\midrule
+A -- Descriptive statistics + JB test & \dotfill \\
+B -- Decomposition + linear trend     & \dotfill \\
+C -- ACF/PACF + Ljung--Box            & \dotfill \\
+D -- ADF/KPSS                         & \dotfill \\
+E -- ARMA selection                   & \dotfill \\
+F -- GARCH$(1, 1)$ + VaR              & \dotfill \\
+G -- Kupiec back-test (synthesis)     & \dotfill \\
+\bottomrule
+\end{tabular}
+
+\medskip
+What does the back-test in Part~G say about \emph{what we have
+not modelled}? In other words: even a passing Kupiec test is not a
+proof of model correctness -- can you identify two limits of the
+joint ARMA + GARCH model that the back-test does not see?
+\end{question}
+
+% =========================================================
+\begin{question}[8.~Personal action plan]
+List \emph{three} concrete actions you will take \emph{this week}
+to consolidate your learning of the module:
+\begin{enumerate}
+  \item \dotfill
+  \item \dotfill
+  \item \dotfill
+\end{enumerate}
+A concrete action has an action verb (\emph{revisit}, \emph{code},
+\emph{redo}, \emph{sketch}\dots), a precise object, and a
+\emph{timing} (when will you do it?).
+\end{question}
+
+\bigskip
+\noindent\textit{Good thinking. This activity will not be
+collected: it is for you.}\par\medskip
+\hfill\auteurNom\par
+\hfill\auteurEmail\par
+
+\end{document}
