@@ -1,0 +1,166 @@
+\documentclass[a4paper,11pt]{article}
+
+\newcommand{\TPnumero}{Lab 4 -- Solution}
+\input{../../preamble/td-tp-preamble.tex}
+
+\title{Lab 4: Unit-root tests and ARIMA modelling\\
+\large \emph{Reference solution}}
+\author{\auteurNom\\\auteurEmail\\\auteurInstitution}
+\date{\anneeUniversitaire}
+
+\begin{document}
+\maketitle
+
+\noindent\emph{Reference Python code in \texttt{correction.py}.
+All numerical values below are obtained with}
+\texttt{numpy.random.seed(42)}.
+
+\setcounter{excounter}{0}
+
+% =========================================================
+\begin{exercise}[TS vs.\ DS by simulation]\end{exercise}
+
+\begin{solution}
+Both series exhibit an upward drift around $0.05 t$, but their
+deviations behave very differently:
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+                          & TS: $Y_t = 0.05t + \varepsilon_t$ & DS: $Z_t = Z_{t-1} + 0.05 + \eta_t$ \\
+\midrule
+OLS-detrended residual sd & $0.882$ & $3.112$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+The TS detrended residual is essentially $\mathcal N(0,1)$ noise; the
+DS residual still wanders because OLS detrending cannot remove the
+unit root --- it only removes a deterministic line.
+\end{solution}
+
+% =========================================================
+\begin{exercise}[ADF test]\end{exercise}
+
+\begin{solution}
+\begin{center}
+\begin{tabular}{lrrl}
+\toprule
+Series                             & ADF stat & $p$-value & Decision at $5\%$ \\
+\midrule
+$Y_t$ (TS, regression \texttt{ct}) & $-9.098$ & $0.0000$  & \textbf{reject} $H_0$ -- stationary \\
+$Z_t$ (RW+drift)                   & $-0.687$ & $0.8500$  & fail to reject -- unit root \\
+$\Delta Z_t$                       & $-13.507$ & $0.0000$ & \textbf{reject} -- stationary \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The ADF test correctly identifies $Y_t$ as stationary around a trend,
+$Z_t$ as having a unit root, and one differencing as enough to remove
+the unit root.
+\end{solution}
+
+% =========================================================
+\begin{exercise}[KPSS test]\end{exercise}
+
+\begin{solution}
+\begin{center}
+\begin{tabular}{lrrl}
+\toprule
+Series                             & KPSS stat & $p$-value & Decision at $5\%$ \\
+\midrule
+$Y_t$ (TS, \texttt{ct})            & $0.092$  & $\geq 0.10$ & fail to reject -- stationary \\
+$Z_t$ (RW+drift, \texttt{c})       & $1.789$  & $\leq 0.01$ & \textbf{reject} -- unit root \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+ADF and KPSS \emph{agree} on both series:
+\begin{itemize}
+  \item For $Y_t$: ADF rejects unit root \emph{and} KPSS does not
+        reject stationarity $\Rightarrow$ \textbf{trend-stationary}
+        (top-left cell of the combination matrix).
+  \item For $Z_t$: ADF fails to reject unit root \emph{and} KPSS
+        rejects stationarity $\Rightarrow$ \textbf{difference-stationary}
+        (bottom-right cell).
+\end{itemize}
+\end{solution}
+
+% =========================================================
+\begin{exercise}[Differencing the random walk]\end{exercise}
+
+\begin{solution}
+The empirical ACF tells the story:
+\begin{center}
+\begin{tabular}{lc}
+\toprule
+              & ACF at lags $1$--$5$ \\
+\midrule
+$Z_t$         & $0.982,\ 0.963,\ 0.946,\ 0.929,\ 0.913$ \\
+$\Delta Z_t$  & $+0.039,\ -0.069,\ -0.008,\ -0.000,\ +0.024$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+$\rho_Z(h)$ decays \emph{linearly} (the unit-root signature), while
+$\rho_{\Delta Z}(h)$ is essentially zero --- one differencing has
+turned the random walk into white noise.
+
+Re-applying the tests on $\Delta Z_t$:
+\[
+  \text{ADF: stat}=-13.51,\ p=0.000\quad\text{(reject unit root)},
+  \qquad
+  \text{KPSS: stat}=0.101,\ p\geq 0.10\quad\text{(stationary)}.
+\]
+Both tests now agree on stationarity. The series $Z_t$ is
+$I(1)$ and $\Delta Z_t \sim WN$.
+\end{solution}
+
+% =========================================================
+\begin{exercise}[SARIMA on Souvenir sales]\end{exercise}
+
+\begin{solution}
+\textbf{(1)--(2)} On the raw $\log Y_t$ ($T = 84$):
+\begin{center}
+\begin{tabular}{lrrl}
+\toprule
+Test                & Statistic & $p$-value & Decision \\
+\midrule
+ADF, regression \texttt{ct}    & $-1.046$ & $0.938$ & fail to reject -- unit root \\
+KPSS, regression \texttt{ct}   & $+0.117$ & $\geq 0.10$ & fail to reject -- stationary \\
+\bottomrule
+\end{tabular}
+\end{center}
+The two tests are \emph{ambiguous} but consistent with the
+near-unit-root behaviour expected from a strongly trending,
+seasonal economic series. We proceed with one regular and one
+seasonal differencing.
+
+\textbf{(3)} SARIMA$(0,1,1)(0,1,1)_{12}$ fitted by maximum
+likelihood (\texttt{statsmodels}):
+\[
+  \widehat\theta_1 = -0.4991,
+  \quad
+  \widehat\Theta_1 = -0.3245,
+  \quad
+  \widehat\sigma^2 = 0.0247,
+  \quad
+  \text{AIC} = -43.08,
+  \quad
+  \text{BIC} = -36.95.
+\]
+
+\textbf{(4)} Ljung--Box on the residuals at lag $24$:
+\[
+  Q_{\text{LB}}(24) = 16.04,
+  \qquad
+  p\text{-value} = 0.887.
+\]
+We \textbf{do not reject} the white-noise hypothesis: the residuals
+have no remaining autocorrelation, so the SARIMA captures the
+structure of the series.
+
+\textbf{(5)} The 12-month forecast (figure
+\texttt{lab4\_ex5\_forecast.png}) extrapolates the upward trend and
+the December peak; the $95\%$ confidence interval widens with the
+forecast horizon, as expected for an integrated process.
+\end{solution}
+
+\end{document}

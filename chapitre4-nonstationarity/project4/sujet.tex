@@ -1,0 +1,157 @@
+\documentclass[a4paper,11pt]{article}
+
+\newcommand{\TPnumero}{Project 4}
+\newcommand{\macrosPath}{../../preamble/macros.tex}
+\input{../../preamble/td-tp-preamble.tex}
+
+\title{Project 4: Full Box--Jenkins study with unit-root testing\\
+\large ADF/KPSS $+$ differencing $+$ SARIMA on real monthly data}
+\author{\auteurNom\\\auteurEmail\\\auteurInstitution}
+\date{\anneeUniversitaire}
+
+\begin{document}
+\maketitle
+
+\section*{Context}
+
+Project 3 left us with a non-white-noise residual after a deterministic
+log-decomposition of \texttt{SouvenirSales.csv}. In this project you
+push the analysis to its conclusion: you classify the series as TS or
+DS using formal unit-root tests, apply the appropriate transformation
+(detrending or differencing), fit a SARIMA model, and produce a
+twelve-month forecast.
+
+The deliverable is a complete, reproducible Box--Jenkins study that
+will serve as a template for Chapter 5 (ARMA) and Chapter 6
+(volatility).
+
+\section*{Deliverables}
+\begin{itemize}
+  \item Reproducible \texttt{project4\_<name>.py} with seed $42$.
+  \item Report PDF (6--8 pages) including all figures, all numerical
+        outputs, and a final forecast plot.
+  \item Optional 8-min oral defence.
+\end{itemize}
+
+% =========================================================
+\begin{exercise}[Visual diagnosis and transformation]
+\textbf{(1)} Load \texttt{data/SouvenirSales.csv}. Plot the raw
+series $Y_t$. Comment on (i) the trend, (ii) the multiplicative
+seasonality (amplitude growing with the level).
+
+\textbf{(2)} Take logs: $y_t = \log Y_t$. Plot $y_t$. Verify
+visually that the seasonality is now \emph{additive} (constant
+amplitude).
+
+\textbf{(3)} On $y_t$, plot the sample ACF up to lag $36$. Identify
+the seasonal lags ($12, 24, 36$) and the slow decay typical of a
+non-stationary series.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Unit-root testing]
+\textbf{(1)} Run the ADF test on $y_t$ with three deterministic
+specifications:
+\begin{itemize}
+  \item \texttt{regression="n"}: no constant, no trend;
+  \item \texttt{regression="c"}: constant only;
+  \item \texttt{regression="ct"}: constant and trend.
+\end{itemize}
+For each, report stat, $p$-value, $5\%$ critical value, decision.
+
+\textbf{(2)} Run the KPSS test on $y_t$ with \texttt{regression="c"}
+and \texttt{regression="ct"}. Report stat, $p$-value, decision.
+
+\textbf{(3)} Build the ADF/KPSS combination table. Which cell does
+$y_t$ fall in? (TS, DS, or ambiguous?)
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Differencing]
+\textbf{(1)} Compute the regular difference $\Delta y_t = y_t -
+y_{t-1}$. Plot $\Delta y_t$ and its ACF up to lag $36$.
+
+\textbf{(2)} The seasonal lags should still dominate. Apply the
+seasonal difference $\Delta_{12} = (1 - L^{12})$ on top:
+\[
+  w_t = \Delta_{12} \Delta y_t = (1 - L)(1 - L^{12}) y_t.
+\]
+Plot $w_t$ and its ACF/PACF up to lag $36$.
+
+\textbf{(3)} Run ADF and KPSS on $w_t$ (regression \texttt{c}).
+Confirm: $w_t$ is stationary --- $y_t$ is $\text{SARIMA}(\,\cdot\,,1,\,\cdot\,)
+(\,\cdot\,,1,\,\cdot\,)_{12}$.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[SARIMA model selection]
+\textbf{(1)} From the ACF/PACF of $w_t$, propose two candidate
+SARIMA orders. The classical airline-style choice is
+$(0,1,1)(0,1,1)_{12}$ but you may also consider, e.g.,
+$(1,1,0)(1,1,0)_{12}$ or $(1,1,1)(0,1,1)_{12}$.
+
+\textbf{(2)} Fit each candidate by maximum likelihood. Report:
+\begin{itemize}
+  \item estimated coefficients (with standard errors);
+  \item AIC and BIC;
+  \item Ljung--Box $p$-value at lag $24$ on residuals;
+  \item residual standard deviation.
+\end{itemize}
+
+\textbf{(3)} Pick the best model on the (AIC, BIC, Ljung--Box) triplet.
+Justify your choice in 5 lines.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Forecasting and back-transformation]
+\textbf{(1)} On the chosen model, produce a 12-month forecast of
+$\log Y_t$ with $95\%$ confidence intervals.
+
+\textbf{(2)} Back-transform: $\widehat Y_{T+h} = \exp(\widehat
+y_{T+h} + \widehat\sigma^2/2)$ if you want the conditional mean of
+$Y$, or simply $\exp(\widehat y_{T+h})$ for the conditional median.
+Plot the original $Y_t$ together with the back-transformed forecast
+and CI on the original scale.
+
+\textbf{(3)} Discuss the interpretation: what does the model predict
+for sales in December of the year following 2001?
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Bonus: hold-out validation]
+Split the data into a training set (1995--2000, 72 observations) and
+a test set (2001, 12 observations).
+\begin{itemize}
+  \item Fit the chosen SARIMA on the training set.
+  \item Compute the forecast errors on the test set.
+  \item Report RMSE and MAPE on the original scale.
+\end{itemize}
+Discuss: does the model generalise out of sample?
+\end{exercise}
+
+% =========================================================
+\section*{Marking grid (out of 100)}
+
+\begin{center}
+\begin{tabular}{p{8cm}rl}
+\toprule
+\textbf{Criterion} & \textbf{Points} & \\
+\midrule
+Visual diagnosis + log transform              & 10 \\
+ADF and KPSS tests + combination matrix       & 20 \\
+Differencing $(1-L)(1-L^{12})$ + verification & 15 \\
+SARIMA candidates + AIC/BIC/LB selection      & 25 \\
+Forecast + back-transform                     & 15 \\
+Bonus: hold-out validation                    & 10 \\
+Reproducibility + report quality              &  5 \\
+\midrule
+\textbf{Total}                                & \textbf{100} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\bigskip
+\hfill\auteurNom\par
+\hfill\auteurEmail\par
+
+\end{document}

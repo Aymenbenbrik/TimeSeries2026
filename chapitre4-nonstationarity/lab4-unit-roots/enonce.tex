@@ -1,0 +1,147 @@
+\documentclass[a4paper,11pt]{article}
+
+\newcommand{\TPnumero}{Lab 4 -- Unit roots and ARIMA}
+\input{../../preamble/td-tp-preamble.tex}
+
+\title{Lab 4: Unit-root tests and ARIMA modelling\\
+\large ADF, KPSS, differencing, and ARIMA fitting on real data}
+\author{\auteurNom\\\auteurEmail\\\auteurInstitution}
+\date{\anneeUniversitaire}
+
+\begin{document}
+\maketitle
+
+\section*{Goals}
+\begin{itemize}
+  \item Distinguish a trend-stationary (TS) process from a
+        difference-stationary (DS) process via simulation.
+  \item Run the Augmented Dickey--Fuller (ADF) and KPSS tests, read
+        their $p$-values, and combine them.
+  \item Apply differencing to remove a unit root and verify the
+        transformation by re-running the tests.
+  \item Fit an ARIMA$(p,d,q)$ model on a non-stationary series and
+        produce a short forecast.
+\end{itemize}
+
+\section*{Setup}
+\begin{itemize}
+  \item Python 3 with \texttt{numpy}, \texttt{matplotlib},
+        \texttt{statsmodels}.
+  \item \texttt{numpy.random.seed(42)}.
+  \item Dataset: \texttt{data/SouvenirSales.csv} (Australian souvenir
+        shop, monthly, Jan 1995 -- Dec 2001, $T = 84$).
+\end{itemize}
+
+\begin{warning}
+\texttt{adfuller(y)} returns the tuple
+\texttt{(stat, pvalue, usedlag, nobs, critvalues, icbest)}.
+\texttt{kpss(y, regression="c")} returns
+\texttt{(stat, pvalue, lags, critvalues)} (with a Future\-Warning
+about $p$-value clamping that you can ignore).
+\end{warning}
+
+% =========================================================
+\begin{exercise}[TS vs.\ DS by simulation]
+We compare two visually similar series.
+
+\textbf{(1)} Simulate $T = 200$ observations of a trend-stationary
+process
+\[
+  Y_t = 0.05\, t + \varepsilon_t, \qquad
+  \varepsilon_t \iid \mathcal N(0, 1).
+\]
+
+\textbf{(2)} Simulate $T = 200$ observations of a random walk with drift:
+\[
+  Z_t = Z_{t-1} + 0.05 + \eta_t, \qquad
+  \eta_t \iid \mathcal N(0, 1), \quad Z_0 = 0.
+\]
+
+\textbf{(3)} Plot $Y_t$ and $Z_t$ on the same figure. Visually, can
+you tell which is TS and which is DS?
+
+\textbf{(4)} Detrend each series by OLS regression on $t$ and plot
+the residuals. Comment: the TS residual should look like white
+noise; the DS residual still wanders.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[ADF test]
+\textbf{(1)} Run \texttt{adfuller} on $Y_t$ and on $Z_t$ from
+Exercise~1. Report for each series:
+\begin{itemize}
+  \item the ADF statistic $t_{\widehat\gamma}$;
+  \item the $1\%$, $5\%$, $10\%$ critical values;
+  \item the $p$-value;
+  \item the conclusion at the $5\%$ level (reject $H_0$: unit root,
+        or fail to reject).
+\end{itemize}
+
+\textbf{(2)} On the random walk with drift $Z_t$, the ADF test should
+\emph{fail to reject} the unit-root null. On the trend-stationary
+$Y_t$, you must use \texttt{regression="ct"} (constant + trend);
+otherwise the deterministic trend would inflate the test statistic.
+
+\textbf{(3)} Repeat the ADF test on $\Delta Z_t = Z_t - Z_{t-1}$.
+You should now \textbf{reject} the unit root: differencing has made
+the series stationary.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[KPSS test]
+The KPSS test reverses the null and the alternative:
+$H_0$ is stationarity, $H_1$ is unit root.
+
+\textbf{(1)} Run \texttt{kpss(y, regression="c")} on $Y_t$ (after
+removing the linear trend, use \texttt{regression="ct"} on the raw
+series) and on $Z_t$. Report KPSS statistic, $p$-value, conclusion.
+
+\textbf{(2)} Build the ADF/KPSS combination matrix on the real
+series of Exercise~5: which of the four cells (stationary,
+trend-stationary, difference-stationary, ambiguous) does it land in?
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Differencing the random walk]
+\textbf{(1)} Compute $\Delta Z_t = Z_t - Z_{t-1}$ on the simulated
+random walk of Exercise 1. Plot $\Delta Z_t$ vs.\ $t$.
+
+\textbf{(2)} Plot the sample ACF of $Z_t$ and of $\Delta Z_t$ up
+to lag 20. Compare: the ACF of $Z_t$ decays slowly (signature of
+a unit root); the ACF of $\Delta Z_t$ should be near zero for
+all $h \geq 1$.
+
+\textbf{(3)} Run \texttt{adfuller} and \texttt{kpss} on $\Delta Z_t$.
+Confirm that one differencing was enough.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[ARIMA on Souvenir sales]
+\textbf{(1)} Load \texttt{data/SouvenirSales.csv} and take logs:
+$y_t = \log(\text{sales}_t)$. Plot $y_t$.
+
+\textbf{(2)} Run ADF and KPSS on $y_t$ (with \texttt{regression="ct"}
+since there is a clear linear trend on the log scale). Conclude.
+
+\textbf{(3)} Fit the model
+\[
+  \text{SARIMA}(0, 1, 1)(0, 1, 1)_{12}
+\]
+on $y_t$ using \texttt{statsmodels.tsa.statespace.sarimax.SARIMAX}.
+Report the estimated coefficients and the AIC.
+
+\textbf{(4)} Plot the residuals of the fitted model. Run a Ljung--Box
+test at lag 24 on the residuals: are they white noise?
+
+\textbf{(5)} Forecast the next 12 months. Plot the in-sample fit and
+the forecast with $95\%$ confidence intervals.
+\end{exercise}
+
+\bigskip
+\begin{warning}
+The KPSS test in \texttt{statsmodels} returns a $p$-value clamped to
+$[0.01, 0.10]$. To get a finer reading, use the printed critical
+values (1\%, 2.5\%, 5\%, 10\%) directly.
+\end{warning}
+
+\end{document}

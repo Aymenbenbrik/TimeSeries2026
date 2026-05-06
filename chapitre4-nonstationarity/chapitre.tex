@@ -1,0 +1,303 @@
+% =========================================================
+% Chapter 4 — Non-stationary time series
+% Author : Aymen Ben Brik (aymen.benbrik@esprit.tn)
+% =========================================================
+
+\chapter{Non-stationary time series}
+\label{ch:nonstationarity}
+
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
+
+Most real-world time series are \emph{not} stationary: GDP grows,
+prices drift, populations expand, atmospheric CO$_2$ accumulates.
+Applying the tools of Chapter~\ref{ch:stationarity} (ACF, ARMA) to a
+raw non-stationary series gives misleading results — the famous
+\emph{spurious regression} phenomenon. This chapter formalises
+non-stationarity, introduces the algebraic operators (backshift,
+difference) and the unit-root tests (ADF, KPSS) needed to detect it,
+and culminates in the \emph{ARIMA} and \emph{SARIMA} families that
+combine differencing with the ARMA structure of
+Chapter~\ref{ch:arma}.
+
+% =========================================================
+\section{Limits of the stationarity assumption}
+\label{sec:non-stat-limits}
+
+\begin{warnbox}[Spurious regression]
+\label{warn:spurious}
+If $X_t$ and $Y_t$ are two \emph{independent} random walks and one
+fits the linear regression $Y_t = \beta_0 + \beta_1 X_t + u_t$ by
+OLS:
+\begin{itemize}
+  \item the standard $t$-statistic for $\widehat\beta_1$ rejects the
+        null $\beta_1 = 0$ at any level with probability tending to
+        \emph{one} as the sample size grows;
+  \item the $R^2$ stays large (often $> 0.5$);
+\end{itemize}
+even though the two series are \emph{independent}. Granger \& Newbold
+(1974) called this the \emph{spurious regression} effect; it is
+caused by the non-stationarity of $X$ and $Y$.
+\end{warnbox}
+
+\begin{rembox}[Practical consequence]
+Before applying any classical inference (regression, ARMA, $t$-test),
+\emph{check stationarity}. If the series is non-stationary, transform
+it first (typically by differencing).
+\end{rembox}
+
+\subsection{Trend stationary vs.\ difference stationary}
+
+\begin{defbox}[TS and DS processes]
+\label{def:ts-ds}
+\begin{itemize}
+  \item \emph{Trend stationary} (TS):
+        $X_t = f(t) + \varepsilon_t$ where $f$ is deterministic and
+        $\varepsilon_t$ is stationary. Shocks have \emph{transient}
+        effects.
+  \item \emph{Difference stationary} (DS):
+        $\Delta X_t$ is stationary, but $X_t$ is not. The series has
+        a \emph{unit root}; shocks have \emph{permanent} effects.
+\end{itemize}
+\end{defbox}
+
+\begin{rembox}
+TS series are made stationary by \emph{detrending}; DS series, by
+\emph{differencing}. Visual inspection alone cannot reliably
+distinguish the two — a slowly trending DS process looks identical to
+a TS one. We use \emph{unit-root tests} (Section~\ref{sec:unit-roots}).
+\end{rembox}
+
+% =========================================================
+\section{Backshift and difference operators}
+\label{sec:operators}
+
+\begin{defbox}[Backshift operator]
+\label{def:backshift}
+$B X_t = X_{t-1}$, and $B^k X_t = X_{t - k}$.
+For polynomials $\phi(z) = 1 - \phi_1 z - \dots - \phi_p z^p$ and
+$\theta(z) = 1 + \theta_1 z + \dots + \theta_q z^q$, the AR(p) and
+MA(q) processes are written
+$\phi(B) X_t = \varepsilon_t$ and $X_t = \theta(B) \varepsilon_t$.
+\end{defbox}
+
+\begin{propbox}[Stationarity through the AR polynomial]
+\label{prop:ar-stationary}
+The AR(p) process $\phi(B) X_t = \varepsilon_t$ is (weakly) stationary
+if and only if every root of $\phi(z) = 0$ lies \emph{outside} the
+closed unit disk.
+\end{propbox}
+
+\begin{exbox}[AR(1)]
+$\phi(z) = 1 - \phi z$ has root $z = 1 / \phi$.
+$\abs{1 / \phi} > 1 \Leftrightarrow \abs\phi < 1$. We recover the
+familiar AR(1) stationarity condition.
+\end{exbox}
+
+\begin{defbox}[Difference operator]
+\label{def:difference}
+$\Delta = 1 - B$, so $\Delta X_t = X_t - X_{t-1}$.
+$\Delta^d = (1 - B)^d$ is the $d$-th difference.
+The seasonal difference of period $s$ is
+$\Delta_s = 1 - B^s$.
+\end{defbox}
+
+\begin{exbox}[Higher-order differencing]
+$\Delta^2 X_t = (1 - B)^2 X_t = X_t - 2 X_{t-1} + X_{t-2}$.
+A quadratic trend $X_t = a + b\,t + c\,t^2$ is reduced to a constant
+by $\Delta^2$:
+$\Delta^2 X_t = 2c$, which is stationary.
+\end{exbox}
+
+\begin{defbox}[Integration order $I(d)$]
+$X_t \sim I(d)$ if $\Delta^d X_t$ is stationary but
+$\Delta^{d - 1} X_t$ is not. White noise is $I(0)$; a random walk is
+$I(1)$; a random walk with a stochastic trend is often $I(2)$.
+\end{defbox}
+
+% =========================================================
+\section{Unit-root tests}
+\label{sec:unit-roots}
+
+\subsection{Augmented Dickey--Fuller (ADF) test}
+
+\begin{defbox}[ADF regression]
+\label{def:adf}
+Starting from an AR(1) $X_t = \rho X_{t-1} + \varepsilon_t$,
+substitute $\rho = 1 + \gamma$ and subtract $X_{t-1}$:
+\[
+  \Delta X_t = \gamma\, X_{t-1} + \varepsilon_t,
+\]
+augmented with $p$ lags of $\Delta X_t$ to whiten the error:
+\[
+  \Delta X_t = \gamma\, X_{t-1}
+             + \sum_{i = 1}^{p} \alpha_i\, \Delta X_{t-i}
+             + \varepsilon_t.
+\]
+\end{defbox}
+
+\begin{thbox}[ADF test]
+\label{th:adf}
+\begin{itemize}
+  \item $H_0 : \gamma = 0$ — unit root, $X_t$ is non-stationary.
+  \item $H_1 : \gamma < 0$ — $X_t$ is stationary.
+\end{itemize}
+The $t$-statistic of $\widehat\gamma$ \emph{does not} follow a
+Student's $t$ under $H_0$; its asymptotic distribution is the
+\emph{Dickey--Fuller distribution}, with 5\% critical value
+$\approx -2.86$ for the constant-only specification (and
+$\approx -3.41$ with constant and trend).
+\end{thbox}
+
+\begin{rembox}[Three flavours]
+\begin{itemize}
+  \item \emph{No constant, no trend} (rare): $X_t$ should fluctuate
+        around zero.
+  \item \emph{Constant only} (most common): $X_t$ should fluctuate
+        around a non-zero level.
+  \item \emph{Constant and trend}: $X_t$ has a deterministic linear
+        trend.
+\end{itemize}
+The choice affects the critical values; the Python function
+\texttt{adfuller} accepts a \texttt{regression} argument.
+\end{rembox}
+
+\subsection{KPSS test}
+
+\begin{defbox}[KPSS test, Kwiatkowski et al.\ 1992]
+\label{def:kpss}
+\[
+  H_0 : \text{stationarity (around a level or a trend)},
+  \qquad
+  H_1 : \text{unit-root non-stationarity}.
+\]
+The test statistic is built from the partial sums of OLS residuals
+versus a long-run variance estimator. 5\% critical values: $0.463$
+for level stationarity, $0.146$ for trend stationarity. Reject $H_0$
+if the statistic \emph{exceeds} the critical value.
+\end{defbox}
+
+\begin{rembox}[Combining ADF and KPSS]
+The two tests have \emph{opposite} null hypotheses, which clarifies
+ambiguous cases:
+\begin{center}
+\begin{tabular}{l|cc}
+                              & ADF rejects        & ADF does not reject \\
+\hline
+KPSS rejects                  & contradiction      & non-stationary \\
+KPSS does not reject          & stationary         & inconclusive (small $T$) \\
+\end{tabular}
+\end{center}
+The contradiction case typically arises when there is a structural
+break.
+\end{rembox}
+
+\subsection{Phillips--Perron test (mention)}
+
+\begin{rembox}
+The \emph{Phillips--Perron} (PP) test is an alternative to ADF that
+adjusts the test statistic for heteroscedasticity and autocorrelation
+non-parametrically (instead of via lagged differences). Same null
+hypothesis as ADF, similar critical values.
+\end{rembox}
+
+% =========================================================
+\section{ARIMA(p, d, q)}
+\label{sec:arima}
+
+\begin{defbox}[ARIMA model]
+\label{def:arima}
+$X_t \sim \ARIMA{p}{d}{q}$ if its $d$-th difference is a stationary
+$\ARMA{p}{q}$:
+\[
+  \phi(B)\, (1 - B)^d\, X_t \;=\; \theta(B)\, \varepsilon_t,
+  \qquad \varepsilon_t \sim \WN(0, \sigma^2).
+\]
+\end{defbox}
+
+\begin{rembox}[Practical recipe]
+\begin{enumerate}
+  \item Plot $X_t$; identify visual non-stationarity.
+  \item Test (ADF + KPSS); difference until stationary; choose $d$.
+  \item ACF/PACF of $\Delta^d X_t$ $\Rightarrow$ candidate $(p, q)$.
+  \item MLE estimate of the ARMA(p, q) coefficients.
+  \item Ljung--Box on residuals; if not white, increase $p$ or $q$.
+  \item Forecast, integrate back.
+\end{enumerate}
+\end{rembox}
+
+\begin{exbox}[ARIMA(1, 1, 1)]
+\label{ex:arima-111}
+$\phi(B) = 1 - \phi B$, $\theta(B) = 1 + \theta B$, $d = 1$:
+\[
+  (1 - \phi B)(1 - B) X_t = (1 + \theta B)\, \varepsilon_t.
+\]
+With $W_t = \Delta X_t$:
+$W_t = \phi W_{t-1} + \varepsilon_t + \theta \varepsilon_{t-1}$,
+i.e.\ $W_t \sim \ARMA{1}{1}$. Starting from a known initial value
+$X_0$, integrate back: $X_t = X_0 + \sum_{s = 1}^{t} W_s$.
+\end{exbox}
+
+% =========================================================
+\section{Seasonal ARIMA (SARIMA)}
+\label{sec:sarima}
+
+When the series exhibits seasonality of period $s$, classical
+differencing $(1 - B)^d$ alone is not enough — we also apply
+seasonal differencing $(1 - B^s)^D$ and seasonal ARMA polynomials.
+
+\begin{defbox}[SARIMA(p, d, q)(P, D, Q)$_s$]
+\label{def:sarima}
+\[
+  \phi(B)\, \Phi(B^s)\,
+  (1 - B)^d\, (1 - B^s)^D\, X_t
+  \;=\;
+  \theta(B)\, \Theta(B^s)\, \varepsilon_t,
+\]
+where $\Phi(z) = 1 - \Phi_1 z - \dots - \Phi_P z^P$ and
+$\Theta(z) = 1 + \Theta_1 z + \dots + \Theta_Q z^Q$ are the
+\emph{seasonal} AR and MA polynomials.
+\end{defbox}
+
+\begin{exbox}[SARIMA(1, 1, 1)(1, 1, 1)$_{12}$]
+\[
+  (1 - \phi B)(1 - \Phi B^{12})(1 - B)(1 - B^{12}) X_t
+  = (1 + \theta B)(1 + \Theta B^{12}) \varepsilon_t.
+\]
+This model is the workhorse for monthly time series with both
+short-term persistence and yearly seasonality (sales, climate, energy
+demand).
+\end{exbox}
+
+\begin{rembox}[Identification]
+After the differencing step, look at the ACF/PACF of
+$(1 - B)^d (1 - B^s)^D X_t$:
+\begin{itemize}
+  \item significant spikes at lags $s, 2s, 3s, \dots$ in the ACF
+        $\Rightarrow$ seasonal MA component (order $Q$);
+  \item spikes at $s, 2s, \dots$ in the PACF $\Rightarrow$ seasonal
+        AR component (order $P$);
+  \item spikes at small lags $\Rightarrow$ ordinary $p, q$.
+\end{itemize}
+\end{rembox}
+
+% =========================================================
+\section*{Summary}
+\addcontentsline{toc}{section}{Summary}
+
+\noindent\textbf{Key takeaways.}
+\begin{itemize}
+  \item Most real series are non-stationary; \emph{spurious
+        regression} can fool naive applications of OLS or ARMA.
+  \item Distinguish \emph{trend stationary} (detrend) from
+        \emph{difference stationary} (difference) using the ADF and
+        KPSS tests.
+  \item The backshift $B$ and difference $\Delta$ operators give a
+        compact algebra for non-stationary models; integration order
+        $I(d)$ counts the number of differencings needed.
+  \item \emph{ARIMA(p, d, q)} = ARMA on the $d$-th difference;
+        \emph{SARIMA} adds seasonal AR, MA and differencing.
+  \item In Python, \texttt{statsmodels.tsa.stattools.adfuller} and
+        \texttt{kpss}, plus \texttt{SARIMAX}, cover the whole
+        workflow.
+\end{itemize}

@@ -1,0 +1,353 @@
+% =========================================================
+% Slides Beamer Metropolis 16:9 — Chapter 4 (Non-stationarity)
+% Time Series Analysis — Aymen Ben Brik (aymen.benbrik@esprit.tn)
+%
+% Migrated from _archives/source-slides/Non stationnarité.tex (1059 L)
+% sections 1-3 (non-stat + operators + ARIMA + SARIMA) and from
+% Stationnarité.tex section "Tests de stationnarité" (lines 475-765).
+% =========================================================
+\documentclass[aspectratio=169]{beamer}
+
+\input{../preamble/slides-preamble.tex}
+
+\title[\moduleNom\ -- Ch.4]{Non-stationary Time Series}
+\subtitle{Operators $\cdot$ Unit roots $\cdot$ ADF / KPSS $\cdot$ ARIMA / SARIMA}
+\author{\auteurNom \\ \footnotesize\auteurEmail}
+\institute{\auteurInstitution}
+\date{\anneeUniversitaire}
+
+\begin{document}
+
+\begin{frame}\titlepage\end{frame}
+
+\begin{frame}{Learning objectives}
+  By the end of this chapter, you will be able to:
+  \begin{itemize}
+    \item recognise the limits of the stationarity assumption and
+          the danger of \emph{spurious regressions};
+    \item distinguish \emph{trend stationary} (TS) from
+          \emph{difference stationary} (DS, with a unit root);
+    \item manipulate the \emph{backshift} $B$ and \emph{difference}
+          $\Delta = 1 - B$ operators;
+    \item run the \emph{ADF} and \emph{KPSS} unit-root tests and read
+          their conclusions correctly;
+    \item formulate \emph{ARIMA(p, d, q)} and
+          \emph{SARIMA(p, d, q)(P, D, Q)$_s$} models.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Chapter outline}
+  \begin{enumerate}
+    \item Why non-stationarity matters (spurious regression)
+    \item Backshift and difference operators
+    \item Trend-stationary vs difference-stationary
+    \item Unit-root tests: ADF, KPSS, Phillips--Perron
+    \item ARIMA(p, d, q)
+    \item Seasonal ARIMA: SARIMA(p, d, q)(P, D, Q)$_s$
+  \end{enumerate}
+\end{frame}
+
+% =====================================================================
+\section{Why non-stationarity matters}
+
+\begin{frame}{1.~Limits of the stationarity assumption}
+  Most real-world series — GDP, asset prices, populations,
+  cumulative indices — are \emph{not} stationary:
+  \begin{itemize}
+    \item their mean drifts upward / downward over time;
+    \item their variance often grows;
+    \item shocks can have permanent effects.
+  \end{itemize}
+  \medskip
+  \begin{warnbox}[Spurious regression (Granger \& Newbold, 1974)]
+    Regressing one random walk on another \emph{independent} random
+    walk yields a high $R^2$ and a ``significant'' $t$-statistic,
+    even though there is no causal link. This famous fallacy is
+    avoided only by working with stationary (or co-integrated)
+    series.
+  \end{warnbox}
+\end{frame}
+
+\begin{frame}{1.~Two flavours of non-stationarity}
+  \begin{defbox}[Trend stationary (TS)]
+    $X_t = f(t) + \varepsilon_t$ with $\varepsilon_t$ stationary.
+    Removing the deterministic trend $f(t)$ recovers a stationary
+    process. Shocks have \emph{transient} effects.
+  \end{defbox}
+  \medskip
+  \begin{defbox}[Difference stationary (DS)]
+    $\Delta X_t = X_t - X_{t-1}$ is stationary, but $X_t$ has a
+    \emph{unit root} (e.g.\ random walk). Shocks are \emph{permanent}.
+  \end{defbox}
+  \medskip
+  \begin{infobox}
+    Same plot can be \emph{either} TS or DS — visual inspection alone
+    is not enough. Hence the need for a formal \emph{unit-root test}.
+  \end{infobox}
+\end{frame}
+
+% =====================================================================
+\section{Backshift and difference operators}
+
+\begin{frame}{2.~Backshift operator $B$}
+  \begin{defbox}[Backshift]
+    $B X_t \;=\; X_{t-1}$, $B^k X_t \;=\; X_{t-k}$.
+  \end{defbox}
+  \medskip
+  \textbf{Algebra of $B$.} For any polynomials $\phi(z), \theta(z)$:
+  \[
+    \phi(B)\, \theta(B) = \theta(B)\, \phi(B), \quad \text{and}
+    \quad
+    (1 - \phi B) X_t = X_t - \phi X_{t-1}.
+  \]
+  \medskip
+  \textbf{Compact AR(1):} $X_t = \phi X_{t-1} + \varepsilon_t$
+  $\Leftrightarrow$ $(1 - \phi B) X_t = \varepsilon_t$.
+  \medskip
+  \begin{itemize}
+    \item Stationarity $\Leftrightarrow$ all roots of $\phi(z) = 0$
+          lie \emph{outside} the unit disk.
+    \item $\phi(z) = 1 - \phi z$ has a root at $z = 1/\phi$:
+          stationary iff $\abs\phi < 1$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{2.~Difference operator $\Delta$}
+  \begin{defbox}[Difference]
+    $\Delta X_t \;=\; X_t - X_{t-1} \;=\; (1 - B) X_t$.
+  \end{defbox}
+  \medskip
+  \textbf{Higher orders:}
+  \[
+    \Delta^2 X_t = \Delta(\Delta X_t) = X_t - 2 X_{t-1} + X_{t-2}
+                = (1 - B)^2 X_t.
+  \]
+  \medskip
+  \textbf{Seasonal difference:}
+  \[
+    \Delta_s X_t = X_t - X_{t-s} = (1 - B^s) X_t.
+  \]
+  \medskip
+  \begin{infobox}
+    A series is \emph{integrated of order $d$}, written
+    $X_t \sim I(d)$, if $\Delta^d X_t$ is stationary but
+    $\Delta^{d-1} X_t$ is not.
+  \end{infobox}
+\end{frame}
+
+\begin{frame}{2.~Random walk: archetypal $I(1)$ process}
+  $X_t = X_{t-1} + \varepsilon_t$ with $\varepsilon_t \sim \WN(0, \sigma^2)$.
+  \[
+    \Var[X_t] = t\,\sigma^2 \to \infty,
+    \qquad
+    \Delta X_t = X_t - X_{t-1} = \varepsilon_t \in \WN(0, \sigma^2).
+  \]
+  \medskip
+  \textbf{With drift:} $X_t = c + X_{t-1} + \varepsilon_t$
+  $\Rightarrow$ $\Delta X_t = c + \varepsilon_t$ — stationary mean $c$.
+  \medskip
+  \begin{warnbox}
+    A random walk \emph{does not} fluctuate around a fixed level. It
+    wanders, with a variance that grows linearly in $t$. This is the
+    null hypothesis of the ADF test.
+  \end{warnbox}
+\end{frame}
+
+% =====================================================================
+\section{Unit-root tests}
+
+\begin{frame}{3.~Augmented Dickey--Fuller (ADF) test}
+  Model: $X_t = \rho X_{t-1} + \varepsilon_t$. Subtracting $X_{t-1}$:
+  \[
+    \Delta X_t \;=\; \gamma\, X_{t-1} + \varepsilon_t,
+    \qquad \gamma = \rho - 1.
+  \]
+  \emph{Augmented} version (adds lags of $\Delta X_t$ to whiten residuals):
+  \[
+    \Delta X_t \;=\; \gamma\, X_{t-1} + \sum_{i = 1}^{p} \alpha_i\, \Delta X_{t-i} + \varepsilon_t.
+  \]
+  \medskip
+  \begin{defbox}[Hypotheses]
+    $H_0$: $\gamma = 0$ — \textbf{unit root, non-stationary}.\\
+    $H_1$: $\gamma < 0$ — stationary (mean-reverting).
+  \end{defbox}
+  \medskip
+  Reject $H_0$ if the $t$-statistic for $\widehat\gamma$ is more
+  negative than the Dickey--Fuller critical values
+  ($\sim -2.86$ at 5\% with intercept; \emph{not} the standard normal!).
+\end{frame}
+
+\begin{frame}{3.~ADF: practical decision rule and traps}
+  \begin{itemize}
+    \item Use the \emph{augmented} version with $p$ chosen by AIC/BIC.
+    \item Three flavours: no constant, with constant, with constant and
+          trend. Choose based on the visual pattern of the series.
+    \item Power is low when $\rho$ is close to $1$ (near unit root).
+  \end{itemize}
+  \medskip
+  \begin{warnbox}
+    Be careful with the \emph{direction of the conclusion}:
+    \begin{itemize}
+      \item $p$-value $< 0.05$ $\Rightarrow$ \textbf{reject} $H_0$
+            $\Rightarrow$ stationary;
+      \item $p$-value $> 0.05$ $\Rightarrow$ \emph{do not reject} $H_0$
+            $\Rightarrow$ non-stationarity is \emph{not ruled out}
+            (this is \emph{not} ``the series is stationary'').
+    \end{itemize}
+  \end{warnbox}
+\end{frame}
+
+\begin{frame}{3.~KPSS test (opposite null hypothesis)}
+  \begin{defbox}[KPSS — Kwiatkowski et al., 1992]
+    $H_0$: \textbf{stationarity} (around a level or a trend).\\
+    $H_1$: unit-root non-stationarity.
+  \end{defbox}
+  \medskip
+  Reject $H_0$ at $5\%$ if the test statistic exceeds $0.463$
+  (level) or $0.146$ (trend) — depending on the version.
+  \medskip
+  \begin{infobox}[Practical use: ADF + KPSS together]
+    \begin{itemize}
+      \item ADF rejects + KPSS does not reject $\Rightarrow$ stationary.
+      \item ADF does not reject + KPSS rejects $\Rightarrow$ non-stationary.
+      \item ADF rejects + KPSS rejects $\Rightarrow$ inconclusive
+            (probably structural break).
+      \item ADF does not reject + KPSS does not reject $\Rightarrow$
+            insufficient information (small sample).
+    \end{itemize}
+  \end{infobox}
+\end{frame}
+
+\begin{frame}[fragile]{3.~ADF and KPSS in Python}
+\begin{lstlisting}
+from statsmodels.tsa.stattools import adfuller, kpss
+
+# Augmented Dickey-Fuller
+adf_stat, adf_p, adf_lag, adf_n, adf_crit, _ = adfuller(y)
+print(f"ADF stat={adf_stat:.3f}, p-value={adf_p:.4f}")
+
+# KPSS (level by default)
+kpss_stat, kpss_p, kpss_lag, kpss_crit = kpss(y, regression="c")
+print(f"KPSS stat={kpss_stat:.3f}, p-value={kpss_p:.4f}")
+\end{lstlisting}
+\end{frame}
+
+% =====================================================================
+\section{ARIMA}
+
+\begin{frame}{4.~ARIMA(p, d, q)}
+  \begin{defbox}[ARIMA(p, d, q)]
+    A process $X_t$ is \emph{ARIMA(p, d, q)} if its $d$-th difference
+    is a stationary ARMA(p, q) :
+    \[
+      \phi(B)\, (1 - B)^d\, X_t \;=\; \theta(B)\, \varepsilon_t,
+      \qquad \varepsilon_t \sim \WN(0, \sigma^2),
+    \]
+    with $\phi(z) = 1 - \phi_1 z - \dots - \phi_p z^p$ and
+    $\theta(z) = 1 + \theta_1 z + \dots + \theta_q z^q$.
+  \end{defbox}
+  \medskip
+  \begin{itemize}
+    \item Bring $X_t$ to stationarity by differencing $d$ times.
+    \item Fit ARMA(p, q) on the differenced series.
+    \item Forecasts on the original scale are obtained by integrating
+          back ($X_t = X_{t-1} + \Delta X_t$).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{4.~Box--Jenkins methodology}
+  \begin{enumerate}
+    \item \textbf{Plot} $X_t$. Identify trend, seasonality, level shifts.
+    \item \textbf{Test} for unit roots (ADF + KPSS). If non-stationary,
+          difference until stationary $\Rightarrow$ choose $d$.
+    \item \textbf{Identify} $(p, q)$ from the ACF/PACF of the
+          differenced series (Box--Jenkins signature, Chapter 3).
+    \item \textbf{Estimate} the ARMA(p, q) coefficients (MLE).
+    \item \textbf{Diagnose}: Ljung--Box on residuals, plot of residuals.
+    \item \textbf{Forecast} and integrate back.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{4.~Example: ARIMA(1, 1, 1)}
+  Definition: $\phi(B)(1 - B) X_t = \theta(B) \varepsilon_t$ with
+  $\phi(B) = 1 - \phi B$ and $\theta(B) = 1 + \theta B$.
+  \medskip
+  Expanded:
+  \[
+    (1 - \phi B)(1 - B) X_t = (1 + \theta B) \varepsilon_t.
+  \]
+  Letting $W_t = \Delta X_t$:
+  \[
+    W_t = \phi W_{t-1} + \varepsilon_t + \theta \varepsilon_{t-1}.
+  \]
+  $W_t$ is an ARMA(1,1); $X_t$ is its cumulative sum starting from
+  $X_0$.
+\end{frame}
+
+% =====================================================================
+\section{Seasonal ARIMA (SARIMA)}
+
+\begin{frame}{5.~SARIMA(p, d, q)(P, D, Q)$_s$}
+  \begin{defbox}[SARIMA]
+    \[
+      \phi(B)\, \Phi(B^s)\,
+      (1 - B)^d\, (1 - B^s)^D\, X_t
+      \;=\; \theta(B)\, \Theta(B^s)\, \varepsilon_t,
+    \]
+    with seasonal AR/MA polynomials $\Phi, \Theta$ in $B^s$.
+  \end{defbox}
+  \medskip
+  \textbf{Six orders}:
+  \begin{itemize}
+    \item \textbf{Non-seasonal}: $p$ (AR), $d$ (regular differencing), $q$ (MA);
+    \item \textbf{Seasonal}: $P$ (SAR), $D$ (seasonal differencing), $Q$ (SMA);
+    \item \textbf{Period}: $s$ (e.g.\ $12$ for monthly data).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{5.~Example: SARIMA(1, 1, 1)(1, 1, 1)$_{12}$}
+  \[
+    (1 - \phi B)(1 - \Phi B^{12})(1 - B)(1 - B^{12}) X_t
+    = (1 + \theta B)(1 + \Theta B^{12}) \varepsilon_t.
+  \]
+  \medskip
+  \begin{itemize}
+    \item Differences once at lag 1 \emph{and} once at lag 12.
+    \item Captures both short-term persistence and yearly seasonality.
+    \item Standard for monthly economic, climate and sales data.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{5.~SARIMA in Python}
+\begin{lstlisting}
+from statsmodels.tsa.statespace.sarimax import SARIMAX
+
+model = SARIMAX(y,
+                order=(1, 1, 1),
+                seasonal_order=(1, 1, 1, 12))
+fit = model.fit(disp=False)
+print(fit.summary())
+
+# 12-month ahead forecast
+forecast = fit.get_forecast(steps=12)
+mean = forecast.predicted_mean
+ci = forecast.conf_int(alpha=0.05)
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{Up next}
+  \textbf{Chapter 5.} ARMA models — estimation, diagnostics,
+  forecasting in detail.
+  \medskip
+  \begin{itemize}
+    \item AR(p), MA(q), ARMA(p, q) algebra.
+    \item Yule--Walker, MLE estimation.
+    \item Order selection (AIC, BIC).
+    \item Forecasting and prediction intervals.
+  \end{itemize}
+  \medskip
+  \begin{center}\Large\bfseries Thank you.\end{center}
+  \begin{center}\footnotesize\auteurNom\ -- \auteurEmail\ -- \auteurInstitution\end{center}
+\end{frame}
+
+\end{document}
