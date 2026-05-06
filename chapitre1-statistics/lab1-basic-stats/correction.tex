@@ -1,0 +1,135 @@
+% =========================================================
+% Lab 1 — Basic Statistics (solution)
+% =========================================================
+\documentclass[a4paper,11pt]{article}
+
+\newcommand{\TPnumero}{Lab 1 -- Solution}
+\input{../../preamble/td-tp-preamble.tex}
+
+\title{Lab 1: Basic statistics in Python\\
+\large \emph{Reference solution}}
+\author{\auteurNom\\\auteurEmail\\\auteurInstitution}
+\date{\anneeUniversitaire}
+
+\begin{document}
+\maketitle
+
+\noindent\emph{Reference Python code is in \texttt{correction.py}; this
+document provides the analytical answers and expected numerical values.}
+
+% =========================================================
+\setcounter{excounter}{0}
+\begin{exercise}[Empirical moments]\end{exercise}
+
+\begin{solution}
+\textbf{(1)} For $n = 10\,000$ Gaussian draws (seed 42):
+\[
+  \widehat\mu \approx 2.005, \quad
+  \widehat\sigma^2 \approx 3.987, \quad
+  \widehat S \approx -0.013, \quad
+  \widehat K \approx 2.996.
+\]
+All four are close to their theoretical values $(2, 4, 0, 3)$, with a
+discrepancy of order $O(1/\sqrt{n})$ for the mean and variance.
+
+\textbf{(2)} For $n = 100$, the variability of $\widehat\mu$ is
+$\sigma / \sqrt{100} = 0.2$, so a typical deviation from $\mu = 2$ is
+of order $0.2$. The plot of $\widehat\mu$ vs $n$ shows convergence
+toward $\mu$ at rate $1/\sqrt{n}$ (Law of Large Numbers).
+\end{solution}
+
+% =========================================================
+\begin{exercise}[Method of Moments vs MLE for the Gaussian]\end{exercise}
+
+\begin{solution}
+\textbf{(1)} For the Gaussian, $\widehat\mu_{\text{MoM}} = \widehat\mu_{\text{MLE}}
+= \bar X_n$ and $\widehat\sigma^2_{\text{MoM}} = \widehat\sigma^2_{\text{MLE}}
+= \tfrac{1}{n}\sum(X_i - \bar X)^2$. The two functions return identical
+values on the same sample.
+
+\textbf{(2)} On $B = 1000$ Monte-Carlo replicates with $n = 20$,
+$\sigma^2 = 4$:
+\[
+  \widehat{\mathrm{Var}}_{\text{MLE}}\text{ mean } \approx 0.95\, \sigma^2
+  = 3.80,
+  \qquad
+  S^2_n\text{ mean } \approx \sigma^2 = 4.00.
+\]
+The factor $\tfrac{n - 1}{n} = 0.95$ is exactly the bias predicted by
+theory.
+\end{solution}
+
+% =========================================================
+\begin{exercise}[Sampling distribution of $\bar X_n$]\end{exercise}
+
+\begin{solution}
+\textbf{(1)--(2)} The empirical variance of $\bar X_n$ over the $B$
+replicates is close to $\sigma^2 / n = 4/n$:
+
+\noindent
+\begin{tabular}{rcc}
+\toprule
+$n$ & $\sigma^2/n$ & empirical variance \\
+\midrule
+$10$   & $0.40$   & $\approx 0.40$ \\
+$30$   & $0.133$  & $\approx 0.13$ \\
+$100$  & $0.040$  & $\approx 0.04$ \\
+$1000$ & $0.004$  & $\approx 0.004$ \\
+\bottomrule
+\end{tabular}
+
+\medskip
+The four histograms agree with the theoretical $\mathcal{N}(\mu,
+\sigma^2/n)$ density.
+
+\textbf{(3)} For $\mathrm{Exp}(1)$ ($\mu = \sigma^2 = 1$), the histogram
+of $\bar X_n$ is visibly skewed for $n = 10$ but well-approximated by
+$\mathcal{N}(1, 1/n)$ from $n \geq 30$ onwards — illustrating the CLT.
+\end{solution}
+
+% =========================================================
+\begin{exercise}[CI and $t$-test on Atlanta temperatures]\end{exercise}
+
+\begin{solution}
+The dataset \texttt{AvTempAtlanta.txt} contains 138 years (1879--2016)
+of monthly temperatures, stacked into $n = 138 \times 12 = 1656$
+observations.
+
+\textbf{(1)} Empirical statistics: $\bar X_n = 61.80$, $S_n = 13.37$.
+The 95\% $t$-CI is
+\[
+  \mathrm{CI}_{0.95}(\mu)
+  = 61.80 \pm t_{1655, 0.975} \cdot \tfrac{13.37}{\sqrt{1656}}
+  \approx 61.80 \pm 0.64
+  = [61.16,\, 62.45].
+\]
+
+\textbf{(2)} For $H_0 : \mu = 60$ vs $H_1 : \mu \neq 60$:
+\[
+  T = \frac{61.80 - 60}{13.37 / \sqrt{1656}} \approx 5.486,
+  \qquad
+  t_{1655, 0.975} \approx 1.961.
+\]
+$|T| \gg 1.961$, so we \textbf{reject} $H_0$ at the 5\% level. The
+$p$-value is $\approx 4 \times 10^{-8}$. The mean monthly temperature is
+significantly different from $60^\circ$F.
+
+\textbf{(3)} \texttt{scipy.stats.ttest\_1samp(x, popmean=60)} returns
+the same statistic and $p$-value (up to floating-point precision).
+\end{solution}
+
+% =========================================================
+\begin{exercise}[Bonus: bootstrap CI]\end{exercise}
+
+\begin{solution}
+With $B = 5000$ resamples on the $n = 1656$ Atlanta observations:
+\[
+  \mathrm{CI}_{0.95}^{\text{boot}}(\mu) \approx [61.15,\, 62.45],
+\]
+essentially identical to the $t$-CI. Both methods agree because $n$ is
+large (CLT very effective). The bootstrap would be more useful in a
+small-sample, non-Gaussian setting where the $t$-approximation is
+questionable.
+\end{solution}
+
+\end{document}

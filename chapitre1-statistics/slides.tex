@@ -1,0 +1,348 @@
+% =========================================================
+% Slides Beamer Metropolis 16:9 — Chapter 1 (Basic Statistics)
+% Time Series Analysis — Aymen Ben Brik (aymen.benbrik@esprit.tn)
+% Esprit School of Business
+%
+% Migrated from _archives/source-slides/Basic Statistics.tex (Madrid).
+% Compile : pdflatex slides.tex (twice).
+% =========================================================
+\documentclass[aspectratio=169]{beamer}
+
+\input{../preamble/slides-preamble.tex}
+
+\title[\moduleNom\ -- Ch.1]{Basic Statistical Concepts}
+\subtitle{Moments $\cdot$ Estimators $\cdot$ MoM \& MLE $\cdot$ Inference}
+\author{\auteurNom \\ \footnotesize\auteurEmail}
+\institute{\auteurInstitution}
+\date{\anneeUniversitaire}
+
+\begin{document}
+
+% ============== Title & outline ==============
+\begin{frame}\titlepage\end{frame}
+
+\begin{frame}{Learning objectives}
+  By the end of this chapter, you will be able to:
+  \begin{itemize}
+    \item interpret the \emph{moments} of a distribution
+          (mean, variance, skewness, kurtosis);
+    \item compute classical \emph{point estimators} (sample mean,
+          variance, ACF) and discuss their properties (bias, consistency);
+    \item apply two estimation methods: \emph{Method of Moments} and
+          \emph{Maximum Likelihood};
+    \item describe the \emph{sampling distribution} of standard
+          estimators under normality;
+    \item run a basic \emph{statistical inference} procedure
+          (confidence interval, hypothesis test, $p$-value).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Chapter outline}
+  \begin{enumerate}
+    \item Moments of a distribution
+    \item Classical estimators and sampling distributions
+    \item Estimation methods: MoM and MLE
+    \item Multivariate data
+    \item Statistical inference (CI, hypothesis testing)
+  \end{enumerate}
+\end{frame}
+
+% =====================================================================
+\section{Moments of a distribution}
+
+\begin{frame}{1.~Raw and central moments}
+  \begin{defbox}[Moments]
+    Let $X$ be a random variable with density $f$ and mean
+    $\mu = \E[X]$.
+    \begin{itemize}
+      \item \textbf{Raw $\ell$-th moment:}
+            $m'_\ell = \E[X^\ell] = \int x^\ell f(x)\, dx$.
+      \item \textbf{Central $\ell$-th moment:}
+            $m_\ell = \E[(X - \mu)^\ell]$.
+    \end{itemize}
+  \end{defbox}
+  \medskip
+  \textbf{Standard quantities:}
+  \[
+    \mu = m'_1, \qquad
+    \sigma^2 = m_2 = \Var[X], \qquad
+    S(X) = \frac{m_3}{\sigma^3}, \qquad
+    K(X) = \frac{m_4}{\sigma^4}.
+  \]
+\end{frame}
+
+\begin{frame}{1.~Numerical example: $X \sim \mathcal{N}(2, 4)$}
+  Theoretical moments:
+  \[
+    \mu = 2, \quad \sigma^2 = 4, \quad S(X) = 0, \quad K(X) = 3.
+  \]
+  \medskip
+  Empirical estimates from $n = 10\,000$ Monte-Carlo draws (seed 42):
+  \[
+    \widehat{\mu} \approx 2.005, \quad
+    \widehat{\sigma}^2 \approx 3.987, \quad
+    \widehat{S} \approx -0.013, \quad
+    \widehat{K} \approx 2.996.
+  \]
+  \medskip
+  \begin{infobox}
+    \emph{Skewness} measures asymmetry; \emph{kurtosis} measures
+    tail-heaviness. A normal distribution has $S = 0$ and $K = 3$
+    (excess kurtosis $K - 3 = 0$).
+  \end{infobox}
+\end{frame}
+
+% =====================================================================
+\section{Classical estimators}
+
+\begin{frame}{2.~Sample mean and sample variance}
+  Given i.i.d.\ data $X_1, \dots, X_n$:
+  \[
+    \bar{X}_n = \frac{1}{n}\sum_{i=1}^{n} X_i,
+    \qquad
+    S_n^2 = \frac{1}{n-1}\sum_{i=1}^{n}(X_i - \bar{X}_n)^2.
+  \]
+  \medskip
+  \begin{propbox}[Properties]
+    Under i.i.d.\ assumption with finite second moments:
+    \begin{itemize}
+      \item \textbf{Unbiased:} $\E[\bar{X}_n] = \mu$ and $\E[S_n^2] = \sigma^2$.
+      \item \textbf{Consistent:} $\bar{X}_n \xrightarrow{p} \mu$
+            and $S_n^2 \xrightarrow{p} \sigma^2$ (Law of Large Numbers).
+    \end{itemize}
+  \end{propbox}
+\end{frame}
+
+\begin{frame}{2.~Sampling distribution under normality}
+  If $X_1, \dots, X_n \iid \mathcal{N}(\mu, \sigma^2)$:
+  \begin{thbox}
+    \[
+      \bar{X}_n \sim \mathcal{N}\!\Bigl(\mu,\, \tfrac{\sigma^2}{n}\Bigr),
+      \qquad
+      \frac{(n-1)\, S_n^2}{\sigma^2} \sim \chi^2_{n-1},
+      \qquad
+      \frac{\bar{X}_n - \mu}{S_n / \sqrt{n}} \sim t_{n-1}.
+    \]
+  \end{thbox}
+  \medskip
+  \begin{itemize}
+    \item $\bar{X}_n$ and $S_n^2$ are \emph{independent} under normality
+          (Cochran's theorem).
+    \item These distributions are the basis of $z$-tests, $t$-tests
+          and $\chi^2$-tests.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{2.~Central Limit Theorem}
+  \begin{thbox}[CLT]
+    For i.i.d.\ $X_1, \dots, X_n$ with $\E[X_i] = \mu$ and
+    $\Var[X_i] = \sigma^2 < \infty$:
+    \[
+      \frac{\bar{X}_n - \mu}{\sigma / \sqrt{n}}
+      \;\xrightarrow{d}\; \mathcal{N}(0, 1).
+    \]
+  \end{thbox}
+  \medskip
+  \begin{infobox}
+    Even when $X_i$ is \emph{not} normal, the sample mean is
+    approximately normal for large $n$. Rule of thumb: $n \geq 30$.
+  \end{infobox}
+\end{frame}
+
+% =====================================================================
+\section{Estimation methods}
+
+\begin{frame}{3.~Method of Moments (MoM)}
+  \begin{defbox}[MoM]
+    To estimate $\theta \in \R^k$, solve the system
+    \[
+      \E_\theta[X^p] \;=\; \tfrac{1}{n}\sum_{i=1}^{n} X_i^p,
+      \qquad p = 1, \dots, k.
+    \]
+  \end{defbox}
+  \medskip
+  \textbf{Example: $\mathcal{N}(\mu, \sigma^2)$.}
+  \[
+    \mu = \E[X] \;\Rightarrow\; \widehat{\mu}_{\text{MoM}} = \bar{X}_n,
+  \]
+  \[
+    \sigma^2 = \E[X^2] - \mu^2 \;\Rightarrow\;
+    \widehat{\sigma}^2_{\text{MoM}} = \tfrac{1}{n}\sum(X_i - \bar{X}_n)^2.
+  \]
+  Note: this differs from $S_n^2$ by a factor $n / (n-1)$.
+\end{frame}
+
+\begin{frame}{3.~Maximum Likelihood (MLE)}
+  \begin{defbox}[Likelihood and MLE]
+    Likelihood:
+    $L(\theta) = \prod_{i=1}^{n} f(x_i; \theta)$ for i.i.d.\ data.
+    Log-likelihood: $\ell(\theta) = \log L(\theta)$.
+    The MLE is
+    \[
+      \widehat{\theta}_{\text{MLE}} = \arg\max_\theta\, \ell(\theta).
+    \]
+  \end{defbox}
+  \medskip
+  \textbf{Example: $\mathcal{N}(\mu, \sigma^2)$.}
+  Solving $\partial \ell / \partial \mu = 0$ and
+  $\partial \ell / \partial \sigma^2 = 0$:
+  \[
+    \widehat{\mu}_{\text{MLE}} = \bar{X}_n,
+    \qquad
+    \widehat{\sigma}^2_{\text{MLE}} = \tfrac{1}{n}\sum(X_i - \bar{X}_n)^2.
+  \]
+  Same as MoM for the Gaussian. Both are biased for $\sigma^2$.
+\end{frame}
+
+\begin{frame}{3.~Asymptotic normality of the MLE}
+  \begin{thbox}
+    Under regularity conditions (identifiability, smoothness, finite
+    Fisher information $I(\theta_0)$):
+    \[
+      \sqrt{n}\,\bigl(\widehat{\theta}_n - \theta_0\bigr)
+      \;\xrightarrow{d}\;
+      \mathcal{N}\!\bigl(0,\, I(\theta_0)^{-1}\bigr).
+    \]
+  \end{thbox}
+  \medskip
+  \begin{itemize}
+    \item MLE is \textbf{asymptotically efficient} (reaches the
+          Cramér–Rao bound).
+    \item MoM is simpler but generally less efficient.
+    \item Both are consistent.
+  \end{itemize}
+\end{frame}
+
+% =====================================================================
+\section{Multivariate data}
+
+\begin{frame}{4.~Joint, marginal, conditional}
+  Joint density: $f(x, y)$.
+  \[
+    f_X(x) = \int f(x, y)\, dy, \quad
+    f_{Y \mid X}(y \mid x) = \frac{f(x, y)}{f_X(x)},
+  \]
+  \[
+    f(x, y) = f_{Y \mid X}(y \mid x)\, f_X(x).
+  \]
+  \medskip
+  \textbf{Independence:} $f(x, y) = f_X(x)\, f_Y(y)$.
+  \[
+    \E[XY] = \E[X]\E[Y], \qquad
+    \Cov(X, Y) = 0.
+  \]
+\end{frame}
+
+\begin{frame}{4.~Sample covariance and correlation}
+  Given paired data $(X_i, Y_i)_{i=1}^{n}$:
+  \[
+    \widehat{\Cov}(X, Y) = \frac{1}{n-1}\sum_{i=1}^{n}
+      (X_i - \bar{X})(Y_i - \bar{Y}),
+  \]
+  \[
+    \widehat{\Corr}(X, Y) =
+      \frac{\widehat{\Cov}(X, Y)}{\widehat{\sigma}_X\, \widehat{\sigma}_Y}
+      \;\in\; [-1, 1].
+  \]
+  \medskip
+  \begin{warnbox}
+    Correlation captures \emph{linear} dependence only. Two variables
+    can have $\Corr(X, Y) = 0$ and still be strongly dependent
+    (e.g.\ $Y = X^2$ with $X$ symmetric).
+  \end{warnbox}
+\end{frame}
+
+% =====================================================================
+\section{Statistical inference}
+
+\begin{frame}{5.~Confidence interval for the mean}
+  Setting: $X_1, \dots, X_n \iid \mathcal{N}(\mu, \sigma^2)$.
+  \medskip
+  \textbf{$\sigma$ known} ($z$-interval):
+  \[
+    \mathrm{CI}_{1-\alpha}(\mu)
+    = \Bigl[\,\bar{X}_n - z_{1-\alpha/2}\, \tfrac{\sigma}{\sqrt{n}},\;
+            \bar{X}_n + z_{1-\alpha/2}\, \tfrac{\sigma}{\sqrt{n}}\Bigr].
+  \]
+  \textbf{$\sigma$ unknown} ($t$-interval):
+  \[
+    \mathrm{CI}_{1-\alpha}(\mu)
+    = \Bigl[\,\bar{X}_n - t_{n-1,1-\alpha/2}\, \tfrac{S_n}{\sqrt{n}},\;
+            \bar{X}_n + t_{n-1,1-\alpha/2}\, \tfrac{S_n}{\sqrt{n}}\Bigr].
+  \]
+  \medskip
+  \textbf{Reading:} probability $1 - \alpha$ that the true $\mu$ falls
+  in the interval (over repeated samples).
+\end{frame}
+
+\begin{frame}{5.~Hypothesis testing}
+  \begin{defbox}[Two-sided test on the mean]
+    $H_0: \mu = \mu_0$ vs.\ $H_1: \mu \neq \mu_0$. Test statistic
+    $T = (\bar{X}_n - \mu_0) / (S_n / \sqrt{n}) \sim t_{n-1}$ under $H_0$.
+    Reject $H_0$ at level $\alpha$ if $|T| > t_{n-1, 1-\alpha/2}$.
+  \end{defbox}
+  \medskip
+  \begin{itemize}
+    \item \textbf{$p$-value:} probability under $H_0$ of observing
+          something at least as extreme as the data.
+    \item \textbf{Type I error} ($\alpha$): rejecting $H_0$ when true.
+    \item \textbf{Type II error} ($\beta$): not rejecting $H_0$ when false.
+    \item \textbf{Power:} $1 - \beta$ — sensitivity to detect $H_1$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{5.~Numerical example}
+  We sample $n = 50$ Atlanta monthly temperatures (in $^\circ$F).
+  Sample statistics: $\bar{X}_{50} = 61.2$, $S_{50} = 16.8$.
+  Test $H_0: \mu = 60$ vs.\ $H_1: \mu \neq 60$ at $\alpha = 0.05$.
+  \medskip
+  \[
+    T = \frac{61.2 - 60}{16.8 / \sqrt{50}} \approx 0.505,
+    \qquad
+    t_{49, 0.975} \approx 2.010.
+  \]
+  Since $|T| = 0.505 < 2.010$, \textbf{do not reject} $H_0$.
+  $p$-value $\approx 0.616$.
+  \medskip
+  \begin{infobox}
+    The 95\% CI for $\mu$ is
+    $[61.2 - 4.78,\; 61.2 + 4.78] = [56.4,\, 66.0]$,
+    which contains $60$ — consistent with the test conclusion.
+  \end{infobox}
+\end{frame}
+
+% =====================================================================
+\section{Wrap-up}
+
+\begin{frame}{Key takeaways}
+  \begin{itemize}
+    \item The \emph{moments} characterise a distribution
+          (mean, variance, skewness, kurtosis).
+    \item \emph{Classical estimators} ($\bar{X}, S^2$) are unbiased
+          and consistent under i.i.d.\ assumptions.
+    \item \emph{MoM} and \emph{MLE} coincide for the Gaussian; in
+          general MLE is asymptotically efficient, MoM is simpler.
+    \item Under normality, $\bar{X} \sim \mathcal{N}(\mu, \sigma^2/n)$
+          and $(n-1)S^2 / \sigma^2 \sim \chi^2_{n-1}$.
+    \item \emph{CLT} extends asymptotic normality to non-Gaussian data.
+    \item Confidence intervals and hypothesis tests are
+          built on the sampling distribution of the estimator.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Up next}
+  \textbf{Chapter 2.} Time-series \emph{decomposition}: trend and
+  seasonality.
+  \medskip
+  \begin{itemize}
+    \item Classical additive and multiplicative decomposition.
+    \item Trend estimation by moving averages and parametric models.
+    \item Seasonality estimation.
+    \item Residual analysis.
+  \end{itemize}
+  \medskip
+  \begin{center}\Large\bfseries Thank you.\end{center}
+  \begin{center}\footnotesize\auteurNom\ -- \auteurEmail\ -- \auteurInstitution\end{center}
+\end{frame}
+
+\end{document}

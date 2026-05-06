@@ -1,0 +1,122 @@
+% =========================================================
+% Project 1 — Atlanta temperatures: full statistical study
+% Time Series Analysis — Chapter 1
+% =========================================================
+\documentclass[a4paper,11pt]{article}
+
+\newcommand{\TPnumero}{Project 1}
+\newcommand{\macrosPath}{../../preamble/macros.tex}
+\input{../../preamble/td-tp-preamble.tex}
+
+\title{Project 1: Statistical study of Atlanta monthly temperatures\\
+\large Descriptive statistics, normality, inference}
+\author{\auteurNom\\\auteurEmail\\\auteurInstitution}
+\date{\anneeUniversitaire}
+
+\begin{document}
+\maketitle
+
+\section*{Context}
+
+The dataset \texttt{AvTempAtlanta.txt} contains the monthly average
+temperatures (degrees Fahrenheit) of Atlanta, USA, over several
+decades. The goal of this project is to apply the basic statistical
+tools of Chapter~1 to a real dataset: descriptive statistics, normality
+diagnostic, confidence intervals, and hypothesis testing.
+
+\section*{Deliverables}
+\begin{itemize}
+  \item A reproducible Python script (\texttt{project1\_<name>.py})
+        with seed $42$.
+  \item A 4--6 page PDF report including all figures, tables and
+        discussion.
+  \item Optional 5-minute oral defence per student.
+\end{itemize}
+
+% =========================================================
+\begin{exercise}[Descriptive statistics]
+\textbf{(1)} Load the data, plot the time series. Comment on the
+qualitative features (trend, seasonality, range).
+
+\textbf{(2)} Compute and report:
+\begin{itemize}
+  \item sample mean, variance, standard deviation, min, max, median;
+  \item sample skewness and kurtosis.
+\end{itemize}
+Plot a histogram with kernel density estimate overlay.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Normality diagnostic]
+\textbf{(1)} Plot a Q--Q plot (\texttt{scipy.stats.probplot}) against
+the standard normal.
+
+\textbf{(2)} Run two formal normality tests:
+\begin{itemize}
+  \item Shapiro--Wilk (\texttt{scipy.stats.shapiro});
+  \item Jarque--Bera (\texttt{scipy.stats.jarque\_bera}).
+\end{itemize}
+Report the test statistics and $p$-values. Conclude on the normality
+assumption at the $5\%$ level.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Confidence interval and hypothesis test]
+\textbf{(1)} Compute the 90\%, 95\% and 99\% $t$-confidence intervals
+for the mean monthly temperature.
+
+\textbf{(2)} Test $H_0 : \mu = 60$ vs.\ $H_1 : \mu \neq 60$ at level
+$5\%$. Report $T$, the critical value, the $p$-value, and conclude.
+
+\textbf{(3)} Repeat with $H_0 : \mu = 65$. Discuss the role of $\mu_0$
+in the test.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Yearly aggregation]
+\textbf{(1)} Aggregate the monthly data into yearly averages (12-month
+mean). How many yearly observations do you obtain?
+
+\textbf{(2)} Run a $t$-test on the yearly averages: $H_0 : \mu = 60$
+vs.\ $H_1 : \mu \neq 60$. How does the conclusion compare with the
+monthly version?
+
+\textbf{(3)} Why does aggregation change the test sensitivity?
+Discuss in terms of the variance of the sample mean.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Bonus: bootstrap and assumption robustness]
+\textbf{(1)} Build a bootstrap CI for the mean ($B = 10^4$). Compare
+with the $t$-CI.
+
+\textbf{(2)} If the data are not normal (cf.\ Exercise~2), is the
+$t$-CI still valid? Justify (CLT, sample size).
+\end{exercise}
+
+% =========================================================
+\section*{Marking grid (out of 100)}
+
+\begin{center}
+\begin{tabular}{p{8cm}rl}
+\toprule
+\textbf{Criterion} & \textbf{Points} & \\
+\midrule
+Loading + descriptive statistics + plots               & 15 \\
+Normality diagnostic + interpretation                  & 15 \\
+$t$-CI (3 levels) + $t$-test ($\mu_0 \in \{60, 65\}$)  & 25 \\
+Yearly aggregation + comparison                        & 15 \\
+Bootstrap (bonus) + robustness discussion              & 10 \\
+Reproducibility (seed, code structure, comments)       & 10 \\
+Report quality (figures, tables, discussion)           & 10 \\
+\midrule
+\textbf{Total}                                         & \textbf{100} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\bigskip
+\hfill\auteurNom\par
+\hfill\auteurEmail\par
+
+\end{document}

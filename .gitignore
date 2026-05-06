@@ -44,7 +44,9 @@ venv/
 # Sorties Python (figures TPs et projets)
 # =========================
 **/tp*_ex*.png
+**/lab*_ex*.png
 **/projet_*.png
+**/project*_*.png
 
 # =========================
 # Caches divers

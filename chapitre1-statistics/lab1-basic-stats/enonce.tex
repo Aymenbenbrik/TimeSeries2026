@@ -1,0 +1,125 @@
+% =========================================================
+% Lab 1 — Basic Statistics (statement)
+% Time Series Analysis — Chapter 1
+% Author : Aymen Ben Brik (aymen.benbrik@esprit.tn)
+% =========================================================
+\documentclass[a4paper,11pt]{article}
+
+\newcommand{\TPnumero}{Lab 1 -- Basic Statistics}
+\input{../../preamble/td-tp-preamble.tex}
+
+\title{Lab 1: Basic statistics in Python\\
+\large Moments $\cdot$ MoM $\cdot$ MLE $\cdot$ Inference}
+\author{\auteurNom\\\auteurEmail\\\auteurInstitution}
+\date{\anneeUniversitaire}
+
+\begin{document}
+\maketitle
+
+\section*{Goals}
+\begin{itemize}
+  \item Compute empirical moments and compare with theoretical values.
+  \item Implement Method of Moments and MLE for the Gaussian.
+  \item Study the sampling distribution of the sample mean by
+        Monte-Carlo simulation.
+  \item Build a confidence interval and run a $t$-test on a real
+        dataset (Atlanta monthly temperatures).
+\end{itemize}
+
+\section*{Setup}
+\begin{itemize}
+  \item Python 3, dependencies: \texttt{numpy}, \texttt{scipy},
+        \texttt{matplotlib}.
+  \item Reproducibility: \texttt{numpy.random.seed(42)}.
+  \item Dataset: \texttt{data/AvTempAtlanta.txt} — monthly
+        average temperatures, Atlanta, USA.
+  \item The skeleton \texttt{seed.py} contains function signatures
+        and the visualisation utilities.
+\end{itemize}
+
+% =========================================================
+\begin{exercise}[Empirical moments]
+\textbf{(1)} Generate $n = 10\,000$ samples from $\mathcal{N}(2, 4)$
+(mean $2$, variance $4$). Compute the four empirical moments:
+\[
+  \widehat{\mu}, \quad \widehat{\sigma}^2,
+  \quad \widehat{S} = \tfrac{1}{n\,\widehat\sigma^3}\sum (X_i - \widehat\mu)^3,
+  \quad \widehat{K} = \tfrac{1}{n\,\widehat\sigma^4}\sum (X_i - \widehat\mu)^4.
+\]
+Compare with theoretical values $(\mu, \sigma^2, S, K) = (2, 4, 0, 3)$.
+
+\textbf{(2)} Repeat for $n = 100$. Plot $\widehat{\mu}$ as a function of
+$n$ for $n \in \{10, 50, 100, 500, 1000, 5000, 10\,000\}$.
+What do you observe?
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Method of Moments vs MLE for the Gaussian]
+\textbf{(1)} Implement \texttt{mom\_gaussian(x)} and
+\texttt{mle\_gaussian(x)} returning the estimated $(\widehat\mu,
+\widehat\sigma^2)$. Verify numerically that the two estimators
+\emph{coincide} on the same sample.
+
+\textbf{(2)} Compare the MLE/MoM estimator $\widehat\sigma^2_{\text{MLE}}
+= \tfrac{1}{n}\sum (X_i - \bar X)^2$ with the unbiased one
+$S^2_n = \tfrac{1}{n-1}\sum (X_i - \bar X)^2$. Run $B = 1000$ Monte-Carlo
+replicates of size $n = 20$, draw the histograms of both estimators,
+and verify empirically that
+\[
+  \E\bigl[\widehat\sigma^2_{\text{MLE}}\bigr] \;=\; \tfrac{n-1}{n}\,\sigma^2,
+  \qquad
+  \E\bigl[S^2_n\bigr] \;=\; \sigma^2.
+\]
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Sampling distribution of $\bar X_n$]
+\textbf{(1)} For $n \in \{10, 30, 100, 1000\}$, simulate
+$B = 1000$ independent samples $X_1, \dots, X_n \iid
+\mathcal{N}(\mu, \sigma^2) = \mathcal{N}(2, 4)$, and compute the
+sample mean of each.
+
+\textbf{(2)} Plot four histograms (one per $n$) of the $B$ values of
+$\bar X_n$. Overlay the theoretical density of
+$\mathcal{N}(\mu, \sigma^2/n)$. Compute the empirical variance and
+compare with $\sigma^2 / n$.
+
+\textbf{(3)} Repeat with a non-Gaussian distribution
+($\mathrm{Exp}(\lambda = 1)$, mean and variance both equal to $1$).
+What does the CLT predict, and is it observed?
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Confidence interval and $t$-test on Atlanta temperatures]
+Load \texttt{data/AvTempAtlanta.txt} (one column of monthly
+temperatures, $n$ values).
+
+\textbf{(1)} Compute $\bar X_n$ and $S_n$. Build the 95\% $t$-confidence
+interval for $\mu$.
+
+\textbf{(2)} Test $H_0 : \mu = 60$ versus $H_1 : \mu \neq 60$ at level
+$5\%$. Report the test statistic, the critical value, the $p$-value,
+and the conclusion.
+
+\textbf{(3)} Compare with \texttt{scipy.stats.ttest\_1samp}.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Bonus: bootstrap CI]
+\textbf{(1)} Implement a non-parametric bootstrap CI for $\mu$ (resample
+the data $B = 5000$ times with replacement, compute $\bar X^*$ on each
+resample, take the empirical $(\alpha/2, 1 - \alpha/2)$-quantiles of
+the bootstrap distribution).
+
+\textbf{(2)} Compare the bootstrap CI with the $t$-CI on the Atlanta
+data. Discuss when each is preferable.
+\end{exercise}
+
+\bigskip
+\begin{warning}
+Always set the seed (\texttt{np.random.seed(42)}) before any random
+draw. Save figures to PNG with explicit names
+(\texttt{lab1\_ex3\_sampling.png}, etc.).
+\end{warning}
+
+\end{document}

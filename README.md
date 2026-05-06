@@ -88,7 +88,7 @@ cd chapitre1-statistics && pdflatex slides.tex && pdflatex slides.tex
 | # | Step | Status |
 |---|------|--------|
 | 1 | Repo + skeleton + reusable preambles + archive of legacy material | ✅ |
-| 2 | Ch.1 — Basic statistics (slides + chapter + Lab1 + Project 1) | ⏳ |
+| 2 | Ch.1 — Basic statistics (slides + chapter + Lab1 + Project 1) | ✅ |
 | 3 | Ch.2 — Decomposition | ⏳ |
 | 4 | Ch.3 — Stationarity | ⏳ |
 | 5 | Ch.4 — Non-stationarity | ⏳ |

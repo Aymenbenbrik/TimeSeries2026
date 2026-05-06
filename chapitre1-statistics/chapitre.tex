@@ -1,0 +1,400 @@
+% =========================================================
+% Chapter 1 — Basic statistical concepts
+% Time Series Analysis — Aymen Ben Brik (aymen.benbrik@esprit.tn)
+% Esprit School of Business
+%
+% Chapter content (no preamble), to be \input by polycopie.tex or
+% chapitre1-statistics/chapitre-standalone.tex.
+% =========================================================
+
+\chapter{Basic statistical concepts}
+\label{ch:basic-stats}
+
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
+
+Before studying time series proper, this chapter reviews the
+statistical concepts on which the rest of the course relies:
+\emph{moments} of a distribution, classical \emph{point estimators},
+\emph{Method of Moments} and \emph{Maximum Likelihood Estimation},
+sampling distributions, and basic \emph{inference} (confidence
+intervals and hypothesis tests).
+
+\medskip
+The convention throughout the chapter is $X_1, \dots, X_n$ are
+\emph{independent and identically distributed} (i.i.d.) draws from a
+distribution with density $f(x;\theta)$ parameterised by some unknown
+$\theta$. We observe a sample and want to learn $\theta$. Time series
+will later violate the i.i.d.\ assumption, but the basic estimators
+introduced here remain the building blocks.
+
+% =========================================================
+\section{Moments of a distribution}
+\label{sec:moments}
+
+\begin{defbox}[Raw and central moments]
+\label{def:moments}
+Let $X$ be a real-valued random variable with density $f$ and mean
+$\mu = \E[X]$.
+\begin{itemize}
+  \item The \emph{raw $\ell$-th moment} is
+        $m'_\ell \;=\; \E[X^\ell] \;=\; \int x^\ell f(x)\, dx$.
+  \item The \emph{central $\ell$-th moment} is
+        $m_\ell \;=\; \E[(X - \mu)^\ell]$.
+\end{itemize}
+\end{defbox}
+
+\paragraph{Useful quantities.}
+\begin{align*}
+  \mu          &= m'_1, &
+  \sigma^2     &= m_2 = \Var[X], \\[2pt]
+  \text{skewness } S(X) &= \frac{m_3}{\sigma^3}, &
+  \text{kurtosis } K(X) &= \frac{m_4}{\sigma^4}.
+\end{align*}
+
+\begin{rembox}[Interpretation]
+\begin{itemize}
+  \item $S(X)$ measures \emph{asymmetry}. $S = 0$ for any symmetric
+        distribution; $S > 0$ for a right-skewed distribution.
+  \item $K(X)$ measures \emph{tail-heaviness}. The Gaussian has $K = 3$;
+        the \emph{excess kurtosis} $K - 3$ is therefore the standard
+        comparison: $K - 3 > 0$ indicates heavier tails than the
+        Gaussian (leptokurtic).
+\end{itemize}
+\end{rembox}
+
+\begin{exbox}[Moments of the standard normal]
+For $X \sim \mathcal{N}(\mu, \sigma^2)$ one shows by direct integration
+or via the moment-generating function:
+\[
+  \E[X] = \mu, \quad \Var[X] = \sigma^2, \quad m_3 = 0, \quad m_4 = 3\,\sigma^4.
+\]
+Hence $S(X) = 0$ and $K(X) = 3$.
+\end{exbox}
+
+% =========================================================
+\section{Classical estimators and sampling distributions}
+\label{sec:estimators}
+
+\subsection{Sample mean and sample variance}
+
+\begin{defbox}[Empirical estimators]
+Given i.i.d.\ data $X_1, \dots, X_n$:
+\[
+  \bar{X}_n \;=\; \frac{1}{n}\sum_{i=1}^{n} X_i,
+  \qquad
+  S_n^2 \;=\; \frac{1}{n-1}\sum_{i=1}^{n}(X_i - \bar{X}_n)^2.
+\]
+\end{defbox}
+
+\begin{propbox}[Unbiasedness of $\bar{X}_n$ and $S_n^2$]
+\label{prop:unbiased}
+For i.i.d.\ data with finite second moments, $\E[\bar{X}_n] = \mu$ and
+$\E[S_n^2] = \sigma^2$.
+\end{propbox}
+
+\begin{proof}
+For the mean: $\E[\bar{X}_n] = \tfrac{1}{n}\sum_i \E[X_i] = \mu$ by
+linearity. For the variance, expand:
+\[
+  \sum_i (X_i - \bar{X}_n)^2 = \sum_i X_i^2 - n\, \bar{X}_n^2.
+\]
+Take expectations: $\E[X_i^2] = \mu^2 + \sigma^2$ and
+$\E[\bar{X}_n^2] = \mu^2 + \sigma^2 / n$. Hence
+$\E[\sum_i(X_i - \bar{X}_n)^2] = n(\mu^2 + \sigma^2) - n(\mu^2 + \sigma^2/n)
+= (n-1)\,\sigma^2$. The $n - 1$ denominator in $S_n^2$ ensures
+$\E[S_n^2] = \sigma^2$.
+\end{proof}
+
+\begin{rembox}[Why $n - 1$?]
+Replacing the unknown $\mu$ by $\bar{X}_n$ in the variance formula
+``costs'' one degree of freedom. Dividing by $n$ would systematically
+underestimate $\sigma^2$.
+\end{rembox}
+
+\subsection{Sampling distribution under normality}
+
+\begin{thbox}[Cochran-type results]
+\label{th:sampling-normal}
+If $X_1, \dots, X_n \iid \mathcal{N}(\mu, \sigma^2)$, then:
+\begin{enumerate}
+  \item $\bar{X}_n \sim \mathcal{N}(\mu,\, \sigma^2 / n)$;
+  \item $\dfrac{(n-1)\, S_n^2}{\sigma^2} \sim \chi^2_{n-1}$;
+  \item $\bar{X}_n$ and $S_n^2$ are independent;
+  \item $\dfrac{\bar{X}_n - \mu}{S_n / \sqrt{n}} \sim t_{n-1}$.
+\end{enumerate}
+\end{thbox}
+
+\begin{rembox}
+Result (4) follows from (1)--(3): the numerator is standard normal, the
+denominator is the square root of an independent $\chi^2_{n-1}$ divided
+by its degrees of freedom — the very definition of Student's $t$.
+\end{rembox}
+
+\subsection{Asymptotic results}
+
+\begin{thbox}[Law of Large Numbers]
+\label{th:lln}
+For i.i.d.\ data with $\E[X_i] = \mu$:
+\[
+  \bar{X}_n \;\xrightarrow{p}\; \mu \quad \text{as } n \to \infty.
+\]
+\end{thbox}
+
+\begin{thbox}[Central Limit Theorem]
+\label{th:clt}
+For i.i.d.\ data with $\E[X_i] = \mu$ and $\Var[X_i] = \sigma^2 < \infty$:
+\[
+  \frac{\bar{X}_n - \mu}{\sigma / \sqrt{n}}
+  \;\xrightarrow{d}\;
+  \mathcal{N}(0, 1) \quad \text{as } n \to \infty.
+\]
+\end{thbox}
+
+\begin{rembox}[Practical consequence]
+Even when the $X_i$ are not Gaussian, the sample mean behaves
+approximately as a normal random variable for large $n$. The rule of
+thumb $n \geq 30$ is conservative; in practice the convergence is
+faster for symmetric, light-tailed distributions and slower for skewed
+or heavy-tailed ones.
+\end{rembox}
+
+% =========================================================
+\section{Estimation methods}
+\label{sec:estimation}
+
+\subsection{Method of Moments (MoM)}
+
+\begin{defbox}[Method of Moments]
+\label{def:mom}
+Let $\theta \in \R^k$. The MoM estimator $\widehat{\theta}_n^{\text{MoM}}$
+solves the system of equations
+\[
+  \E_\theta[X^p] \;=\; \tfrac{1}{n}\sum_{i=1}^{n} X_i^p,
+  \qquad p = 1, 2, \dots, k.
+\]
+That is, theoretical moments are equated to sample moments.
+\end{defbox}
+
+\begin{exbox}[$\mathcal{N}(\mu, \sigma^2)$ via MoM]
+With $\theta = (\mu, \sigma^2)$ and $k = 2$:
+\begin{align*}
+  \mu        &= \bar{X}_n, \\
+  \mu^2 + \sigma^2 &= \tfrac{1}{n}\sum_i X_i^2.
+\end{align*}
+Subtracting yields
+$\widehat{\sigma}^2_{\text{MoM}} = \tfrac{1}{n}\sum(X_i - \bar{X}_n)^2$,
+which differs from $S_n^2$ by a factor $n / (n - 1)$.
+\end{exbox}
+
+\subsection{Maximum Likelihood Estimation (MLE)}
+
+\begin{defbox}[Likelihood and MLE]
+For i.i.d.\ data with density $f(x; \theta)$:
+\[
+  L(\theta) \;=\; \prod_{i=1}^{n} f(X_i; \theta),
+  \qquad
+  \ell(\theta) = \log L(\theta).
+\]
+The MLE is $\widehat{\theta}_n^{\text{MLE}}
+\;=\; \arg\max_\theta\, \ell(\theta)$.
+\end{defbox}
+
+\begin{exbox}[$\mathcal{N}(\mu, \sigma^2)$ via MLE]
+\label{ex:mle-gaussian}
+The log-likelihood is
+\[
+  \ell(\mu, \sigma^2)
+  = -\tfrac{n}{2}\log(2\pi\sigma^2)
+    - \tfrac{1}{2\sigma^2}\sum_{i=1}^{n}(X_i - \mu)^2.
+\]
+Setting $\partial \ell / \partial \mu = 0$ gives
+$\widehat{\mu}_{\text{MLE}} = \bar{X}_n$. Then setting
+$\partial \ell / \partial \sigma^2 = 0$ gives
+$\widehat{\sigma}^2_{\text{MLE}}
+= \tfrac{1}{n}\sum(X_i - \bar{X}_n)^2$. So MLE coincides with MoM here,
+and both are biased for $\sigma^2$ (their expectation is
+$\tfrac{n-1}{n}\sigma^2$).
+\end{exbox}
+
+\begin{thbox}[Asymptotic normality of the MLE]
+\label{th:mle-asymp}
+Under regularity conditions (identifiability, smoothness, finite Fisher
+information $I(\theta_0) > 0$):
+\[
+  \sqrt{n}\,\bigl(\widehat{\theta}_n^{\text{MLE}} - \theta_0\bigr)
+  \;\xrightarrow{d}\;
+  \mathcal{N}\!\bigl(0,\, I(\theta_0)^{-1}\bigr).
+\]
+\end{thbox}
+
+\begin{rembox}[MoM vs.\ MLE]
+\begin{itemize}
+  \item MoM is computationally simple — just match moments.
+  \item MLE is \emph{asymptotically efficient}: its variance attains
+        the Cramér--Rao lower bound $I(\theta_0)^{-1}/n$.
+  \item Both estimators are consistent (under regularity).
+  \item For ``nice'' families (Gaussian, exponential, Poisson), MoM
+        and MLE often coincide or are very close.
+\end{itemize}
+\end{rembox}
+
+% =========================================================
+\section{Multivariate data}
+\label{sec:multivariate}
+
+\subsection{Joint, marginal, and conditional distributions}
+
+\begin{defbox}[Joint and marginal density]
+For two random variables $X, Y$ with joint density $f(x, y)$:
+\[
+  f_X(x) \;=\; \int f(x, y)\, dy,
+  \qquad
+  f_{Y \mid X}(y \mid x) \;=\; \frac{f(x, y)}{f_X(x)}.
+\]
+The chain rule reads $f(x, y) = f_{Y \mid X}(y \mid x)\, f_X(x)$.
+\end{defbox}
+
+\begin{defbox}[Independence]
+$X$ and $Y$ are \emph{independent} iff $f(x, y) = f_X(x)\, f_Y(y)$ for
+all $x, y$.
+\end{defbox}
+
+\subsection{Covariance and correlation}
+
+\begin{defbox}[Covariance and correlation]
+\[
+  \Cov(X, Y) = \E\bigl[(X - \E X)(Y - \E Y)\bigr],
+  \qquad
+  \Corr(X, Y) = \frac{\Cov(X, Y)}{\sqrt{\Var X \Var Y}}.
+\]
+\end{defbox}
+
+\begin{propbox}[Sample versions]
+\[
+  \widehat{\Cov}(X, Y) = \tfrac{1}{n - 1}\sum_{i=1}^{n}
+    (X_i - \bar X)(Y_i - \bar Y),
+  \qquad
+  \widehat{\Corr}(X, Y) = \frac{\widehat{\Cov}(X, Y)}{\widehat{\sigma}_X\,\widehat{\sigma}_Y}.
+\]
+The sample correlation lies in $[-1, 1]$.
+\end{propbox}
+
+\begin{warnbox}[Correlation captures only linear dependence]
+$\Corr(X, Y) = 0$ does not imply independence. Counter-example: let
+$X$ be symmetric around $0$ and $Y = X^2$. Then $\E[XY] = \E[X^3] = 0
+= \E[X]\E[Y]$, hence $\Cov(X, Y) = 0$, yet $Y$ is a deterministic
+function of $X$.
+\end{warnbox}
+
+% =========================================================
+\section{Statistical inference}
+\label{sec:inference}
+
+\subsection{Confidence intervals for the mean}
+
+\begin{defbox}[Confidence interval]
+A $(1 - \alpha)$-confidence interval for $\mu$ is a random interval
+$[\widehat{L}_n, \widehat{U}_n]$ such that
+$\Prob\bigl(\widehat{L}_n \leq \mu \leq \widehat{U}_n\bigr) = 1 - \alpha$
+in repeated sampling.
+\end{defbox}
+
+\paragraph{Gaussian sample, known $\sigma$ ($z$-interval).}
+Let $X_1, \dots, X_n \iid \mathcal{N}(\mu, \sigma^2)$ with $\sigma$
+known. By Theorem~\ref{th:sampling-normal} (1):
+\[
+  \mathrm{CI}_{1-\alpha}(\mu)
+  = \left[\,\bar{X}_n - z_{1-\alpha/2}\,\tfrac{\sigma}{\sqrt{n}},\;
+            \bar{X}_n + z_{1-\alpha/2}\,\tfrac{\sigma}{\sqrt{n}}\,\right].
+\]
+
+\paragraph{Gaussian sample, unknown $\sigma$ ($t$-interval).}
+Replace $\sigma$ by $S_n$ and use Student's $t$ (Theorem~\ref{th:sampling-normal} (4)):
+\[
+  \mathrm{CI}_{1-\alpha}(\mu)
+  = \left[\,\bar{X}_n - t_{n-1, 1-\alpha/2}\,\tfrac{S_n}{\sqrt{n}},\;
+            \bar{X}_n + t_{n-1, 1-\alpha/2}\,\tfrac{S_n}{\sqrt{n}}\,\right].
+\]
+
+\subsection{Hypothesis testing}
+
+\begin{defbox}[Test on the mean]
+Two-sided test:
+$H_0: \mu = \mu_0$ vs.\ $H_1: \mu \neq \mu_0$. Test statistic
+\[
+  T \;=\; \frac{\bar{X}_n - \mu_0}{S_n / \sqrt{n}}
+  \;\sim\; t_{n-1} \text{ under } H_0.
+\]
+Reject $H_0$ at level $\alpha$ if $|T| > t_{n-1, 1-\alpha/2}$, i.e.\ the
+$p$-value $2 \cdot \Prob(T_{n-1} > |T|) < \alpha$.
+\end{defbox}
+
+\begin{rembox}[Errors]
+\begin{itemize}
+  \item Type I error (size of the test): $\alpha = \Prob(\text{reject } H_0 \mid H_0)$.
+  \item Type II error: $\beta = \Prob(\text{not reject } H_0 \mid H_1)$.
+  \item \emph{Power} of the test: $1 - \beta$, the probability of
+        correctly rejecting $H_0$ when $H_1$ is true.
+\end{itemize}
+\end{rembox}
+
+\begin{exbox}[Numerical illustration]
+Suppose $n = 50$ Atlanta monthly average temperatures with sample
+mean $\bar{X}_{50} = 61.2$ and sample standard deviation $S_{50} = 16.8$.
+Test $H_0 : \mu = 60$ against $H_1 : \mu \neq 60$ at $\alpha = 0.05$.
+\[
+  T \;=\; \frac{61.2 - 60}{16.8 / \sqrt{50}}
+       \;\approx\; 0.505,
+  \qquad
+  t_{49, 0.975} \;\approx\; 2.010.
+\]
+Since $|T| < 2.010$, we do \emph{not} reject $H_0$;
+$p\text{-value} \approx 2 \cdot \Prob(t_{49} > 0.505) \approx 0.616$.
+\medskip
+The corresponding 95\% CI is
+$[61.2 - 4.78,\, 61.2 + 4.78] = [56.4,\, 66.0]$, which contains
+$\mu_0 = 60$, consistent with the test conclusion.
+\end{exbox}
+
+\begin{warnbox}[Common pitfalls]
+\begin{itemize}
+  \item ``Failing to reject $H_0$'' is \emph{not} ``proving $H_0$''.
+  \item A small $p$-value does not imply a large effect — it only
+        signals statistical significance, not practical importance.
+  \item Multiple testing inflates Type I error: use Bonferroni or FDR
+        corrections when running many tests.
+\end{itemize}
+\end{warnbox}
+
+% =========================================================
+\section*{Summary}
+\addcontentsline{toc}{section}{Summary}
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Quantity} & \textbf{Estimator} & \textbf{Sampling distribution (Gaussian data)} \\
+\midrule
+$\mu$         & $\bar{X}_n = \tfrac{1}{n}\sum X_i$
+              & $\mathcal{N}(\mu, \sigma^2/n)$ \\
+$\sigma^2$    & $S_n^2 = \tfrac{1}{n-1}\sum (X_i - \bar X_n)^2$
+              & $(n-1)S_n^2/\sigma^2 \sim \chi^2_{n-1}$ \\
+Pivot         & $T = (\bar{X}_n - \mu)/(S_n/\sqrt{n})$
+              & $t_{n-1}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\medskip
+\noindent
+\textbf{What to remember.}
+\begin{itemize}
+  \item Two estimation routes: MoM (match moments) and MLE
+        (maximise likelihood). Both consistent; MLE asymptotically
+        efficient.
+  \item Under normality, the sampling distribution of $\bar X$ is
+        exactly Gaussian; the CLT extends this asymptotically.
+  \item Confidence intervals and hypothesis tests on the mean rely on
+        Student's $t$ when $\sigma$ is unknown.
+\end{itemize}
