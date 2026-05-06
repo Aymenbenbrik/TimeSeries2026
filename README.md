@@ -131,4 +131,4 @@ cd chapitre1-statistics && pdflatex slides.tex && pdflatex slides.tex
 | 11 | ECUE sheet (French) + LIVRABLE.md (AA / AAP) | ✅ |
 | 12 | Final compile + README screenshots | ✅ |
 | 13 | v1.0.0 release tag + memory file | ✅ |
-| 14 | Push to GitHub `Aymenbenbrik/TimeSeries2026` | ⏳ |
+| 14 | Push to GitHub `Aymenbenbrik/TimeSeries2026` | ✅ |
