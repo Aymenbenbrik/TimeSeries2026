@@ -1,0 +1,158 @@
+\documentclass[a4paper,11pt]{article}
+
+\newcommand{\TPnumero}{Lab 6 -- ARCH/GARCH}
+\input{../../preamble/td-tp-preamble.tex}
+
+\title{Lab 6: ARCH effects, GARCH fitting and Value-at-Risk\\
+\large Volatility clustering, Engle LM, GARCH$(1,1)$ and forecasting}
+\author{\auteurNom\\\auteurEmail\\\auteurInstitution}
+\date{\anneeUniversitaire}
+
+\begin{document}
+\maketitle
+
+\section*{Goals}
+\begin{itemize}
+  \item Detect volatility clustering visually and via the Engle LM
+        test.
+  \item Estimate ARCH$(q)$ and GARCH$(p, q)$ models by maximum
+        likelihood.
+  \item Validate the fit through standardised-residual diagnostics.
+  \item Produce conditional volatility forecasts and a one-day
+        Value-at-Risk.
+\end{itemize}
+
+\section*{Setup}
+\begin{itemize}
+  \item Python 3 with \texttt{numpy}, \texttt{pandas},
+        \texttt{matplotlib}, \texttt{statsmodels} and
+        \texttt{arch}.
+  \item \texttt{numpy.random.seed(42)}.
+  \item Dataset: \texttt{data/synthetic\_returns.csv} -- $T = 1500$
+        synthetic daily returns generated from a GARCH$(1, 1)$ with
+        $(\alpha_0, \alpha_1, \beta_1) = (0.05, 0.10, 0.85)$ and
+        Gaussian innovations.
+\end{itemize}
+
+\begin{warning}
+Install the \texttt{arch} package (Kevin Sheppard) once via
+\texttt{pip install arch}. The main entry point is
+\texttt{from arch import arch\_model}.
+\end{warning}
+
+% =========================================================
+\begin{exercise}[Visualising volatility clustering]
+\textbf{(1)} Load \texttt{data/synthetic\_returns.csv}. Plot the
+return series $r_t$ versus $t$. Comment: do you observe quiet
+periods alternating with turbulent ones?
+
+\textbf{(2)} Compute and plot the sample ACF of $r_t$ up to
+lag~$20$. The returns should look (almost) uncorrelated.
+
+\textbf{(3)} Plot the sample ACF of $r_t^2$ up to lag~$20$. Compare
+with the previous plot and comment in 3 lines.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Engle's LM test]
+\textbf{(1)} Use
+\texttt{statsmodels.stats.diagnostic.het\_arch} on $r_t$ at lags
+$5, 10, 20$. Build a small table with columns: lag, LM statistic,
+$\chi^2_{q, 0.95}$ critical value, $p$-value, decision.
+
+\textbf{(2)} Conclude: is there evidence of ARCH effects in the
+data? Why is this consistent with what the ACF of $r_t^2$ already
+showed?
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[ARCH$(q)$ fitting]
+Use \texttt{arch\_model(returns, vol="ARCH", p=q,
+mean="Constant")}. Note: in the \texttt{arch} package the
+``\texttt{p}'' parameter is the ARCH order.
+
+\textbf{(1)} Fit ARCH$(1)$, ARCH$(3)$ and ARCH$(5)$. Report
+$\widehat\alpha_0$, the $\widehat\alpha_i$, the log-likelihood and
+the AIC for each.
+
+\textbf{(2)} Compute $\sum_i \widehat\alpha_i$ for each. Is it less
+than~$1$ (covariance-stationarity)?
+
+\textbf{(3)} Why does ARCH$(5)$ have only a marginal AIC gain over
+ARCH$(3)$? Hint: the true model has volatility memory not directly
+captured by simple lagged squared shocks.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[GARCH$(1, 1)$ fitting]
+\textbf{(1)} Fit GARCH$(1, 1)$ with constant mean and Gaussian
+innovations:
+\[
+  r_t = \mu + \varepsilon_t,
+  \qquad
+  \sigma_t^2 = \alpha_0
+              + \alpha_1\, \varepsilon_{t-1}^2
+              + \beta_1\, \sigma_{t-1}^2.
+\]
+Report $\widehat\mu$, $\widehat\alpha_0$, $\widehat\alpha_1$,
+$\widehat\beta_1$, the log-likelihood and the AIC.
+
+\textbf{(2)} Compute $\widehat\alpha_1 + \widehat\beta_1$ and the
+implied unconditional variance
+$\widehat\sigma^2 = \widehat\alpha_0 / (1 - \widehat\alpha_1 -
+\widehat\beta_1)$. Compare with the empirical sample variance.
+
+\textbf{(3)} Compare AIC: GARCH$(1, 1)$ vs.\ ARCH$(5)$. Comment:
+is the parsimonious GARCH$(1, 1)$ preferred?
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Standardised-residual diagnostics]
+Compute $\widehat z_t = \widehat\varepsilon_t / \widehat\sigma_t$
+from the GARCH$(1, 1)$ fit.
+
+\textbf{(1)} Plot the ACF of $\widehat z_t$ and of
+$\widehat z_t^2$ up to lag~$20$.
+
+\textbf{(2)} Run Engle's LM test on $\widehat z_t^2$ at the same
+lags as Exercise~$2$. The model is well-specified if it does
+\emph{not} reject anymore.
+
+\textbf{(3)} Plot a QQ-plot of $\widehat z_t$ vs.\ $\mathcal N(0, 1)$.
+Comment on the marginal fit.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Volatility forecast and VaR]
+\textbf{(1)} On the GARCH$(1, 1)$ fit, compute the one-step
+forecast $\widehat\sigma_{T+1}$ and the iterated $h$-step forecasts
+$\widehat\sigma_{T+h}^2$ for $h = 1, \dots, 30$. Plot
+$\widehat\sigma_{T+h}^2$ together with the unconditional variance
+$\widehat\sigma^2$.
+
+\textbf{(2)} Verify numerically the mean-reversion formula
+\[
+  \widehat\sigma_{T+h}^2
+  = \widehat\sigma^2
+  + (\widehat\alpha_1 + \widehat\beta_1)^{h-1}
+        \bigl(\widehat\sigma_{T+1}^2 - \widehat\sigma^2\bigr).
+\]
+
+\textbf{(3)} Compute the one-day Value-at-Risk at level $\alpha
+\in \{1\%, 5\%\}$:
+\[
+  \mathrm{VaR}_{T+1}(\alpha)
+  = -\bigl(\widehat\mu + z_\alpha\, \widehat\sigma_{T+1}\bigr).
+\]
+Compare with the unconditional VaR using the sample~$\sigma$.
+Which one is tighter today?
+\end{exercise}
+
+\bigskip
+\begin{warning}
+$z_\alpha = \Phi^{-1}(\alpha)$ is computed via
+\texttt{scipy.stats.norm.ppf(0.01)} $= -2.326$ and
+\texttt{norm.ppf(0.05)} $= -1.645$.
+\end{warning}
+
+\end{document}

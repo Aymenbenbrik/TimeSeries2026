@@ -1,0 +1,398 @@
+% =========================================================
+% Slides Beamer Metropolis 16:9 -- Chapter 6 (ARCH and GARCH)
+% Time Series Analysis -- Aymen Ben Brik (aymen.benbrik@esprit.tn)
+%
+% Extends _archives/source-slides/Non stationnarite.tex sections 4-5
+% (volatility clustering, ARCH(q), GARCH(p,q), Engle LM test).
+% =========================================================
+\documentclass[aspectratio=169]{beamer}
+
+\input{../preamble/slides-preamble.tex}
+
+\title[\moduleNom\ -- Ch.6]{ARCH and GARCH Models}
+\subtitle{Volatility clustering $\cdot$ Conditional heteroskedasticity $\cdot$ MLE $\cdot$ VaR}
+\author{\auteurNom \\ \footnotesize\auteurEmail}
+\institute{\auteurInstitution}
+\date{\anneeUniversitaire}
+
+\begin{document}
+
+\begin{frame}\titlepage\end{frame}
+
+\begin{frame}{Learning objectives}
+  By the end of this chapter, you will be able to:
+  \begin{itemize}
+    \item recognise the limits of homoskedastic ARMA on financial
+          returns;
+    \item state the ARCH$(q)$ and GARCH$(p,q)$ models, their
+          stationarity conditions and unconditional moments;
+    \item run Engle's LM test for ARCH effects on the residuals of a
+          mean model;
+    \item estimate a GARCH model by maximum likelihood and validate
+          the standardised residuals;
+    \item produce a one-step-ahead conditional volatility forecast
+          and a Value-at-Risk estimate.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Chapter outline}
+  \begin{enumerate}
+    \item Stylised facts of financial returns
+    \item Conditional vs unconditional variance
+    \item ARCH$(q)$ model
+    \item GARCH$(p,q)$ model
+    \item Estimation: maximum likelihood
+    \item Diagnostics: Engle LM, standardised residuals
+    \item Volatility forecasting and Value-at-Risk
+    \item Extensions: EGARCH, GJR-GARCH (overview)
+  \end{enumerate}
+\end{frame}
+
+% =====================================================================
+\section{Stylised facts of financial returns}
+
+\begin{frame}{1.~Why ARMA is not enough}
+  Standard ARMA models assume a constant variance
+  $\Var(\varepsilon_t) = \sigma^2$. On financial returns
+  $r_t = \log(P_t / P_{t-1})$, this assumption fails:
+  \begin{itemize}
+    \item the level looks (almost) stationary, but
+    \item large (positive or negative) returns cluster in time;
+    \item small returns also cluster in time;
+    \item the unconditional distribution has heavier tails than
+          $\mathcal N(0, \sigma^2)$.
+  \end{itemize}
+  \pause
+  \alert{Mandelbrot (1963):} \emph{``Large changes tend to be
+  followed by large changes, of either sign, and small changes by
+  small changes.''}
+\end{frame}
+
+\begin{frame}{Stylised facts (financial returns)}
+  \begin{itemize}
+    \item $\E[r_t] \approx 0$, often a tiny drift.
+    \item Sample ACF of $r_t$: nearly flat (returns are weakly
+          serially uncorrelated).
+    \item Sample ACF of $r_t^2$ (or $|r_t|$):
+          \emph{strong, slowly decaying} autocorrelation
+          $\Rightarrow$ \alert{volatility clustering}.
+    \item Heavy-tailed marginal distribution: kurtosis
+          $\widehat\kappa > 3$ (excess kurtosis).
+    \item Leverage effect: negative shocks raise volatility more
+          than positive shocks of the same magnitude.
+  \end{itemize}
+\end{frame}
+
+% =====================================================================
+\section{Conditional vs unconditional variance}
+
+\begin{frame}{2.~Conditional vs unconditional variance}
+  Information set: $\mathcal F_{t-1} = \sigma(r_{t-1}, r_{t-2}, \dots)$.
+  \begin{itemize}
+    \item \emph{Unconditional} variance:
+          $\sigma^2 = \Var(r_t)$ -- the long-run, average risk.
+    \item \emph{Conditional} variance:
+          $\sigma_t^2 = \Var(r_t \mid \mathcal F_{t-1})$ -- the
+          short-run, predictable risk.
+  \end{itemize}
+  \pause
+  ARCH/GARCH models specify \emph{$\sigma_t^2$} as a function of
+  past information, while keeping the unconditional variance
+  $\sigma^2$ finite. The series is then
+  \emph{unconditionally homoskedastic} but
+  \emph{conditionally heteroskedastic}.
+\end{frame}
+
+\begin{frame}{The two-equation structure}
+  Most volatility models split the dynamics in two:
+  \begin{block}{Mean equation}
+    \[
+      r_t = \mu_t + \varepsilon_t,
+      \qquad
+      \varepsilon_t = \sigma_t\, z_t,
+      \qquad
+      z_t \iid \mathcal D(0, 1).
+    \]
+    $\mu_t$ is, e.g., a constant or an ARMA model.
+  \end{block}
+  \begin{block}{Variance equation}
+    A specification of $\sigma_t^2$ in terms of past
+    $\varepsilon_{t-i}^2$ and past $\sigma_{t-j}^2$.
+  \end{block}
+  \pause
+  Common innovation distributions $\mathcal D$: standard normal
+  (Gaussian QMLE), Student-$t$ for fat tails, GED.
+\end{frame}
+
+% =====================================================================
+\section{ARCH$(q)$ model}
+
+\begin{frame}{3.~ARCH$(q)$, Engle (1982)}
+  \begin{block}{Definition}
+    \[
+      \varepsilon_t = \sigma_t\, z_t,
+      \qquad
+      \sigma_t^2 = \alpha_0
+                  + \sum_{i = 1}^{q} \alpha_i\, \varepsilon_{t-i}^2,
+    \]
+    with $z_t \iid \mathcal N(0, 1)$, $\alpha_0 > 0$,
+    $\alpha_i \geq 0$ for $i = 1, \dots, q$.
+  \end{block}
+  \pause
+  \begin{itemize}
+    \item Conditional variance reacts to the \emph{magnitude} of
+          past shocks (squares, sign-blind).
+    \item Robert Engle received the 2003 Nobel Prize in Economics
+          for this model.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Properties of ARCH$(q)$}
+  Assume $\sum_{i=1}^{q} \alpha_i < 1$ (covariance-stationarity).
+  Then:
+  \[
+    \E[\varepsilon_t] = 0,
+    \qquad
+    \E[\varepsilon_t^2] = \frac{\alpha_0}{1 - \sum_{i = 1}^{q} \alpha_i}
+        \;=\; \sigma^2 \quad (\text{unconditional variance}).
+  \]
+  \pause
+  \begin{itemize}
+    \item $(\varepsilon_t)$ is white noise (serially uncorrelated)
+          but \emph{not} independent.
+    \item $(\varepsilon_t^2)$ follows an AR$(q)$ in disguise:
+          $\varepsilon_t^2 = \alpha_0 + \sum \alpha_i
+          \varepsilon_{t-i}^2 + \nu_t$ with $\nu_t = \varepsilon_t^2
+          - \sigma_t^2$.
+    \item Excess kurtosis $\widehat\kappa > 3$: ARCH naturally
+          generates fat tails.
+  \end{itemize}
+\end{frame}
+
+% =====================================================================
+\section{GARCH$(p, q)$ model}
+
+\begin{frame}{4.~GARCH$(p, q)$, Bollerslev (1986)}
+  ARCH$(q)$ requires many parameters to capture long memory in
+  volatility. The \emph{generalised ARCH} model adds lagged
+  conditional variances:
+  \begin{block}{Definition}
+    \[
+      \sigma_t^2 = \alpha_0
+                  + \sum_{i = 1}^{q} \alpha_i\, \varepsilon_{t-i}^2
+                  + \sum_{j = 1}^{p} \beta_j\, \sigma_{t-j}^2,
+    \]
+    $\alpha_0 > 0$, $\alpha_i, \beta_j \geq 0$.
+  \end{block}
+  \pause
+  \alert{Workhorse:} GARCH$(1, 1)$ -- two parameters
+  $(\alpha_1, \beta_1)$ on top of $\alpha_0$, captures most of the
+  volatility persistence in financial data.
+\end{frame}
+
+\begin{frame}{GARCH$(1, 1)$: anatomy}
+  \[
+    \sigma_t^2
+    = \underbrace{\alpha_0}_{\text{baseline}}
+    + \underbrace{\alpha_1\, \varepsilon_{t-1}^2}_{\text{news / shock}}
+    + \underbrace{\beta_1\, \sigma_{t-1}^2}_{\text{persistence / memory}}.
+  \]
+  \pause
+  \begin{itemize}
+    \item $\alpha_1$: how strongly today's volatility reacts to
+          yesterday's surprise.
+    \item $\beta_1$: how strongly today's volatility remembers
+          yesterday's volatility.
+    \item $\alpha_1 + \beta_1$ close to $1$: very persistent
+          volatility (typical for daily equity returns).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Stationarity and unconditional variance}
+  \begin{block}{Covariance-stationarity condition}
+    GARCH$(1,1)$ has a finite unconditional variance if and only if
+    \[
+      \alpha_1 + \beta_1 < 1.
+    \]
+    The unconditional variance is then
+    \[
+      \sigma^2 = \E[\varepsilon_t^2]
+              = \frac{\alpha_0}{1 - \alpha_1 - \beta_1}.
+    \]
+  \end{block}
+  \pause
+  General GARCH$(p, q)$: replace $\alpha_1 + \beta_1$ by
+  $\sum \alpha_i + \sum \beta_j$.
+  \alert{Warning.} If $\alpha_1 + \beta_1 = 1$ we have an
+  \emph{IGARCH} -- shocks have permanent effects on volatility.
+\end{frame}
+
+% =====================================================================
+\section{Estimation}
+
+\begin{frame}{5.~MLE for GARCH}
+  Conditional Gaussian density
+  $r_t \mid \mathcal F_{t-1} \sim \mathcal N(\mu, \sigma_t^2)$:
+  \[
+    \log \mathcal L(\bm\theta)
+    = -\tfrac{T}{2} \log(2 \pi)
+      -\tfrac{1}{2} \sum_{t = 1}^{T}
+          \Bigl(
+              \log \sigma_t^2(\bm\theta)
+              + \tfrac{(r_t - \mu)^2}{\sigma_t^2(\bm\theta)}
+          \Bigr).
+  \]
+  \begin{itemize}
+    \item $\sigma_t^2$ is computed recursively from the model
+          equation.
+    \item Initialised with $\sigma_1^2 = \widehat\sigma^2$ (sample
+          variance) by convention.
+    \item Maximisation by quasi-Newton; the Gaussian QMLE is
+          consistent and asymptotically normal even if the true
+          $z_t$ is non-Gaussian (heavy-tailed).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Estimation -- Python (\texttt{arch} package)}
+\begin{lstlisting}[language=Python]
+from arch import arch_model
+
+am  = arch_model(returns * 100,        # rescale for numerics
+                 mean="Constant",
+                 vol="GARCH",
+                 p=1, q=1, dist="normal")
+res = am.fit(disp="off")
+print(res.summary())
+print("alpha + beta =",
+      res.params["alpha[1]"] + res.params["beta[1]"])
+\end{lstlisting}
+  \begin{itemize}
+    \item \texttt{vol="ARCH"} for pure ARCH$(q)$.
+    \item \texttt{dist="t"} for Student-$t$ innovations.
+    \item \texttt{res.conditional\_volatility} stores
+          $\widehat\sigma_t$.
+  \end{itemize}
+\end{frame}
+
+% =====================================================================
+\section{Diagnostics}
+
+\begin{frame}{6.~Engle's LM test for ARCH effects}
+  Run the auxiliary regression
+  \[
+    \widehat\varepsilon_t^2
+    = \gamma_0 + \gamma_1 \widehat\varepsilon_{t-1}^2
+              + \dots + \gamma_q \widehat\varepsilon_{t-q}^2 + u_t.
+  \]
+  \begin{itemize}
+    \item $H_0$: $\gamma_1 = \dots = \gamma_q = 0$ (no ARCH effect).
+    \item Test statistic: $LM = T \cdot R^2$, with $T$ the sample
+          size and $R^2$ the regression's coefficient of
+          determination.
+    \item Under $H_0$, $LM \xrightarrow{d} \chi^2_q$.
+    \item Reject $H_0$ if $LM > \chi^2_{q, 1 - \alpha}$ -- evidence
+          for ARCH effects, fit a GARCH model.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Standardised residual diagnostics}
+  After fitting GARCH, check
+  \[
+    \widehat z_t = \frac{\widehat\varepsilon_t}{\widehat\sigma_t}.
+  \]
+  A well-fitted model satisfies:
+  \begin{itemize}
+    \item Sample ACF of $\widehat z_t$ inside Bartlett bands.
+    \item Sample ACF of $\widehat z_t^2$ also inside the bands
+          (volatility clustering removed).
+    \item Engle LM on $\widehat z_t^2$ does \emph{not} reject.
+    \item Marginal distribution closer to the assumed
+          $\mathcal D(0, 1)$ (QQ-plot).
+  \end{itemize}
+\end{frame}
+
+% =====================================================================
+\section{Forecasting and Value-at-Risk}
+
+\begin{frame}{7.~One-step-ahead variance forecast}
+  For GARCH$(1, 1)$,
+  \[
+    \widehat\sigma_{T+1}^2
+    = \alpha_0 + \alpha_1 \widehat\varepsilon_T^2
+               + \beta_1 \widehat\sigma_T^2.
+  \]
+  Multi-step iterated forecast (mean-reverting to the
+  unconditional variance):
+  \[
+    \widehat\sigma_{T+h}^2
+    = \sigma^2
+    + (\alpha_1 + \beta_1)^{h - 1}
+        \bigl(\widehat\sigma_{T+1}^2 - \sigma^2\bigr).
+  \]
+  \pause
+  $\widehat\sigma_{T+h}^2 \to \sigma^2$ as $h \to \infty$, at a rate
+  controlled by the persistence $\alpha_1 + \beta_1$.
+\end{frame}
+
+\begin{frame}{Value-at-Risk}
+  At horizon $1$, level $\alpha$ (e.g.\ $1\%$), assuming Gaussian
+  innovations:
+  \[
+    \mathrm{VaR}_{T+1}(\alpha)
+    = -\bigl(\widehat\mu + z_\alpha\, \widehat\sigma_{T+1}\bigr),
+  \]
+  with $z_\alpha = \Phi^{-1}(\alpha)$ -- e.g.\
+  $z_{0.01} = -2.326$, $z_{0.05} = -1.645$.
+  \pause
+  \begin{itemize}
+    \item Static (unconditional) VaR uses sample $\sigma$ instead of
+          $\widehat\sigma_{T+1}$.
+    \item GARCH-VaR is responsive to the current volatility regime
+          and produces tighter intervals in calm periods, wider
+          ones in turbulent periods.
+  \end{itemize}
+\end{frame}
+
+% =====================================================================
+\section{Extensions (overview)}
+
+\begin{frame}{8.~Extensions}
+  \begin{block}{EGARCH (Nelson, 1991)}
+    Models $\log \sigma_t^2$ to relax non-negativity constraints
+    and capture asymmetric responses (leverage effect):
+    \[
+      \log \sigma_t^2 = \omega + \alpha\, g(z_{t-1}) + \beta \log
+      \sigma_{t-1}^2.
+    \]
+  \end{block}
+  \begin{block}{GJR-GARCH (Glosten--Jagannathan--Runkle, 1993)}
+    Adds a threshold term that activates only on negative shocks:
+    \[
+      \sigma_t^2 = \omega + (\alpha + \gamma\, \mathbb 1_{\varepsilon_{t-1}<0})
+                            \varepsilon_{t-1}^2
+                          + \beta\, \sigma_{t-1}^2.
+    \]
+    $\gamma > 0$: bad news raises volatility more than good news.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Take-home messages}
+  \begin{itemize}
+    \item Returns look uncorrelated, but their squares are
+          \emph{strongly} autocorrelated -- volatility clustering.
+    \item ARCH$(q)$ models conditional variance as an AR on past
+          squared shocks; GARCH$(p, q)$ adds memory via past
+          variances.
+    \item GARCH$(1, 1)$ is the standard workhorse:
+          $\alpha_1 + \beta_1 < 1$ for stationarity, with
+          unconditional variance $\alpha_0 / (1 - \alpha_1 - \beta_1)$.
+    \item Test for ARCH effects with Engle's LM; estimate by MLE
+          (\texttt{arch} package); validate with standardised
+          residuals.
+    \item Conditional VaR uses $\widehat\sigma_{T+1}$ instead of
+          the sample $\widehat\sigma$ -- it adapts to the current
+          regime.
+  \end{itemize}
+\end{frame}
+
+\end{document}

@@ -93,7 +93,7 @@ cd chapitre1-statistics && pdflatex slides.tex && pdflatex slides.tex
 | 4 | Ch.3 — Stationarity | ✅ |
 | 5 | Ch.4 — Non-stationarity | ✅ |
 | 6 | Ch.5 — ARMA models | ✅ |
-| 7 | Ch.6 — ARCH / GARCH | ⏳ |
+| 7 | Ch.6 — ARCH / GARCH | ✅ |
 | 8 | Final assembled lecture book | ⏳ |
 | 9 | Final integrative project | ⏳ |
 | 10 | Reflective activity | ⏳ |

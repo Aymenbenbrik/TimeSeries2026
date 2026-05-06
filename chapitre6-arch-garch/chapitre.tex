@@ -1,0 +1,373 @@
+% =========================================================
+% Chapter 6 -- ARCH and GARCH models
+% Author : Aymen Ben Brik (aymen.benbrik@esprit.tn)
+% =========================================================
+
+\chapter{ARCH and GARCH models}
+\label{ch:arch-garch}
+
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
+
+The ARMA family of Chapter~\ref{ch:arma} captures the dynamics of
+the \emph{conditional mean}, but assumes a constant variance. On
+financial returns, on macroeconomic surprises and on many physical
+measurements, this assumption is violated: large absolute deviations
+cluster in time, and the variance itself is predictable.
+This chapter introduces the \emph{autoregressive conditional
+heteroskedasticity} (ARCH) family that models the conditional
+variance directly, generalises it to GARCH$(p, q)$, derives the
+stationarity conditions, presents the maximum-likelihood estimator,
+and applies the model to volatility forecasting and Value-at-Risk.
+
+% =========================================================
+\section{Stylised facts of financial returns}
+\label{sec:stylised}
+
+\begin{rembox}[Empirical regularities]
+For daily log-returns $r_t = \log(P_t / P_{t-1})$ on broad equity
+indices, currencies and commodities:
+\begin{enumerate}
+  \item $\E[r_t] \approx 0$ (small drift).
+  \item ACF of $r_t$: nearly flat -- returns are approximately
+        serially uncorrelated.
+  \item ACF of $r_t^2$ (or $|r_t|$): \emph{strongly} positive at
+        many lags -- volatility is autocorrelated.
+  \item Marginal kurtosis $\widehat\kappa > 3$: heavier tails than
+        Gaussian.
+  \item Leverage effect: negative shocks raise future volatility
+        more than positive shocks of the same size.
+\end{enumerate}
+\end{rembox}
+
+\begin{rembox}[Conditional vs.\ unconditional]
+Let $\mathcal F_{t-1} = \sigma(r_{t-1}, r_{t-2}, \dots)$ be the
+information set up to $t - 1$.
+\begin{itemize}
+  \item \emph{Unconditional variance}:
+        $\sigma^2 = \Var(r_t)$, the long-run, average risk.
+  \item \emph{Conditional variance}:
+        $\sigma_t^2 = \Var(r_t \mid \mathcal F_{t-1})$, the
+        short-run risk knowing the past.
+\end{itemize}
+ARCH and GARCH models \emph{specify $\sigma_t^2$} while keeping
+$\sigma^2$ finite -- the process is unconditionally homoskedastic
+but conditionally heteroskedastic.
+\end{rembox}
+
+\begin{defbox}[Mean--variance decomposition]
+\label{def:mean-var}
+A second-order martingale-difference innovation
+$\varepsilon_t = r_t - \mu_t$ is written
+\[
+  \varepsilon_t = \sigma_t\, z_t,
+  \qquad
+  z_t \iid \mathcal D(0, 1),
+  \qquad
+  \E[\varepsilon_t \mid \mathcal F_{t-1}] = 0,
+  \quad
+  \Var(\varepsilon_t \mid \mathcal F_{t-1}) = \sigma_t^2.
+\]
+$\mathcal D$ is the \emph{innovation distribution}, typically
+$\mathcal N(0, 1)$ or Student-$t$ with low degrees of freedom.
+\end{defbox}
+
+% =========================================================
+\section{ARCH$(q)$ model}
+\label{sec:arch}
+
+\begin{defbox}[ARCH$(q)$, Engle 1982]
+\label{def:arch}
+The \emph{autoregressive conditional heteroskedasticity} model of
+order $q$ specifies
+\[
+  \varepsilon_t = \sigma_t z_t,
+  \qquad
+  \sigma_t^2 = \alpha_0
+              + \sum_{i = 1}^{q} \alpha_i\, \varepsilon_{t-i}^2,
+\]
+with $z_t \iid \mathcal N(0, 1)$, $\alpha_0 > 0$, and
+$\alpha_i \geq 0$ for $i = 1, \dots, q$.
+\end{defbox}
+
+\begin{propbox}[Properties of ARCH$(q)$]
+\label{prop:arch}
+Assume the covariance-stationarity condition
+$\sum_{i = 1}^{q} \alpha_i < 1$. Then:
+\begin{enumerate}
+  \item $\E[\varepsilon_t] = 0$ and $(\varepsilon_t)$ is a white
+        noise (uncorrelated in time, but not independent).
+  \item $\E[\varepsilon_t^2] = \alpha_0 / (1 - \sum \alpha_i)
+        =: \sigma^2$.
+  \item $(\varepsilon_t^2)$ admits an AR$(q)$ representation
+        $\varepsilon_t^2 = \alpha_0
+                          + \sum \alpha_i \varepsilon_{t-i}^2 + \nu_t$,
+        with $\nu_t = \varepsilon_t^2 - \sigma_t^2$ a martingale
+        difference.
+  \item Excess kurtosis: under Gaussian innovations
+        ARCH$(1)$ has kurtosis
+        $3\,(1 - \alpha_1^2) / (1 - 3 \alpha_1^2) > 3$ when
+        $\alpha_1^2 < 1/3$.
+\end{enumerate}
+\end{propbox}
+
+\begin{rembox}[Why squares?]
+Squaring past residuals makes the response \emph{sign-blind}: a
+$-3 \sigma$ surprise and a $+3 \sigma$ surprise both raise
+$\sigma_{t+1}^2$. To allow asymmetric responses (leverage), one
+moves to GJR-GARCH or EGARCH (Section~\ref{sec:extensions}).
+\end{rembox}
+
+% =========================================================
+\section{GARCH$(p, q)$ model}
+\label{sec:garch}
+
+In practice, ARCH$(q)$ requires many lags $q$ to capture the
+slow decay of squared-return autocorrelations, leading to long,
+poorly identified parameter vectors. Bollerslev (1986) generalised
+the model by including past conditional variances themselves.
+
+\begin{defbox}[GARCH$(p, q)$, Bollerslev 1986]
+\label{def:garch}
+\[
+  \sigma_t^2 = \alpha_0
+              + \sum_{i = 1}^{q} \alpha_i\, \varepsilon_{t-i}^2
+              + \sum_{j = 1}^{p} \beta_j\, \sigma_{t-j}^2,
+\]
+with $\alpha_0 > 0$, $\alpha_i, \beta_j \geq 0$.
+\end{defbox}
+
+\begin{propbox}[Stationarity of GARCH$(p, q)$]
+\label{prop:garch-stat}
+$(\varepsilon_t)$ admits a covariance-stationary solution with
+finite unconditional variance if and only if
+\[
+  \sum_{i = 1}^{q} \alpha_i + \sum_{j = 1}^{p} \beta_j \;<\; 1.
+\]
+The unconditional variance is then
+\[
+  \sigma^2 = \E[\varepsilon_t^2]
+          = \frac{\alpha_0}{1 - \sum_i \alpha_i - \sum_j \beta_j}.
+\]
+\end{propbox}
+
+\begin{exbox}[GARCH$(1, 1)$: the workhorse]
+\label{ex:garch11}
+\[
+  \sigma_t^2 = \alpha_0
+             + \alpha_1\, \varepsilon_{t-1}^2
+             + \beta_1\, \sigma_{t-1}^2.
+\]
+On daily equity returns, typical estimates are $\alpha_1 \approx
+0.05$--$0.10$, $\beta_1 \approx 0.85$--$0.92$,
+$\alpha_1 + \beta_1 \approx 0.95$--$0.99$. Volatility is
+\emph{very persistent} but still mean-reverting.
+\end{exbox}
+
+\begin{rembox}[IGARCH and persistence]
+The boundary case $\alpha_1 + \beta_1 = 1$ defines an
+\emph{IGARCH}: shocks have a permanent effect on the conditional
+variance. The unconditional variance is then infinite (the model
+is strictly stationary but not covariance-stationary). Estimated
+$\alpha_1 + \beta_1$ very close to $1$ is a sign that the assumed
+GARCH$(1, 1)$ may be missing a structural break.
+\end{rembox}
+
+% =========================================================
+\section{Maximum-likelihood estimation}
+\label{sec:garch-mle}
+
+\begin{defbox}[Conditional Gaussian likelihood]
+\label{def:garch-mle}
+Assuming $z_t \iid \mathcal N(0, 1)$ and $r_t = \mu + \varepsilon_t$,
+the conditional log-likelihood is
+\[
+  \log \mathcal L(\bm\theta)
+  = -\tfrac{T}{2}\log(2 \pi)
+    -\tfrac{1}{2} \sum_{t = 1}^{T}
+        \Bigl(
+            \log \sigma_t^2(\bm\theta)
+            + \frac{(r_t - \mu)^2}{\sigma_t^2(\bm\theta)}
+        \Bigr),
+\]
+with $\sigma_t^2$ computed recursively from the GARCH equation.
+$\bm\theta = (\mu, \alpha_0, \alpha_1, \dots, \alpha_q,
+\beta_1, \dots, \beta_p)$.
+\end{defbox}
+
+\begin{thbox}[Asymptotic properties of the QMLE]
+Under regularity conditions (positivity, stationarity, bounded
+fourth moment), the Gaussian quasi-MLE
+$\widehat{\bm\theta}_{\text{QMLE}}$ is consistent and
+asymptotically normal,
+\[
+  \sqrt{T}\,(\widehat{\bm\theta} - \bm\theta_0)
+  \;\xrightarrow{d}\; \mathcal N(0, \Sigma),
+\]
+\emph{even if} the true innovation distribution is non-Gaussian
+(e.g.\ Student-$t$). The asymptotic variance $\Sigma$ takes a
+sandwich form $\Sigma = J^{-1} I J^{-1}$.
+\end{thbox}
+
+\begin{rembox}[Practical numerics]
+\begin{itemize}
+  \item Returns are typically rescaled (multiplied by $100$ to work
+        in percentage units) for numerical stability.
+  \item Initial $\sigma_1^2$ is set to the sample variance, or to
+        the unconditional value $\alpha_0 / (1 - \alpha_1 -
+        \beta_1)$ at the current parameters.
+  \item In Python, the \texttt{arch} package
+        (\texttt{arch\_model}) does the rescaling, parameter
+        constraints and likelihood maximisation automatically.
+\end{itemize}
+\end{rembox}
+
+% =========================================================
+\section{Diagnostics}
+\label{sec:garch-diag}
+
+\subsection{Engle's LM test for ARCH effects}
+
+\begin{defbox}[Engle's LM test]
+\label{def:engle-lm}
+Apply on the residual $\widehat\varepsilon_t$ of a mean model
+(constant or ARMA). Run the auxiliary regression
+\[
+  \widehat\varepsilon_t^2
+  = \gamma_0 + \gamma_1 \widehat\varepsilon_{t-1}^2
+            + \dots + \gamma_q \widehat\varepsilon_{t-q}^2 + u_t,
+\]
+get its $R^2$. Test
+\[
+  H_0: \gamma_1 = \dots = \gamma_q = 0,
+  \qquad
+  LM = T \cdot R^2 \;\xrightarrow{d}\; \chi^2_q.
+\]
+Reject $H_0$ at level $\alpha$ if $LM > \chi^2_{q, 1 - \alpha}$.
+\end{defbox}
+
+\begin{rembox}[How to use it]
+Run Engle's LM \emph{before} fitting GARCH (to confirm there is an
+ARCH effect to model) and \emph{after} (on the standardised
+residuals $\widehat z_t = \widehat\varepsilon_t / \widehat\sigma_t$,
+to confirm the model has captured it).
+\end{rembox}
+
+\subsection{Standardised residual diagnostics}
+
+\begin{rembox}
+A well-fitted GARCH produces standardised residuals that look like
+white noise both in level and in square:
+\begin{itemize}
+  \item ACF of $\widehat z_t$ inside Bartlett bands;
+  \item ACF of $\widehat z_t^2$ inside Bartlett bands;
+  \item Engle LM on $\widehat z_t^2$ does not reject;
+  \item marginal distribution close to $\mathcal D(0, 1)$ (QQ-plot,
+        Kolmogorov--Smirnov).
+\end{itemize}
+Persistent failures in $\widehat z_t^2$ suggest a higher-order GARCH
+or a Student-$t$ innovation; failures only in $\widehat z_t^-$
+suggest a leverage extension (GJR, EGARCH).
+\end{rembox}
+
+% =========================================================
+\section{Volatility forecasting and Value-at-Risk}
+\label{sec:garch-forecast}
+
+\begin{propbox}[GARCH$(1, 1)$ multi-step forecast]
+\label{prop:garch-forecast}
+Let $\widehat\sigma_T^2$ and $\widehat\varepsilon_T$ be the values
+obtained at the end of the sample. Then
+\[
+  \widehat\sigma_{T+1}^2
+  = \alpha_0 + \alpha_1 \widehat\varepsilon_T^2
+             + \beta_1 \widehat\sigma_T^2,
+\]
+and for $h \geq 2$,
+\[
+  \widehat\sigma_{T+h}^2
+  = \sigma^2
+  + (\alpha_1 + \beta_1)^{h-1}
+        \bigl(\widehat\sigma_{T+1}^2 - \sigma^2\bigr),
+\]
+where $\sigma^2 = \alpha_0 / (1 - \alpha_1 - \beta_1)$ is the
+unconditional variance. The forecast \emph{mean-reverts} to
+$\sigma^2$ at rate $\alpha_1 + \beta_1$.
+\end{propbox}
+
+\begin{defbox}[Conditional Value-at-Risk]
+\label{def:var}
+At horizon $1$ and confidence $1 - \alpha$ (typically $\alpha = 1\%$
+or $5\%$), assuming Gaussian innovations,
+\[
+  \mathrm{VaR}_{T+1}(\alpha)
+  = -\bigl(\widehat\mu + z_\alpha\, \widehat\sigma_{T+1}\bigr),
+\]
+with $z_\alpha = \Phi^{-1}(\alpha)$ ($z_{0.01} = -2.326$,
+$z_{0.05} = -1.645$). The interpretation: with probability
+$1 - \alpha$, the loss does not exceed $\mathrm{VaR}_{T+1}(\alpha)$.
+\end{defbox}
+
+\begin{rembox}[Static vs dynamic VaR]
+The classical static VaR uses the \emph{sample} standard deviation
+$\widehat\sigma$. The GARCH-VaR uses
+$\widehat\sigma_{T+1}$. In calm regimes, $\widehat\sigma_{T+1} <
+\widehat\sigma$ and the dynamic VaR is tighter; in turbulent
+regimes (just after a market shock), $\widehat\sigma_{T+1} >
+\widehat\sigma$ and the dynamic VaR is wider, accurately reflecting
+the elevated short-term risk.
+\end{rembox}
+
+% =========================================================
+\section{Extensions (overview)}
+\label{sec:extensions}
+
+\begin{rembox}[EGARCH (Nelson 1991)]
+The exponential GARCH models $\log \sigma_t^2$, removing the
+positivity constraints on the parameters and naturally allowing
+asymmetric responses:
+\[
+  \log \sigma_t^2
+  = \omega + \alpha\, \bigl(|z_{t-1}| - \E |z_{t-1}|\bigr)
+          + \gamma\, z_{t-1}
+          + \beta\, \log \sigma_{t-1}^2.
+\]
+$\gamma < 0$ is the typical sign of the leverage effect on equity
+returns.
+\end{rembox}
+
+\begin{rembox}[GJR-GARCH (Glosten--Jagannathan--Runkle 1993)]
+Adds a threshold term that activates only on negative shocks:
+\[
+  \sigma_t^2
+  = \alpha_0
+  + (\alpha_1 + \gamma\, \mathbb 1_{\varepsilon_{t-1} < 0})
+       \varepsilon_{t-1}^2
+  + \beta_1\, \sigma_{t-1}^2.
+\]
+$\gamma > 0$ implies that bad news raises future volatility more
+than good news of the same magnitude.
+\end{rembox}
+
+% =========================================================
+\section*{Summary}
+\addcontentsline{toc}{section}{Summary}
+
+\noindent\textbf{Key takeaways.}
+\begin{itemize}
+  \item Financial returns are uncorrelated but their squares are
+        autocorrelated -- volatility comes in clusters.
+  \item ARCH$(q)$: $\sigma_t^2$ is a linear function of past
+        squared shocks. GARCH$(p, q)$ adds memory through past
+        conditional variances.
+  \item GARCH$(1, 1)$ is stationary iff $\alpha_1 + \beta_1 < 1$,
+        with unconditional variance
+        $\alpha_0 / (1 - \alpha_1 - \beta_1)$.
+  \item Engle's LM test detects ARCH effects in residuals;
+        standardised residuals validate the fit.
+  \item Conditional volatility forecasts mean-revert to the
+        unconditional variance at rate $\alpha_1 + \beta_1$;
+        Value-at-Risk uses these forecasts directly.
+  \item Extensions: EGARCH and GJR-GARCH for asymmetric (leverage)
+        effects.
+\end{itemize}

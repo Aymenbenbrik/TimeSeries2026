@@ -1,0 +1,164 @@
+\documentclass[a4paper,11pt]{article}
+
+\newcommand{\TPnumero}{Project 6}
+\newcommand{\macrosPath}{../../preamble/macros.tex}
+\input{../../preamble/td-tp-preamble.tex}
+
+\title{Project 6: Mean--variance modelling and Value-at-Risk\\
+\large ARMA + GARCH on a financial returns series}
+\author{\auteurNom\\\auteurEmail\\\auteurInstitution}
+\date{\anneeUniversitaire}
+
+\begin{document}
+\maketitle
+
+\section*{Context}
+
+This project closes the module by combining Chapters~3--6 in a single
+volatility study. Starting from a real (or pre-supplied) financial
+returns series, you will:
+\begin{enumerate}
+  \item fit a mean model (ARMA) on the level;
+  \item test for ARCH effects on the residuals;
+  \item fit a GARCH (or extended) model on the conditional variance;
+  \item validate the joint specification through standardised
+        residuals;
+  \item produce a one-day Value-at-Risk and back-test it.
+\end{enumerate}
+
+The deliverable is a self-contained risk-management report.
+
+\section*{Deliverables}
+\begin{itemize}
+  \item Reproducible \texttt{project6\_<name>.py} with seed $42$.
+  \item A returns series of length $\geq 1500$ (daily). You may
+        use the supplied \texttt{data/financial\_returns.csv} or
+        bring your own (clear source citation).
+  \item Report PDF (10--12 pages) including all figures, all
+        numerical outputs, the back-test of the VaR.
+  \item Optional 12-min oral defence.
+\end{itemize}
+
+% =========================================================
+\begin{exercise}[Descriptive statistics and stylised facts]
+\textbf{(1)} Plot the price series $P_t$ and the log-returns
+$r_t = \log(P_t / P_{t-1})$.
+
+\textbf{(2)} Report descriptive statistics on $r_t$: mean, standard
+deviation, skewness, excess kurtosis. Compare with what would be
+expected under a Gaussian model.
+
+\textbf{(3)} Plot the sample ACF of $r_t$ and of $r_t^2$ up to
+lag~$50$. Confirm the two stylised facts: returns are nearly
+uncorrelated, but their squares are strongly autocorrelated.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Mean model: ARMA]
+\textbf{(1)} On $r_t$, run ADF and KPSS to confirm stationarity.
+
+\textbf{(2)} Identify candidate ARMA orders from ACF/PACF and fit
+three candidates by MLE. Report AIC, BIC, Ljung--Box on residuals.
+
+\textbf{(3)} Choose the best mean model. If no significant ARMA
+structure is present, justify keeping a constant-mean model.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Detecting ARCH effects]
+\textbf{(1)} On the residuals $\widehat\varepsilon_t$ of the chosen
+mean model, run Engle's LM test at lags $5, 10, 20$. Report the
+table.
+
+\textbf{(2)} Plot the ACF of $\widehat\varepsilon_t^2$ and confirm
+the visual evidence.
+
+\textbf{(3)} Conclude: GARCH modelling is needed.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Variance model: GARCH$(1, 1)$]
+\textbf{(1)} Fit the joint mean--variance model
+$r_t = \mu_t + \varepsilon_t$, $\sigma_t^2 = \alpha_0 + \alpha_1
+\varepsilon_{t-1}^2 + \beta_1 \sigma_{t-1}^2$ with Gaussian
+innovations. Report all estimates with standard errors.
+
+\textbf{(2)} Verify the stationarity condition $\widehat\alpha_1 +
+\widehat\beta_1 < 1$ and report the implied unconditional
+variance.
+
+\textbf{(3)} Refit with a Student-$t$ innovation distribution and
+compare AIC, BIC. Which one fits better? What does this say about
+the tails of the data?
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Diagnostics on standardised residuals]
+\textbf{(1)} Compute $\widehat z_t = \widehat\varepsilon_t /
+\widehat\sigma_t$ from the chosen GARCH.
+
+\textbf{(2)} Plot the ACF of $\widehat z_t$ and $\widehat z_t^2$
+up to lag $20$. Run Engle's LM test on $\widehat z_t^2$.
+
+\textbf{(3)} Plot a QQ-plot of $\widehat z_t$ vs.\ the assumed
+distribution. Comment on the marginal fit.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Volatility forecast and Value-at-Risk]
+\textbf{(1)} On the chosen joint model, plot the in-sample
+$\widehat\sigma_t$ together with the time series $r_t$. Identify
+visually the most turbulent periods.
+
+\textbf{(2)} Compute the multi-step variance forecast
+$\widehat\sigma_{T+h}^2$ for $h = 1, \dots, 30$. Plot it together
+with the unconditional variance.
+
+\textbf{(3)} Compute the one-day Value-at-Risk at $\alpha \in
+\{1\%, 5\%\}$, both conditionally
+($\widehat\sigma_{T+1}$) and unconditionally
+($\widehat\sigma$).
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Bonus: VaR back-test]
+On a hold-out test set (last $250$ business days), compute the
+one-day rolling conditional VaR at $\alpha = 1\%$ and $\alpha =
+5\%$. Count the number of \emph{exceedances} (days where the
+realised loss exceeded the predicted VaR).
+\begin{itemize}
+  \item Expected number of exceedances at level $\alpha$ over $N$
+        days: $\alpha N$.
+  \item Run a Kupiec test (\texttt{statsmodels} or by hand) to
+        check whether the realised exceedance count is consistent
+        with the nominal $\alpha$.
+\end{itemize}
+\end{exercise}
+
+% =========================================================
+\section*{Marking grid (out of 100)}
+
+\begin{center}
+\begin{tabular}{p{8cm}rl}
+\toprule
+\textbf{Criterion} & \textbf{Points} & \\
+\midrule
+Descriptive statistics + stylised facts             & 10 \\
+ARMA mean model + Box--Jenkins                      & 15 \\
+Engle LM + diagnosis of ARCH effect                 & 10 \\
+GARCH$(1, 1)$ Gaussian + Student-$t$ comparison     & 20 \\
+Diagnostics on standardised residuals               & 15 \\
+Forecast + Value-at-Risk                            & 15 \\
+Bonus: VaR back-test (Kupiec)                       & 10 \\
+Reproducibility + report quality                    &  5 \\
+\midrule
+\textbf{Total}                                      & \textbf{100} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\bigskip
+\hfill\auteurNom\par
+\hfill\auteurEmail\par
+
+\end{document}
