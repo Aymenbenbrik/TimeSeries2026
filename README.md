@@ -97,7 +97,7 @@ cd chapitre1-statistics && pdflatex slides.tex && pdflatex slides.tex
 | 8 | Final assembled lecture book | ✅ |
 | 9 | Final integrative project | ✅ |
 | 10 | Reflective activity | ✅ |
-| 11 | ECUE sheet (French) + LIVRABLE.md (AA / AAP) | ⏳ |
+| 11 | ECUE sheet (French) + LIVRABLE.md (AA / AAP) | ✅ |
 | 12 | Final compile + README screenshots | ⏳ |
 | 13 | v1.0.0 release tag + memory file | ⏳ |
 | 14 | Push to GitHub `Aymenbenbrik/TimeSeries2026` | ⏳ |
