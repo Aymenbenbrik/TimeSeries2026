@@ -1,0 +1,140 @@
+% =========================================================
+% Lecture notes preamble — Time Series Analysis module
+% book class + tcolorbox + fancyhdr
+% Author : Aymen Ben Brik (aymen.benbrik@esprit.tn)
+% Esprit School of Business
+% =========================================================
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{lmodern}
+\usepackage{amsmath, amssymb, amsthm, mathtools, bm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, calc, shapes, fit, backgrounds, matrix, decorations.pathreplacing}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{geometry}
+\geometry{a4paper, margin=2.5cm, headheight=14pt}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\usepackage{enumitem}
+
+% --- Colour palette ---
+\definecolor{espritBlue}{RGB}{30, 60, 110}
+\definecolor{espritAccent}{RGB}{200, 80, 30}
+\definecolor{boxDef}{RGB}{30, 60, 110}
+\definecolor{boxTh}{RGB}{120, 30, 30}
+\definecolor{boxProp}{RGB}{30, 100, 60}
+\definecolor{boxEx}{RGB}{180, 120, 0}
+\definecolor{boxRem}{RGB}{90, 90, 90}
+\definecolor{boxWarn}{RGB}{200, 80, 30}
+
+% --- Code listings ---
+\definecolor{codebg}{RGB}{248,248,248}
+\definecolor{codeframe}{RGB}{220,220,220}
+\definecolor{keyword}{RGB}{0,82,155}
+\definecolor{comment}{RGB}{88,110,117}
+\definecolor{string}{RGB}{133,153,0}
+
+\lstdefinestyle{pythonstyle}{
+  language=Python,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{keyword}\bfseries,
+  commentstyle=\color{comment}\itshape,
+  stringstyle=\color{string},
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  frameround=tttt,
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2
+}
+\lstdefinestyle{Rstyle}{
+  language=R,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{keyword}\bfseries,
+  commentstyle=\color{comment}\itshape,
+  stringstyle=\color{string},
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  frameround=tttt,
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2
+}
+\lstset{style=pythonstyle}
+
+% --- Common macros ---
+\input{../preamble/macros.tex}
+
+% --- Counters ---
+\newcounter{boxcounter}[chapter]
+\renewcommand{\theboxcounter}{\thechapter.\arabic{boxcounter}}
+
+% --- tcolorbox styles (English labels) ---
+\newtcolorbox[use counter=boxcounter]{defbox}[1][]{
+  enhanced, breakable,
+  colback=boxDef!5, colframe=boxDef, fonttitle=\bfseries,
+  title={Definition~\theboxcounter\ifstrempty{#1}{}{ -- #1}},
+  arc=2pt, boxrule=0.6pt
+}
+\newtcolorbox[use counter=boxcounter]{thbox}[1][]{
+  enhanced, breakable,
+  colback=boxTh!5, colframe=boxTh, fonttitle=\bfseries,
+  title={Theorem~\theboxcounter\ifstrempty{#1}{}{ -- #1}},
+  arc=2pt, boxrule=0.6pt
+}
+\newtcolorbox[use counter=boxcounter]{propbox}[1][]{
+  enhanced, breakable,
+  colback=boxProp!5, colframe=boxProp, fonttitle=\bfseries,
+  title={Proposition~\theboxcounter\ifstrempty{#1}{}{ -- #1}},
+  arc=2pt, boxrule=0.6pt
+}
+\newtcolorbox[use counter=boxcounter]{exbox}[1][]{
+  enhanced, breakable,
+  colback=boxEx!5, colframe=boxEx, fonttitle=\bfseries,
+  title={Example~\theboxcounter\ifstrempty{#1}{}{ -- #1}},
+  arc=2pt, boxrule=0.6pt
+}
+\newtcolorbox{rembox}[1][]{
+  enhanced, breakable,
+  colback=boxRem!5, colframe=boxRem, fonttitle=\bfseries,
+  title={Remark\ifstrempty{#1}{}{ -- #1}},
+  arc=2pt, boxrule=0.6pt
+}
+\newtcolorbox{warnbox}[1][]{
+  enhanced, breakable,
+  colback=boxWarn!5, colframe=boxWarn, fonttitle=\bfseries,
+  title={Warning\ifstrempty{#1}{}{ -- #1}},
+  arc=2pt, boxrule=0.6pt
+}
+\newtcolorbox{infobox}[1][]{
+  enhanced, breakable,
+  colback=espritBlue!5, colframe=espritBlue,
+  arc=2pt, boxrule=0.5pt, left=4pt, right=4pt, top=3pt, bottom=3pt, #1
+}
+
+% --- Proof environment ---
+\newtheoremstyle{proofstyle}{6pt}{6pt}{\itshape}{}{\bfseries}{.}{.5em}{}
+\theoremstyle{proofstyle}
+
+% --- Headers / footers ---
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textsc{\moduleNom}}
+\fancyhead[R]{\auteurNom}
+\fancyfoot[C]{\thepage}
+\fancyfoot[L]{\auteurInstitution}
+\fancyfoot[R]{\auteurEmail}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.2pt}

@@ -1,0 +1,1162 @@
+\documentclass[11pt,a4paper]{article}
+
+% ======================
+% Packages
+% ======================
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{cite}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{array}
+\usepackage[natbibapa]{apacite}
+\geometry{margin=2.5cm}
+\setstretch{1.15}
+
+% ======================
+% Document
+% ======================
+
+\begin{document}
+
+\title{A Hybrid Multi-Paradigm Weighting Framework for Composite Sustainability Indices: Integrating Structural Equation Modeling, Analytic Hierarchy Process, and AI-Based Optimization}
+
+\author{Author Name}
+
+\date{}
+
+\maketitle
+\begin{abstract}
+
+Composite sustainability indices are widely used to synthesize multidimensional performance into actionable decision-support tools. However, the methodological legitimacy of such indices remains critically dependent on the weighting scheme adopted. Existing approaches typically rely on either empirical techniques (e.g., Structural Equation Modeling), normative multi-criteria decision-making methods (e.g., Analytic Hierarchy Process), or data-driven optimization frameworks rooted in artificial intelligence. Each paradigm embodies distinct epistemological assumptions, yet no single approach fully reconciles theoretical validity, stakeholder interpretability, and adaptive robustness.
+
+This paper proposes a hybrid multi-paradigm weighting framework that integrates (i) empirically derived latent-structure weights via Structural Equation Modeling, (ii) expert-driven normative weights using the Analytic Hierarchy Process, and (iii) adaptive weights optimized through artificial intelligence-based learning algorithms. The three weighting vectors are aggregated through a meta-weight architecture, allowing strategic calibration of epistemic contributions. A formal mathematical formulation of the hybrid index is provided, followed by a sensitivity analysis of meta-weights and a Monte Carlo simulation to assess robustness under uncertainty.
+
+Furthermore, a Gap-Based Sustainability Assessment Framework is introduced to operationalize the hybrid index in policy diagnostics, enabling identification of structural performance gaps across sustainability dimensions. The results demonstrate that the hybrid approach improves stability, interpretability, and responsiveness compared to single-paradigm weighting schemes.
+
+The proposed framework contributes theoretically by reconciling competing weighting philosophies within a unified architecture and practically by offering policymakers a robust, adaptive, and strategically tunable sustainability measurement tool.
+
+\end{abstract}
+
+
+\noindent\textbf{Keywords:} Composite Sustainability Index; Hybrid Weighting Framework; Structural Equation Modeling; Analytic Hierarchy Process; Artificial Intelligence Optimization; Monte Carlo Sensitivity Analysis.
+
+% =====================================================
+\section{Gap-Based Structural Equation Model for University Sustainability Assessment}
+% =====================================================
+
+%\subsection{Conceptual Foundation of the Gap-Based Sustainability Model}
+
+%Based on the qualitative findings, university sustainability emerges as a %multidimensional latent construct shaped by the interaction between institutional %sustainability initiatives and stakeholder expectations. The analysis %demonstrated that sustainability cannot be fully assessed solely through %technical or operational indicators, but must incorporate stakeholder-centered %perceptual and motivational dimensions.
+
+%In this framework, sustainability is conceptualized as the alignment between %perceived sustainability and expected sustainability. The difference between %these two constructs defines the Expectation--Perception Gap, which represents a %key mediating variable reflecting the degree of alignment between institutional %actions and stakeholder expectations.
+
+%The proposed model integrates three core sustainability dimensions:
+
+%\begin{itemize}
+%\item Economic sustainability
+%\item Social sustainability
+%\item Environmental sustainability
+%\end{itemize}
+
+%These dimensions collectively determine the overall University Sustainability %Index (USI), which represents the final latent construct measuring institutional %sustainability performance.
+
+\subsection{Conceptual Foundation of the Gap-Based Sustainability Model}
+
+Based on the qualitative analysis conducted with the university’s core stakeholders, sustainability emerges as a multidimensional latent construct encompassing economic, social, and environmental dimensions. The findings reveal that sustainability cannot be adequately characterized solely by the existence of technical initiatives or institutional policies, but must also incorporate how these initiatives are perceived and evaluated by stakeholders. In this perspective, sustainability is not only an operational outcome but also a perceptual and relational construct shaped by stakeholder experience and interpretation.
+
+The qualitative results highlighted a systematic divergence between stakeholder perceptions of existing sustainability initiatives and their expectations regarding institutional sustainability performance. While several operational actions were identified across economic, social, and environmental domains, stakeholders frequently emphasized limitations related to their visibility, institutionalization, and strategic alignment. This divergence reflects a structural misalignment between institutional sustainability efforts and stakeholder priorities, which cannot be captured through traditional performance indicators alone.
+
+To address this limitation, the present study introduces the Expectation--Perception Gap as a central conceptual construct for sustainability assessment. This gap represents the difference between stakeholder expectations and their perception of the implemented sustainability initiatives. Conceptually, it captures the degree of alignment between institutional sustainability performance and stakeholder priorities. A smaller gap indicates stronger alignment and greater perceived sustainability effectiveness, whereas a larger gap reflects structural misalignment and reduced sustainability coherence.
+
+Within this framework, sustainability is modeled as a hierarchical latent construct structured around three core dimensions: economic sustainability, social sustainability, and environmental sustainability. Each dimension is influenced by stakeholder perception and stakeholder expectation, and their interaction determines the level of alignment between institutional performance and stakeholder priorities.
+
+Building upon this gap-centered perspective, the University Sustainability Index (USI) is introduced as an integrative latent construct representing the overall level of institutional sustainability. Rather than relying solely on operational performance indicators, the USI reflects the degree of alignment between institutional sustainability initiatives and stakeholder expectations. This formulation provides a stakeholder-centered and behaviorally grounded representation of sustainability, enabling a more comprehensive and realistic assessment of institutional sustainability performance.
+
+
+\subsection{Definition of Latent Variables and Constructs}
+
+In order to formalize the proposed sustainability framework, university sustainability is modeled using latent variables representing stakeholder perception, stakeholder expectation, sustainability alignment, and overall institutional sustainability performance. These constructs are not directly observable but are inferred through observed indicators derived from stakeholder responses.
+
+The model distinguishes between exogenous latent variables, which represent perceived and expected sustainability, and endogenous latent variables, which represent the sustainability gaps and the overall University Sustainability Index.
+
+The vector of exogenous latent variables is defined as:
+
+\begin{equation}
+\xi =
+\begin{bmatrix}
+P_e \\
+P_s \\
+P_{env} \\
+E_e \\
+E_s \\
+E_{env}
+\end{bmatrix}
+\end{equation}
+
+where:
+
+\begin{itemize}
+\item Perceived Economic Sustainability ($P_e$), reflecting stakeholder evaluation of existing economic sustainability initiatives, such as digitalization, resource optimization, and institutional efficiency;
+\item Perceived Social Sustainability ($P_s$), reflecting stakeholder perception of inclusion, well-being, social engagement, and institutional support mechanisms;
+\item Perceived Environmental Sustainability ($P_{env}$), reflecting stakeholder perception of environmental initiatives, including waste management, resource conservation, and ecological awareness;
+\item Expected Economic Sustainability ($E_e$), reflecting stakeholder expectations regarding economic sustainability performance and institutional commitment;
+\item Expected Social Sustainability ($E_s$), reflecting stakeholder expectations concerning inclusion, psychological support, and social responsibility;
+\item Expected Environmental Sustainability ($E_{env}$), reflecting stakeholder expectations regarding environmental protection, resource management, and ecological institutionalization.
+\end{itemize}
+
+These exogenous latent variables capture stakeholder-based evaluations of institutional sustainability performance from both perceptual and normative perspectives.
+
+The vector of endogenous latent variables is defined as:
+
+\begin{equation}
+\eta =
+\begin{bmatrix}
+G_e \\
+G_s \\
+G_{env} \\
+USI
+\end{bmatrix}
+\end{equation}
+
+where:
+
+\begin{itemize}
+\item Economic Sustainability Gap ($G_e$), representing the alignment between perceived and expected economic sustainability;
+\item Social Sustainability Gap ($G_s$), representing the alignment between perceived and expected social sustainability;
+\item Environmental Sustainability Gap ($G_{env}$), representing the alignment between perceived and expected environmental sustainability.
+\end{itemize}
+
+The sustainability gap for each dimension represents the degree of alignment between stakeholder expectations and perceived institutional sustainability performance, and is defined as:
+
+\begin{equation}
+G_e = E_e - P_e
+\end{equation}
+
+\begin{equation}
+G_s = E_s - P_s
+\end{equation}
+
+\begin{equation}
+G_{env} = E_{env} - P_{env}
+\end{equation}
+
+These gap variables act as mediating latent constructs that capture the alignment between institutional sustainability initiatives and stakeholder priorities.
+
+The University Sustainability Index is defined as a higher-order latent construct integrating the sustainability gaps across the three dimensions. It can be expressed as a linear combination of the sustainability gaps:
+
+\begin{equation}
+USI = \beta_1 G_e + \beta_2 G_s + \beta_3 G_{env} + \zeta
+\end{equation}
+
+where:
+
+\begin{itemize}
+\item $\beta_1, \beta_2, \beta_3$ represent the contribution weights of economic, social, and environmental sustainability gaps, respectively,
+\item $\zeta$ represents the structural disturbance term.
+\end{itemize}
+
+This formulation establishes the University Sustainability Index as a stakeholder-centered latent construct reflecting the degree of alignment between institutional sustainability performance and stakeholder expectations.
+
+The vector representation of the latent variables provides the mathematical foundation for specifying both the measurement model and the structural model within the structural equation modeling framework.
+
+\section{Methodology}
+
+\subsection{Research Design}
+
+This study adopts a qualitative stakeholder-centered research design aimed at identifying the key dimensions of university sustainability from the perspective of its core community. The research framework is grounded in stakeholder theory and alignment-based sustainability assessment, focusing on the divergence between perceived and expected sustainability.
+
+The study follows an exploratory-to-structural approach, where qualitative insights are first collected and analyzed, and subsequently formalized into a latent variable framework for sustainability assessment.
+
+\subsection{Stakeholder Selection}
+
+Two primary stakeholder groups were considered:
+
+\begin{itemize}
+\item Students
+\item Academic staff (teachers)
+\end{itemize}
+
+These stakeholders were selected because they directly interact with institutional sustainability initiatives and represent the internal academic community. Their perceptions and expectations provide essential insights into the effectiveness and alignment of sustainability strategies.
+
+\subsection{Data Collection}
+
+Data were collected using structured questionnaires designed to capture both perceived sustainability and expected sustainability across three core dimensions:
+
+\begin{itemize}
+\item Economic sustainability
+\item Social sustainability
+\item Environmental sustainability
+\end{itemize}
+
+Each dimension was measured using multiple indicators reflecting operational initiatives, institutional support mechanisms, and sustainability-related practices.
+
+Responses were collected using Likert-type scales to quantify stakeholder evaluations of sustainability performance and expectations.
+
+\subsection{Construction of Sustainability Dimensions}
+
+Based on qualitative analysis of stakeholder responses, sustainability was conceptualized as a multidimensional construct. For each dimension, two latent constructs were defined:
+
+\begin{itemize}
+\item Perceived sustainability
+\item Expected sustainability
+\end{itemize}
+
+The sustainability gap was operationalized as the difference between expected and perceived sustainability for each dimension. This gap represents the degree of alignment between institutional sustainability actions and stakeholder expectations.
+
+\subsection{Model Development Strategy}
+
+The qualitative findings were translated into a latent variable framework using structural equation modeling principles. The measurement structure defines how observed questionnaire indicators relate to latent sustainability constructs, while the index formulation integrates the sustainability gaps into a unified University Sustainability Index.
+
+This methodological approach ensures theoretical consistency, construct validity, and a stakeholder-centered representation of university sustainability.
+
+\section{Measurement Model Specification}
+
+The measurement model defines the relationships between latent variables and their corresponding observed indicators. In the proposed framework, the measurement model specifies how perceived sustainability, expected sustainability, sustainability gaps, and the overall sustainability index are inferred from observed stakeholder responses.
+
+The measurement model consists of two components: the exogenous measurement model and the endogenous measurement model.
+
+\subsection{Exogenous Measurement Model}
+
+The exogenous measurement model defines the relationships between observed indicators and the exogenous latent variables representing perceived and expected sustainability. It is expressed in matrix form as:
+
+\begin{equation}
+x = \Lambda_x \xi + \delta
+\end{equation}
+
+where:
+
+\begin{itemize}
+\item $x$ is the vector of observed indicators measuring perceived and expected sustainability,
+\item $\Lambda_x$ is the loading matrix relating observed indicators to exogenous latent variables,
+\item $\xi$ is the vector of exogenous latent variables defined in Equation (1),
+\item $\delta$ is the vector of measurement errors associated with exogenous indicators.
+\end{itemize}
+
+The observed indicator vector is defined as:
+
+\begin{equation}
+x =
+\begin{bmatrix}
+x_1 \\
+x_2 \\
+\vdots \\
+x_p
+\end{bmatrix}
+\end{equation}
+
+where each observed variable represents a stakeholder-based indicator of perceived or expected sustainability across economic, social, and environmental dimensions.
+
+Each observed indicator is assumed to be linearly related to its corresponding latent construct. For example, perceived economic sustainability is measured through observed indicators related to digitalization, resource optimization, and institutional efficiency, while expected sustainability is measured through stakeholder expectations regarding institutional sustainability performance.
+
+\subsection{Endogenous Measurement Model}
+
+The endogenous measurement model defines the relationships between observed indicators and endogenous latent variables representing sustainability gaps and the University Sustainability Index. It is expressed as:
+
+\begin{equation}
+y = \Lambda_y \eta + \epsilon
+\end{equation}
+
+where:
+
+\begin{itemize}
+\item $y$ is the vector of observed indicators measuring sustainability gaps and institutional sustainability performance,
+\item $\Lambda_y$ is the loading matrix relating observed indicators to endogenous latent variables,
+\item $\eta$ is the vector of endogenous latent variables defined in Equation (2),
+\item $\epsilon$ is the vector of measurement errors associated with endogenous indicators.
+\end{itemize}
+
+The observed indicator vector is defined as:
+
+\begin{equation}
+y =
+\begin{bmatrix}
+y_1 \\
+y_2 \\
+\vdots \\
+y_q
+\end{bmatrix}
+\end{equation}
+
+These observed indicators reflect stakeholder-perceived alignment between institutional sustainability initiatives and stakeholder expectations, as well as the overall institutional sustainability performance.
+
+\subsection{Measurement Model Interpretation}
+
+The loading matrices $\Lambda_x$ and $\Lambda_y$ define the strength of the relationships between observed indicators and their corresponding latent constructs. Higher loading values indicate stronger relationships between observed variables and latent variables, reflecting higher construct validity.
+
+The measurement errors $\delta$ and $\epsilon$ represent measurement uncertainty and unobserved influences affecting the observed indicators.
+
+This measurement model establishes the empirical link between stakeholder responses and latent sustainability constructs, ensuring that perceived sustainability, expected sustainability, sustainability gaps, and the University Sustainability Index are properly represented within the structural equation modeling framework.
+
+
+\section{University Sustainability Index Formulation}
+
+The University Sustainability Index (USI) is formulated as an integrative latent construct reflecting the overall level of institutional sustainability from a stakeholder-centered perspective. Unlike traditional sustainability indices that rely exclusively on operational or technical indicators, the proposed index incorporates stakeholder perception, stakeholder expectation, and their alignment.
+
+\subsection{Dimension-Level Sustainability Gap}
+
+For each sustainability dimension $i \in \{e, s, env\}$ representing economic, social, and environmental sustainability respectively, the sustainability gap is defined as:
+
+\begin{equation}
+G_i = E_i - P_i
+\end{equation}
+
+where:
+
+\begin{itemize}
+\item $E_i$ represents expected sustainability for dimension $i$,
+\item $P_i$ represents perceived sustainability for dimension $i$.
+\end{itemize}
+
+The sustainability gap captures the degree of misalignment between institutional sustainability initiatives and stakeholder expectations. A smaller gap indicates stronger alignment and higher perceived sustainability performance.
+
+\subsection{Aggregation Across Sustainability Dimensions}
+
+The University Sustainability Index is defined as a weighted aggregation of the sustainability gaps across the three core dimensions:
+
+\begin{equation}
+USI = \beta_e G_e + \beta_s G_s + \beta_{env} G_{env}
+\end{equation}
+
+where:
+
+\begin{itemize}
+\item $\beta_e$, $\beta_s$, and $\beta_{env}$ represent the relative contribution weights of economic, social, and environmental sustainability gaps,
+\item $\beta_e + \beta_s + \beta_{env} = 1$.
+\end{itemize}
+
+These weights reflect the relative importance of each sustainability dimension and can be determined empirically or assigned based on theoretical considerations.
+
+\subsection{Alignment-Based Reformulation}
+
+Since sustainability performance increases when the gap decreases, the index can be reformulated to reflect alignment rather than divergence:
+
+\begin{equation}
+USI = 1 - \left( \beta_e |G_e| + \beta_s |G_s| + \beta_{env} |G_{env}| \right)
+\end{equation}
+
+This formulation ensures that higher index values correspond to stronger alignment between stakeholder expectations and institutional sustainability performance.
+
+\subsection{Normalized Index Formulation}
+
+For comparability across institutions, the index can be normalized to lie within the interval $[0,1]$:
+
+\begin{equation}
+USI^{*} = \frac{USI - USI_{min}}{USI_{max} - USI_{min}}
+\end{equation}
+
+where $USI_{min}$ and $USI_{max}$ represent the theoretical minimum and maximum index values.
+
+\subsection{Interpretation of the Index}
+
+The proposed University Sustainability Index reflects institutional sustainability as an alignment-based construct rather than a purely operational performance measure. Higher index values indicate:
+
+\begin{itemize}
+\item Strong alignment between stakeholder expectations and perceived sustainability,
+\item Effective institutional sustainability strategies,
+\item Higher stakeholder-perceived sustainability legitimacy.
+\end{itemize}
+
+Conversely, lower index values indicate structural misalignment and potential deficiencies in institutional sustainability implementation or communication.
+
+
+\section{Weight Determination Strategies for the University Sustainability Index}
+
+The determination of dimension weights ($\beta_e$, $\beta_s$, $\beta_{env}$) represents a critical methodological step in the construction of composite sustainability indices. Weighting schemes significantly influence index stability, interpretability, and policy implications \cite{Nardo2008,Saisana2005}. In sustainability assessment, weights can be derived using empirical, normative, or adaptive approaches. This study proposes an integrated weighting framework combining Structural Equation Modeling (SEM), Analytic Hierarchy Process (AHP), and Artificial Intelligence (AI)-based adaptive mechanisms.
+
+\subsection{Structural Equation Modeling-Based Weights}
+
+Structural Equation Modeling provides an empirically grounded method for deriving sustainability weights based on latent variable relationships \cite{Bollen1989,Kline2016,Hair2022}. In this framework, standardized structural path coefficients linking sustainability gap constructs to the University Sustainability Index serve as empirical contribution weights.
+
+The SEM-based weight for dimension $i$ is defined as:
+
+\begin{equation}
+\beta_i^{SEM} = \frac{\hat{\beta}_i}{\sum_{j} \hat{\beta}_j}
+\end{equation}
+
+where $\hat{\beta}_i$ represents the standardized structural coefficient associated with sustainability dimension $i$. This approach ensures statistical consistency, construct validity, and empirical justification of weight allocation \cite{Joreskog1973,Diamantopoulos2006}.
+
+\subsection{Analytic Hierarchy Process (AHP)-Based Weights}
+
+The Analytic Hierarchy Process (AHP) is a widely used multi-criteria decision-making method that integrates stakeholder preferences through structured pairwise comparisons \cite{Saaty1980,Saaty2008}. Sustainability dimensions are compared two by two, forming a reciprocal comparison matrix $A$.
+
+The weight vector is obtained as the principal eigenvector of $A$:
+
+\begin{equation}
+\boldsymbol{\beta}^{AHP} = \text{principal eigenvector}(A)
+\end{equation}
+
+AHP has been extensively applied in environmental and sustainability evaluation contexts due to its ability to incorporate normative stakeholder judgment and evaluate consistency \cite{Cinelli2014,Mardani2015}. This approach enhances the legitimacy and governance relevance of the sustainability index.
+
+\subsection{Artificial Intelligence-Based Adaptive Weights}
+
+Recent advances in machine learning and intelligent decision support systems have introduced adaptive weighting mechanisms capable of dynamically adjusting composite index parameters \cite{Jordan2015,Goodfellow2016,Lu2019}. AI-driven approaches analyze contextual data, historical sustainability performance, and stakeholder perception trends to optimize weight allocation.
+
+The AI-based weight determination can be expressed as:
+
+\begin{equation}
+\boldsymbol{\beta}^{AI} = f_{\theta}(X_{context}, X_{stakeholder})
+\end{equation}
+
+where $f_{\theta}$ represents a parameterized learning function mapping contextual and stakeholder inputs to optimized sustainability weights \cite{HerreraViedma2007,Yu2015}. This adaptive mechanism enhances responsiveness and allows the index to evolve over time.
+
+\subsection{Comparative Analysis of Weighting Methods}
+
+Each weighting method captures a distinct epistemological perspective:
+
+\begin{itemize}
+\item \textbf{SEM-based weights} provide empirical validation grounded in latent structural relationships.
+\item \textbf{AHP-based weights} incorporate stakeholder normative priorities.
+\item \textbf{AI-based weights} enable adaptive and context-sensitive optimization.
+\end{itemize}
+
+While SEM ensures statistical rigor, it may underrepresent stakeholder normative preferences. AHP enhances legitimacy but may introduce subjectivity. AI-based approaches improve adaptability but require computational infrastructure and data availability. These methods are therefore complementary rather than substitutive.
+
+\subsection{Hybrid Weighting Model Formulation}
+
+To integrate empirical validation, normative prioritization, and adaptive responsiveness, this study proposes a hybrid weighting model defined as:
+
+\begin{equation}
+\boldsymbol{\beta}^{Hybrid} =
+\alpha \boldsymbol{\beta}^{SEM}
++ \gamma \boldsymbol{\beta}^{AHP}
++ \delta \boldsymbol{\beta}^{AI}
+\end{equation}
+
+subject to:
+
+\begin{equation}
+\alpha + \gamma + \delta = 1
+\end{equation}
+
+where:
+\begin{itemize}
+\item $\boldsymbol{\beta}^{SEM}$ represents empirically derived structural weights,
+\item $\boldsymbol{\beta}^{AHP}$ represents stakeholder-prioritized weights,
+\item $\boldsymbol{\beta}^{AI}$ represents adaptively optimized weights,
+\item $\alpha, \gamma, \delta$ are meta-weights controlling the contribution of each weighting strategy.
+\end{itemize}
+
+The resulting hybrid weight vector $\boldsymbol{\beta}^{Hybrid}$ is then used in the University Sustainability Index formulation:
+
+\begin{equation}
+USI = \sum_{i \in \{e,s,env\}} \beta_i^{Hybrid} G_i
+\end{equation}
+
+This formulation ensures that the sustainability index is:
+
+\begin{itemize}
+\item Empirically grounded,
+\item Normatively legitimate,
+\item Contextually adaptive.
+\end{itemize}
+
+The hybrid framework therefore advances composite sustainability index construction by integrating structural modeling, multi-criteria decision theory, and intelligent adaptive systems into a unified methodological paradigm.
+
+
+
+
+\section{Hybrid Weighting Framework for the University Sustainability Index}
+Before examining the specific weighting methodologies adopted in this study, it is essential to clarify the theoretical and methodological importance of weighting in the construction of composite sustainability indices.
+
+\subsection{The Role of Weighting in Composite Sustainability Indices}
+
+Weighting represents a fundamental methodological step in the construction of composite sustainability indices. Composite indicators aggregate heterogeneous dimensions into a single synthetic measure, and the relative importance assigned to each dimension directly influences the resulting index values, rankings, and policy interpretations \cite{Nardo2008,Saisana2005,OECD2008}. Consequently, weighting is not merely a technical procedure but a theoretically and normatively embedded decision reflecting assumptions about sustainability priorities.
+
+In sustainability assessment, weighting schemes determine how economic, social, and environmental dimensions interact within the index structure. Equal weighting implicitly assumes that all sustainability dimensions contribute identically to institutional performance, whereas differential weighting introduces prioritization based on empirical evidence, stakeholder values, or contextual relevance \cite{Saltelli2007}. The choice of weighting strategy therefore affects index robustness, sensitivity, and comparability across institutions.
+
+The literature on composite indicator construction emphasizes that arbitrary or poorly justified weights may distort results and compromise credibility \cite{Nardo2008}. Sensitivity analyses have demonstrated that small variations in weight allocation can significantly alter institutional rankings and comparative evaluations \cite{Saisana2005,Greco2019}. For this reason, transparency, theoretical grounding, and methodological rigor in weight determination are essential to ensure validity and policy relevance.
+
+From a governance perspective, weighting also embodies normative judgments about institutional priorities and strategic orientation. In the context of university sustainability, assigning greater weight to environmental sustainability signals ecological commitment, whereas prioritizing social sustainability reflects emphasis on inclusiveness and stakeholder well-being. Weighting therefore operates at the intersection of empirical validation, stakeholder legitimacy, and institutional governance \cite{Cinelli2014}.
+
+Given these theoretical and methodological considerations, this study adopts a structured and multi-layered approach to weight determination. Rather than relying on a single weighting paradigm, it integrates empirical structural modeling, stakeholder-based prioritization, and adaptive optimization mechanisms. The following subsections detail these complementary strategies.
+\subsection{Empirical Weighting via Structural Equation Modeling}
+\subsubsection{Empirical Weighting: Structural Equation Modeling}
+
+Structural Equation Modeling (SEM) provides a theoretically grounded and statistically rigorous framework for deriving weights in composite sustainability indices. Unlike arbitrary or equal weighting schemes, SEM-based weighting is rooted in latent variable theory, where relationships between observed indicators and underlying constructs are explicitly modeled and empirically estimated \cite{Bollen1989,Kline2016}.
+
+From a theoretical standpoint, SEM allows sustainability to be conceptualized as a multidimensional latent construct composed of economic, social, and environmental dimensions. These dimensions can be modeled either reflectively or formatively depending on the conceptualization of sustainability \cite{Diamantopoulos2006,Jarvis2003}. In a reflective framework, sustainability dimensions manifest through observed indicators, whereas in a formative structure, dimensions collectively define the overall sustainability construct.
+
+In the context of index construction, SEM-based weighting relies on standardized structural path coefficients linking sustainability dimensions (or sustainability gaps) to the higher-order construct representing overall institutional sustainability. These standardized coefficients reflect the relative contribution of each dimension within the structural system and provide empirically validated weights:
+
+\begin{equation}
+\beta_i^{SEM} = \frac{\hat{\beta}_i}{\sum_{j} \hat{\beta}_j}
+\end{equation}
+
+where $\hat{\beta}_i$ denotes the standardized structural coefficient associated with dimension $i$.
+
+This approach ensures that weight allocation is statistically consistent with the covariance structure of the data and aligned with the underlying theoretical model \cite{Joreskog1973}. By incorporating measurement error explicitly, SEM enhances the reliability and validity of the weighting process compared to traditional aggregation methods \cite{Hair2022}.
+
+Furthermore, SEM-based weighting captures indirect effects and latent interdependencies among sustainability dimensions, thereby providing a systemic interpretation of institutional sustainability performance. This characteristic is particularly relevant in sustainability assessment, where economic, social, and environmental dimensions are often interrelated rather than independent \cite{Greco2019}.
+
+Compared to purely normative or expert-driven weighting approaches, SEM offers an empirically validated alternative that reduces subjectivity and enhances transparency. However, it requires adequate sample size, model identification, and satisfactory goodness-of-fit indices to ensure robustness \cite{Kline2016,Hair2022}.
+
+Overall, SEM-based weighting aligns composite index construction with contemporary latent variable modeling principles and provides a statistically grounded mechanism for quantifying the relative contribution of sustainability dimensions within the University Sustainability Index framework.
+\subsection{Normative Weighting via Analytic Hierarchy Process}
+
+While empirical weighting approaches derive dimension importance from statistical relationships, normative weighting methods explicitly incorporate stakeholder value judgments into the weighting process. In sustainability assessment, where priorities often reflect institutional missions, ethical commitments, and governance objectives, normative legitimacy becomes a critical component of index construction \cite{Saltelli2007,Cinelli2014}.
+
+The Analytic Hierarchy Process (AHP), introduced by Saaty \cite{Saaty1980,Saaty2008}, represents one of the most widely applied multi-criteria decision-making (MCDM) techniques for structured weight determination. AHP is grounded in decision theory and pairwise comparison logic, allowing decision-makers to evaluate the relative importance of criteria systematically.
+
+Within the AHP framework, sustainability dimensions (economic, social, environmental) are compared pairwise using a ratio scale, typically ranging from 1 to 9. These comparisons generate a reciprocal judgment matrix:
+
+\begin{equation}
+A = [a_{ij}], \quad a_{ij} = \frac{1}{a_{ji}}, \quad a_{ii} = 1
+\end{equation}
+
+The priority vector (weight vector) is obtained by solving the principal eigenvalue problem:
+
+\begin{equation}
+A \boldsymbol{\beta}^{AHP} = \lambda_{max} \boldsymbol{\beta}^{AHP}
+\end{equation}
+
+where $\lambda_{max}$ is the maximum eigenvalue of matrix $A$, and $\boldsymbol{\beta}^{AHP}$ corresponds to the normalized principal eigenvector.
+
+A key strength of AHP lies in its consistency assessment mechanism. The Consistency Index (CI) and Consistency Ratio (CR) evaluate whether stakeholder judgments are logically coherent:
+
+\begin{equation}
+CI = \frac{\lambda_{max} - n}{n - 1}
+\end{equation}
+
+This feature enhances methodological transparency and ensures rational comparability of preferences \cite{Saaty2008}.
+
+In sustainability contexts, AHP has been extensively applied in environmental evaluation, resource management, and institutional performance assessment \cite{Mardani2015,Zavadskas2011}. Its ability to incorporate stakeholder priorities makes it particularly relevant for university sustainability assessment, where students and faculty may hold different normative views regarding the relative importance of sustainability dimensions.
+
+Theoretically, AHP operationalizes the normative dimension of sustainability by translating qualitative value judgments into quantitative weights. This aligns with stakeholder theory, which emphasizes the importance of incorporating diverse interests into institutional evaluation frameworks.
+
+However, AHP-based weighting is not free from limitations. Results may be sensitive to subjective biases, scale interpretation differences, and group aggregation methods \cite{Greco2019}. Additionally, AHP assumes independence among criteria, which may not fully capture the systemic interdependencies characteristic of sustainability systems.
+
+Despite these limitations, AHP provides a transparent, participatory, and governance-aligned mechanism for determining sustainability weights. It complements empirical approaches by ensuring that the weighting structure reflects institutional values and stakeholder expectations rather than solely statistical relationships.
+\subsection{Adaptive Weighting via Artificial Intelligence}
+
+While empirical and normative weighting approaches provide statistical validation and stakeholder legitimacy, respectively, sustainability assessment increasingly requires adaptive mechanisms capable of responding to dynamic institutional and environmental conditions. Artificial Intelligence (AI)-based weighting introduces a learning-driven paradigm in which weight allocation evolves based on data patterns, contextual changes, and performance feedback.
+
+The theoretical foundation of AI-based adaptive weighting lies in intelligent decision support systems (IDSS) and machine learning-based optimization frameworks \cite{Lu2019,Yu2015}. Unlike static weighting schemes, adaptive systems continuously update decision parameters in response to new information, thereby enhancing responsiveness and strategic alignment.
+
+From a methodological perspective, AI-based weighting treats the weight vector as a learnable parameter optimized according to predefined objectives (e.g., predictive accuracy, stakeholder satisfaction, sustainability performance improvement). Let $X_{context}$ denote contextual institutional variables (policy changes, funding shifts, environmental regulations), and $X_{stakeholder}$ represent stakeholder perception trends. The adaptive weight vector is defined as:
+
+\begin{equation}
+\boldsymbol{\beta}^{AI} = f_{\theta}(X_{context}, X_{stakeholder})
+\end{equation}
+
+where $f_{\theta}$ represents a parameterized learning function, such as a regression model, neural network, or reinforcement learning agent, and $\theta$ denotes the model parameters optimized through training \cite{Goodfellow2016,Jordan2015}.
+
+In reinforcement learning formulations, the AI agent seeks to optimize a reward function reflecting sustainability objectives:
+
+\begin{equation}
+\theta^{*} = \arg\max_{\theta} \mathbb{E}[R(USI)]
+\end{equation}
+
+where $R(USI)$ represents a reward function associated with improved sustainability alignment or performance outcomes.
+
+AI-based weighting mechanisms are increasingly integrated into multi-criteria decision-making systems to enhance adaptability and robustness \cite{HerreraViedma2007,Zavadskas2011}. In sustainability governance contexts, such adaptive mechanisms are particularly relevant due to the evolving nature of stakeholder expectations, environmental regulations, and institutional priorities.
+
+The primary advantage of AI-driven weighting lies in its capacity to detect nonlinear interactions, temporal trends, and hidden dependencies among sustainability dimensions. Unlike static approaches, AI-based models can incorporate feedback loops and predictive analytics, thereby transforming the sustainability index into a dynamic decision-support instrument.
+
+However, AI-based weighting also introduces challenges related to transparency, interpretability, data availability, and computational complexity. Ensuring explainability and preventing algorithmic bias are critical considerations when integrating AI into governance-sensitive sustainability frameworks.
+
+Despite these challenges, adaptive weighting represents a significant methodological advancement by embedding learning capability into composite index construction. Within the proposed University Sustainability Index framework, AI-based weights complement empirical and normative strategies, enabling context-sensitive and evolutive sustainability assessment.
+\subsection{Comparative Analysis of Weighting Approaches}
+
+
+The three weighting paradigms presented above Structural Equation Modeling (SEM), Analytic Hierarchy Process (AHP), and Artificial Intelligence (AI)-based optimization represent distinct yet complementary perspectives in composite sustainability index construction. Rather than viewing these approaches as competing alternatives, they can be interpreted as addressing different epistemological and methodological dimensions of sustainability assessment.
+
+SEM-based weighting is grounded in latent variable theory and structural modeling traditions \cite{Bollen1989,Kline2016}. It provides empirically derived weights based on statistically estimated relationships among sustainability constructs. Its primary strength lies in ensuring internal structural coherence and measurement validity. However, SEM emphasizes statistical influence rather than stakeholder normative priority.
+
+In contrast, AHP-based weighting emerges from multi-criteria decision theory and ratio-scale prioritization \cite{Saaty1980,Saaty2008}. It explicitly incorporates stakeholder judgments into the weighting process through structured pairwise comparisons. This approach enhances legitimacy and governance alignment but remains sensitive to subjective bias and cognitive inconsistency \cite{Cinelli2014}.
+
+AI-based weighting introduces an adaptive paradigm rooted in intelligent decision-support systems and machine learning optimization \cite{Lu2019,Yu2015}. Unlike static weighting schemes, AI treats weight allocation as a dynamic learning problem capable of capturing nonlinear dependencies and contextual evolution. While highly responsive, AI-based approaches may raise concerns regarding interpretability and computational transparency.
+
+To synthesize these theoretical positions, Table~\ref{tab:weighting_comparison} presents a structured comparative analysis highlighting their respective contributions to the hybrid sustainability index framework.
+
+\begin{table}[H]
+\centering
+\caption{Comparative Theoretical and Methodological Positioning of Weighting Approaches}
+\label{tab:weighting_comparison}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{p{2.5cm} p{3cm} p{3cm} p{3cm}}
+\toprule
+\textbf{Dimension} & \textbf{SEM-Based Weighting} & \textbf{AHP-Based Weighting} & \textbf{AI-Based Weighting} \\
+\midrule
+
+Theoretical Foundation 
+& Latent variable theory and structural modeling 
+& Multi-criteria decision theory and ratio-scale prioritization 
+& Machine learning and intelligent decision support systems \\
+
+Epistemological Orientation 
+& Empirical and positivist 
+& Normative and participatory 
+& Adaptive and optimization-driven \\
+
+Nature of Weights 
+& Statistically estimated from structural relationships 
+& Derived from stakeholder pairwise comparisons 
+& Learned dynamically from contextual and performance data \\
+
+Primary Advantage 
+& Ensures structural coherence and statistical validity 
+& Incorporates stakeholder legitimacy and value-based prioritization 
+& Enables contextual adaptability and nonlinear pattern detection \\
+
+Contribution to Hybrid Index 
+& Provides empirically validated baseline influence of each dimension 
+& Adjusts weights according to stakeholder priorities 
+& Dynamically refines weights based on evolving institutional conditions \\
+
+Main Limitation 
+& Requires adequate sample size and model fit 
+& Sensitive to subjective bias and cognitive load 
+& May lack transparency and require computational resources \\
+
+Role in Hybrid Framework 
+& Empirical validation layer 
+& Normative correction layer 
+& Adaptive optimization layer \\
+
+\bottomrule
+\end{tabular}
+\end{table}
+
+The comparative analysis demonstrates that each weighting approach captures a distinct dimension of sustainability evaluation: empirical validity (SEM), normative legitimacy (AHP), and adaptive responsiveness (AI). University sustainability cannot be fully represented by any single paradigm. Structural relationships alone do not capture stakeholder priorities; normative judgments alone may lack empirical grounding; adaptive learning alone may lack interpretability without theoretical anchoring.
+
+Consequently, the three approaches should be considered methodologically complementary. Their integration provides a multidimensional foundation for sustainability assessment, ensuring statistical rigor, participatory legitimacy, and contextual adaptability. This theoretical synthesis establishes the conceptual basis for the hybrid weighting model formulated in the following subsection.
+
+\subsection{Integrated Hybrid Weighting Model}
+
+
+Building upon the complementary positioning of empirical, normative, and adaptive weighting paradigms, this study proposes a unified hybrid weighting model integrating Structural Equation Modeling (SEM), Analytic Hierarchy Process (AHP), and Artificial Intelligence (AI)-based optimization into a single coherent framework.
+
+Let 
+\[
+\boldsymbol{\beta}^{SEM}, \quad
+\boldsymbol{\beta}^{AHP}, \quad
+\boldsymbol{\beta}^{AI}
+\]
+denote the weight vectors derived from the three respective approaches. Each vector belongs to $\mathbb{R}^3$ and satisfies the normalization constraint:
+
+\begin{equation}
+\sum_{i \in \{e,s,env\}} \beta_i^{(\cdot)} = 1
+\end{equation}
+
+where $(\cdot)$ represents SEM, AHP, or AI.
+
+\subsubsection{Meta-Weighting Structure}
+
+The hybrid weight vector is defined as a convex combination of the three components:
+
+\begin{equation}
+\boldsymbol{\beta}^{Hybrid} =
+\alpha \boldsymbol{\beta}^{SEM}
++
+\gamma \boldsymbol{\beta}^{AHP}
++
+\delta \boldsymbol{\beta}^{AI}
+\end{equation}
+
+subject to:
+
+\begin{equation}
+\alpha + \gamma + \delta = 1, \quad
+\alpha, \gamma, \delta \geq 0
+\end{equation}
+
+The parameters $\alpha$, $\gamma$, and $\delta$ represent meta-weights controlling the relative influence of empirical validation, stakeholder prioritization, and adaptive optimization within the final sustainability index.
+
+\subsubsection{Strategic Interpretation of Meta-Weights}
+
+The meta-weight parameters allow strategic tuning of the index according to institutional objectives:
+
+\begin{itemize}
+\item Higher $\alpha$ emphasizes structural empirical validity;
+\item Higher $\gamma$ prioritizes stakeholder normative legitimacy;
+\item Higher $\delta$ strengthens contextual adaptability and predictive responsiveness.
+\end{itemize}
+
+Thus, the hybrid model introduces a second-order weighting mechanism, enabling universities to calibrate the governance orientation of their sustainability index.
+
+\subsubsection{Final Index Formulation}
+
+The University Sustainability Index is computed as:
+
+\begin{equation}
+USI =
+\sum_{i \in \{e,s,env\}}
+\beta_i^{Hybrid} G_i
+\end{equation}
+
+where $G_i$ represents the sustainability gap associated with dimension $i$.
+
+Substituting the hybrid weight definition yields:
+
+\begin{equation}
+USI =
+\sum_{i}
+\left(
+\alpha \beta_i^{SEM}
++
+\gamma \beta_i^{AHP}
++
+\delta \beta_i^{AI}
+\right) G_i
+\end{equation}
+
+which can be reorganized as:
+
+\begin{equation}
+USI =
+\alpha \sum_{i} \beta_i^{SEM} G_i
++
+\gamma \sum_{i} \beta_i^{AHP} G_i
++
+\delta \sum_{i} \beta_i^{AI} G_i
+\end{equation}
+
+This formulation shows that the final index is itself a weighted aggregation of three distinct sustainability evaluation logics.
+
+\subsubsection{Theoretical Implications}
+
+The hybrid formulation ensures:
+
+\begin{itemize}
+\item Structural consistency (via SEM),
+\item Normative legitimacy (via AHP),
+\item Dynamic adaptability (via AI).
+\end{itemize}
+
+Rather than reducing sustainability assessment to a single methodological paradigm, the hybrid model conceptualizes sustainability as a multidimensional governance construct operating across empirical, normative, and adaptive layers.
+
+\subsubsection{Strategic Governance Perspective}
+
+From a governance standpoint, the hybrid weighting model transforms the University Sustainability Index into a policy-calibrated instrument. Institutions may adjust meta-weights in response to strategic priorities, regulatory environments, or stakeholder pressures. This flexibility allows the index to function not only as a measurement tool but also as a strategic alignment mechanism.
+
+Consequently, the hybrid weighting framework represents a methodological advancement in composite sustainability index construction, embedding statistical rigor, participatory legitimacy, and adaptive intelligence within a unified mathematical structure.
+
+\section{Sensitivity Analysis of Meta-Weights}
+
+Given that the hybrid weighting framework introduces meta-weights 
+$(\alpha, \gamma, \delta)$ controlling the relative contribution of SEM, 
+AHP, and AI components, it is essential to evaluate the sensitivity of 
+the University Sustainability Index (USI) to variations in these parameters.
+
+\subsection{Sensitivity Framework}
+
+Let the hybrid index be defined as:
+
+\begin{equation}
+USI(\alpha, \gamma, \delta)
+=
+\alpha \, USI^{SEM}
++
+\gamma \, USI^{AHP}
++
+\delta \, USI^{AI}
+\end{equation}
+
+subject to:
+
+\begin{equation}
+\alpha + \gamma + \delta = 1
+\end{equation}
+
+where:
+
+\[
+USI^{SEM} = \sum_i \beta_i^{SEM} G_i,
+\quad
+USI^{AHP} = \sum_i \beta_i^{AHP} G_i,
+\quad
+USI^{AI} = \sum_i \beta_i^{AI} G_i
+\]
+
+The sensitivity of the index to each meta-weight is evaluated by 
+computing the partial derivatives:
+
+\begin{equation}
+\frac{\partial USI}{\partial \alpha} = USI^{SEM}
+\end{equation}
+
+\begin{equation}
+\frac{\partial USI}{\partial \gamma} = USI^{AHP}
+\end{equation}
+
+\begin{equation}
+\frac{\partial USI}{\partial \delta} = USI^{AI}
+\end{equation}
+
+These derivatives indicate that the marginal impact of increasing a 
+meta-weight is proportional to the corresponding component index.
+
+\subsection{Interpretation of Sensitivity Behavior}
+
+If the three component indices produce similar values, the hybrid index 
+is robust to moderate changes in meta-weights. Conversely, large 
+divergences between $USI^{SEM}$, $USI^{AHP}$, and $USI^{AI}$ increase 
+sensitivity, indicating stronger dependence on governance orientation.
+
+\subsection{Scenario-Based Sensitivity Analysis}
+
+Sensitivity can be evaluated under three strategic scenarios:
+
+\begin{itemize}
+\item \textbf{Empirical-Dominant Scenario:} $\alpha \rightarrow 1$
+\item \textbf{Normative-Dominant Scenario:} $\gamma \rightarrow 1$
+\item \textbf{Adaptive-Dominant Scenario:} $\delta \rightarrow 1$
+\end{itemize}
+
+These scenarios represent extreme governance orientations and allow 
+assessment of the range of possible index values.
+
+\subsection{Robustness Condition}
+
+The hybrid model can be considered robust if:
+
+\begin{equation}
+\max_{\alpha,\gamma,\delta} USI - 
+\min_{\alpha,\gamma,\delta} USI
+\leq \varepsilon
+\end{equation}
+
+for a predefined tolerance threshold $\varepsilon$.
+
+\subsection{Strategic Implications}
+
+Sensitivity analysis reveals the degree to which institutional 
+sustainability evaluation depends on empirical validation, stakeholder 
+prioritization, or adaptive optimization. It therefore transforms the 
+meta-weight parameters into governance levers rather than arbitrary 
+coefficients.
+
+By explicitly modeling sensitivity, the proposed hybrid weighting 
+framework enhances transparency, interpretability, and policy relevance, 
+strengthening its methodological robustness and practical applicability.
+
+\subsection{Monte Carlo Sensitivity Analysis of Meta-Weights}
+
+To further evaluate the robustness of the hybrid weighting framework, a Monte Carlo simulation procedure is introduced to assess the variability of the University Sustainability Index (USI) under random meta-weight configurations.
+
+\subsubsection{Simulation Framework}
+
+Let the meta-weight vector be defined as:
+
+\[
+\boldsymbol{\omega} = (\alpha, \gamma, \delta)
+\]
+
+subject to:
+
+\[
+\alpha + \gamma + \delta = 1, \quad \alpha, \gamma, \delta \geq 0
+\]
+
+To explore the full feasible space of meta-weights, random samples are drawn from a Dirichlet distribution:
+
+\begin{equation}
+\boldsymbol{\omega}^{(k)} \sim \text{Dirichlet}(1,1,1)
+\end{equation}
+
+for $k = 1, \dots, N$, where $N$ represents the number of simulation iterations.
+
+\subsubsection{Simulated Index Computation}
+
+For each sampled meta-weight vector $\boldsymbol{\omega}^{(k)}$, the hybrid index is computed as:
+
+\begin{equation}
+USI^{(k)} =
+\alpha^{(k)} USI^{SEM}
++
+\gamma^{(k)} USI^{AHP}
++
+\delta^{(k)} USI^{AI}
+\end{equation}
+
+This produces a distribution of simulated index values:
+
+\[
+\{USI^{(1)}, USI^{(2)}, \dots, USI^{(N)}\}
+\]
+
+\subsubsection{Statistical Evaluation}
+
+The robustness of the hybrid index is evaluated using:
+
+\begin{itemize}
+\item Mean simulated value:
+\[
+\bar{USI} = \frac{1}{N} \sum_{k=1}^{N} USI^{(k)}
+\]
+
+\item Variance:
+\[
+\text{Var}(USI) = \frac{1}{N-1} \sum_{k=1}^{N} (USI^{(k)} - \bar{USI})^2
+\]
+
+\item Confidence interval estimation
+\item Coefficient of variation:
+\[
+CV = \frac{\sqrt{\text{Var}(USI)}}{\bar{USI}}
+\]
+\end{itemize}
+
+\subsubsection{Interpretation of Monte Carlo Results}
+
+A low variance and small coefficient of variation indicate strong robustness of the hybrid index to meta-weight perturbations. Conversely, high dispersion suggests that institutional sustainability evaluation is sensitive to governance orientation and weighting philosophy.
+
+Monte Carlo analysis therefore provides a probabilistic robustness assessment of the hybrid weighting framework, transforming the meta-weight space into an analyzable uncertainty domain.
+
+\subsubsection{Governance Implications}
+
+From a strategic perspective, the Monte Carlo simulation enables institutions to:
+
+\begin{itemize}
+\item Quantify uncertainty associated with weighting choices,
+\item Identify stability regions within the meta-weight simplex,
+\item Support evidence-based calibration of governance parameters.
+\end{itemize}
+
+By embedding stochastic simulation into the weighting process, the hybrid model enhances transparency, methodological rigor, and policy credibility.
+
+
+\section{Gap-Based Sustainability Assessment Framework}
+
+\subsection{Conceptual Foundation of the Gap-Based Approach}
+
+Traditional sustainability assessment frameworks primarily focus on 
+objective performance indicators such as resource consumption, policy 
+implementation, or environmental impact metrics. While these measures 
+provide operational insights, they often overlook the relational and 
+perceptual dimensions of sustainability within institutional contexts.
+
+The proposed framework reconceptualizes university sustainability as 
+an alignment-based construct. Sustainability performance is not only 
+a function of institutional actions but also of the coherence between 
+stakeholder expectations and perceived institutional outcomes.
+
+Let:
+\[
+P_i = \text{Perceived sustainability in dimension } i
+\]
+\[
+E_i = \text{Expected sustainability in dimension } i
+\]
+
+for $i \in \{e, s, env\}$ representing economic, social, and environmental 
+sustainability respectively.
+
+The sustainability gap is defined as:
+
+\begin{equation}
+G_i = E_i - P_i
+\end{equation}
+
+The gap captures the degree of misalignment between institutional 
+performance and stakeholder expectations.
+
+\subsection{Multidimensional Structure of Sustainability Gaps}
+
+University sustainability is conceptualized as a multidimensional latent 
+structure composed of three interrelated domains:
+
+\begin{itemize}
+\item Economic sustainability ($G_e$),
+\item Social sustainability ($G_s$),
+\item Environmental sustainability ($G_{env}$).
+\end{itemize}
+
+Each gap dimension reflects a specific domain of institutional alignment. 
+The overall sustainability condition of the university is therefore 
+determined by the collective configuration of these three gap measures.
+
+\subsection{Alignment Interpretation}
+
+The sustainability gap can be interpreted in three ways:
+
+\begin{itemize}
+\item $G_i \approx 0$: Strong alignment between expectations and perceptions,
+\item $G_i > 0$: Institutional performance below stakeholder expectations,
+\item $G_i < 0$: Institutional performance exceeds expectations.
+\end{itemize}
+
+From a governance perspective, minimizing the absolute value of $G_i$ 
+becomes a strategic objective. Sustainability is therefore redefined 
+as a dynamic equilibrium condition rather than a static performance level.
+
+\subsection{Integration into the University Sustainability Index}
+
+The University Sustainability Index (USI) aggregates the three 
+dimension-level gaps using a hybrid weighting scheme:
+
+\begin{equation}
+USI =
+\sum_{i \in \{e,s,env\}}
+\beta_i^{Hybrid} G_i
+\end{equation}
+
+where $\beta_i^{Hybrid}$ are determined using the integrated empirical–
+normative–adaptive weighting framework previously defined.
+
+This formulation ensures that sustainability assessment captures:
+
+\begin{itemize}
+\item Structural empirical relationships,
+\item Stakeholder normative priorities,
+\item Contextual adaptive dynamics.
+\end{itemize}
+
+\subsection{Framework Implications}
+
+The Gap-Based Sustainability Assessment Framework transforms 
+sustainability evaluation into a stakeholder-centered alignment model. 
+Rather than measuring performance in isolation, it quantifies the 
+degree to which institutional strategies meet evolving expectations 
+within a multidimensional governance environment.
+
+By integrating gap modeling, hybrid weighting, and stochastic robustness 
+analysis, the framework establishes a comprehensive methodological 
+architecture for university sustainability assessment.
+
+\section{Discussion : Theoretical Contribution of the Gap-Based Sustainability Model}
+
+The present study advances university sustainability assessment by 
+introducing a gap-based, hybrid-weighted framework that integrates 
+empirical validation, stakeholder prioritization, and adaptive optimization 
+into a unified methodological architecture.
+
+\subsection{Theoretical Implications}
+
+First, the proposed model shifts the conceptualization of sustainability 
+from a performance-based paradigm toward an alignment-based paradigm. 
+Traditional sustainability rankings primarily evaluate operational outputs 
+(e.g., energy efficiency, waste management, policy adoption). In contrast, 
+the gap-based framework emphasizes the coherence between stakeholder 
+expectations and perceived institutional performance. Sustainability is 
+therefore interpreted as a relational construct rather than a purely 
+technical outcome.
+
+Second, the integration of Structural Equation Modeling, Analytic 
+Hierarchy Process, and Artificial Intelligence extends the literature 
+on composite indicator construction. Existing sustainability indices 
+often rely on fixed or arbitrarily assigned weights. The hybrid weighting 
+model demonstrates that sustainability assessment can simultaneously 
+achieve empirical rigor, normative legitimacy, and adaptive flexibility.
+
+Third, the incorporation of stochastic robustness analysis through 
+Monte Carlo simulation contributes methodological transparency. By 
+modeling meta-weight uncertainty explicitly, the framework avoids the 
+implicit rigidity found in many composite indices and strengthens 
+policy credibility.
+
+\subsection{Methodological Contributions}
+
+Methodologically, the study proposes a multi-layered index construction 
+process combining:
+
+\begin{itemize}
+\item Latent structural modeling (SEM),
+\item Participatory decision theory (AHP),
+\item Intelligent adaptive optimization (AI),
+\item Sensitivity and Monte Carlo robustness analysis.
+\end{itemize}
+
+This layered approach addresses common critiques of composite indices, 
+including arbitrary weighting, lack of transparency, and limited 
+adaptability to contextual changes.
+
+Furthermore, the convex hybrid formulation ensures mathematical 
+consistency and interpretability, while preserving flexibility through 
+meta-weight calibration.
+
+\subsection{Governance and Strategic Implications}
+
+From a governance perspective, the hybrid weighting structure transforms 
+the University Sustainability Index into a strategic alignment instrument. 
+Meta-weights ($\alpha, \gamma, \delta$) function as governance levers 
+that allow institutions to calibrate their sustainability evaluation 
+according to strategic priorities, regulatory environments, or stakeholder 
+pressures.
+
+The Monte Carlo analysis further enables institutions to assess 
+robustness across alternative governance orientations, supporting 
+evidence-based policy calibration rather than arbitrary decision-making.
+
+\subsection{Limitations and Future Research Directions}
+
+Despite its methodological strengths, the proposed framework has 
+limitations. The SEM component requires sufficient sample size and 
+model identification. The AHP component may be influenced by subjective 
+bias or group dynamics. The AI component depends on data availability, 
+computational resources, and algorithmic transparency.
+
+Future research may extend the framework by:
+
+\begin{itemize}
+\item Applying the model empirically across multiple universities,
+\item Exploring dynamic temporal gap evolution,
+\item Integrating explainable AI techniques to enhance interpretability,
+\item Expanding sustainability dimensions beyond the triple bottom line.
+\end{itemize}
+
+Further empirical validation will strengthen the generalizability and 
+comparative applicability of the hybrid sustainability assessment model.
+
+\section{Conclusion}
+
+This study proposes a novel Gap-Based Sustainability Assessment Framework 
+for universities, integrating multidimensional alignment modeling with 
+a hybrid weighting architecture. By redefining sustainability as the 
+degree of coherence between stakeholder expectations and perceived 
+institutional performance, the framework moves beyond traditional 
+performance-centered sustainability metrics.
+
+The introduction of sustainability gaps across economic, social, and 
+environmental dimensions establishes an alignment-based paradigm in 
+which sustainability is conceptualized as a dynamic equilibrium rather 
+than a static outcome. This reconceptualization provides a relational 
+and governance-sensitive interpretation of institutional sustainability.
+
+Methodologically, the study advances composite index construction by 
+integrating three complementary weighting paradigms: empirical 
+structural modeling (SEM), normative stakeholder prioritization (AHP), 
+and adaptive artificial intelligence-based optimization. The resulting 
+hybrid weighting model ensures statistical validity, participatory 
+legitimacy, and contextual responsiveness within a unified mathematical 
+framework.
+
+The inclusion of sensitivity analysis and Monte Carlo simulation further 
+enhances methodological robustness, allowing systematic evaluation of 
+meta-weight uncertainty and governance orientation. By embedding 
+deterministic and stochastic robustness assessments, the proposed index 
+addresses common limitations associated with arbitrary or fixed-weight 
+composite indicators.
+
+From a strategic governance perspective, the University Sustainability 
+Index becomes not only a measurement tool but also a calibration 
+instrument. Institutions may adjust meta-weights to reflect evolving 
+priorities, regulatory conditions, or stakeholder pressures, thereby 
+aligning sustainability evaluation with institutional strategy.
+
+Overall, this research establishes a comprehensive theoretical and 
+methodological foundation for stakeholder-centered sustainability 
+assessment in higher education. The proposed framework contributes to 
+the advancement of sustainability measurement by integrating alignment 
+theory, multi-criteria decision analysis, and intelligent adaptive 
+systems into a coherent and scalable model.
+
+Future empirical applications and cross-institutional validations will 
+further strengthen the operationalization and comparative relevance of 
+the hybrid gap-based sustainability framework.
+
+\bibliographystyle{apacite}
+\bibliography{references}
+
+\end{document}

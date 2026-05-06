@@ -1,0 +1,179 @@
+\documentclass[a4paper,12pt]{article}
+
+% ------------------------------------------------
+% Packages
+% ------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{amsmath,amssymb}
+\usepackage{tcolorbox}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+
+\geometry{margin=2.5cm}
+
+% ------------------------------------------------
+% Informations personnalisables
+% ------------------------------------------------
+\newcommand{\university}{Votre Université}
+\newcommand{\faculty}{Votre Faculté}
+\newcommand{\module}{Statistiques avec R}
+\newcommand{\level}{Licence / Master}
+\newcommand{\teacher}{Dr. Aymen Ben Brik}
+\newcommand{\doctype}{TP 0}
+\newcommand{\docdate}{Année 2018--2019}
+
+% ------------------------------------------------
+% Header & Footer
+% ------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\module}
+\fancyhead[R]{\doctype}
+\fancyfoot[C]{\thepage}
+
+% ------------------------------------------------
+% Page de garde personnalisée
+% ------------------------------------------------
+\newcommand{\makecustomtitle}{
+\begin{center}
+
+%\includegraphics[width=3cm]{logo.png} % Ajouter votre logo si besoin
+
+\vspace{0.5cm}
+
+{\Large \textbf{\university}}\\
+{\faculty}
+
+\vspace{0.5cm}
+
+\rule{\linewidth}{0.5mm}
+
+\vspace{0.3cm}
+
+{\Huge \textbf{\doctype}}
+
+\vspace{0.3cm}
+
+{\Large \textbf{Rappels sur les statistiques avec R}}
+
+\vspace{0.3cm}
+
+\rule{\linewidth}{0.5mm}
+
+\vspace{0.5cm}
+
+\begin{tabular}{ll}
+Module : & \module \\
+Niveau : & \level \\
+Enseignant : & \teacher \\
+Année : & \docdate \\
+\end{tabular}
+
+\end{center}
+
+\vspace{1cm}
+}
+
+% ------------------------------------------------
+% Environnements personnalisés
+% ------------------------------------------------
+\newtcolorbox{objectif}{
+colback=purple!5,
+colframe=purple!60,
+title=Objectif}
+
+\newtcolorbox{exercicebox}{
+colback=blue!5,
+colframe=blue!60,
+title=Exercice}
+
+\newtcolorbox{questionbox}{
+colback=green!5,
+colframe=green!50,
+title=Questions}
+
+% ------------------------------------------------
+% Document
+% ------------------------------------------------
+\begin{document}
+
+\makecustomtitle
+
+\begin{objectif}
+Lors de ce TP, on va réviser les notions fondamentales de Statistiques avec le langage R : 
+\begin{enumerate}
+\item Traçage des courbes
+\
+\end{enumerate}
+\end{objectif}
+
+% ==================================================
+\begin{exercicebox}
+\textbf{Exercice 1}
+\end{exercicebox}
+
+\subsection*{Partie 1}
+
+\begin{enumerate}
+    \item Installer le package \textbf{Faraway}.
+    \item Explorer le package \textbf{Faraway}.
+    \item Charger le jeu de données nommé : \textbf{Coagulation}.
+    \item Rédiger un petit résumé sur le jeu de données \textbf{coagulation}.
+    \item Puisqu'on a 4 régimes d'alimentation différents, représenter graphiquement ``côte à côte'' les coagulations de chaque type de régime.
+\end{enumerate}
+
+\subsection*{Partie 2 : Applications}
+
+\begin{enumerate}
+    \item Rédiger un résumé sur le jeu de données \textbf{rats} issu du package \textbf{Faraway}.
+    \item Faire la représentation graphique des données.
+\end{enumerate}
+
+% ==================================================
+\begin{exercicebox}
+\textbf{Exercice 2 : Les histogrammes}
+\end{exercicebox}
+
+\begin{enumerate}
+    \item Représenter ces valeurs dans un histogramme :
+
+    \begin{center}
+    91, 49, 76, 112, 97, 42, 70, 100, 8, 112, 95, 90, 78, 62, 56, 94, 65, 58, 109, 70, 109, 91, 71, 76, 68, 62, 134, 57, 83, 66
+    \end{center}
+
+    \item Ajouter un titre à l'histogramme et une légende pour l'axe des abscisses.
+
+    \item Représenter l'histogramme des fréquences (pas des effectifs).
+
+    \item Changer la couleur de l'histogramme et représenter la courbe de densité dans le même graphique avec une autre couleur.
+\end{enumerate}
+
+% ==================================================
+\begin{exercicebox}
+\textbf{Exercice 3 : The Mauna Loa CO$_2$ DATA}
+\end{exercicebox}
+
+\begin{objectif}
+\begin{itemize}
+    \item Tracer une série temporelle.
+    \item Utiliser R pour faire une régression linéaire.
+    \item Tester la normalité des résidus.
+    \item Tester la tendance de la droite de régression.
+\end{itemize}
+\end{objectif}
+
+\begin{questionbox}
+\begin{enumerate}
+    \item Décrire les données contenues dans le jeu de données \textbf{CO2}.
+    \item Représenter graphiquement les données.
+    \item Déterminer les coefficients de la régression linéaire : CO$_2$ $\sim$ time(co2).
+    \item Vérifier la normalité des résidus issus de la régression linéaire.
+\end{enumerate}
+\end{questionbox}
+
+\end{document}

@@ -1,0 +1,323 @@
+\documentclass[aspectratio=169]{beamer}
+
+% Theme sérieux et académique
+\usetheme{Madrid}
+\usecolortheme{default}
+
+% Packages utiles
+\usepackage{amsmath,amsfonts}
+\usepackage{graphicx}
+
+% Informations
+\title{Time Series}
+\subtitle{Basic Statistical Concepts}
+\author{Aymen Ben Brik}
+\institute{
+Classe : 1GAMMA
+}
+
+\date{\today}
+
+\begin{document}
+
+% Slide titre
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}{Session Objectives}
+
+By the end of this session, you will be able to:
+
+\begin{itemize}
+
+\item Understand the fundamental statistical concepts used in time series analysis
+
+\item Define and interpret the moments of a distribution (mean, variance, skewness, kurtosis)
+
+\item Understand the main estimation methods:
+\begin{itemize}
+\item Method of Moments (MOM)
+\item Maximum Likelihood Estimation (MLE)
+\end{itemize}
+
+\item Compute and interpret classical statistical estimators
+
+\item Understand the concept of sampling distributions
+
+\item Introduce the basic concepts of statistical inference:
+\begin{itemize}
+\item Hypothesis testing
+\item Confidence intervals
+\end{itemize}
+
+\end{itemize}
+
+\end{frame}
+
+% Slide outline
+\begin{frame}{Basic Statistical Concepts}
+\begin{itemize}
+\item Moments of a Distribution: Fully characterizing the distribution
+\item Estimation Methods: Method of Moments versus Maximum Likelihood Estimation
+\item Basic Estimators: Approach and Sampling Distribution
+\item Multivariate Data: Joint, marginal, and conditional distribution
+\item Statistical Inference: Confidence intervals and Hypothesis Testing
+\end{itemize}
+\end{frame}
+
+% Moments
+\begin{frame}{Moments of a Distribution}
+Moments of a random variable $X$ with density $f(x)$:
+
+\begin{itemize}
+\item $l$-th moment:
+\[
+m'_l = E[X^l] = \int_{-\infty}^{\infty} x^l f(x)\,dx
+\]
+
+\item $l$-th central moment:
+\[
+m_l = E[(X-\mu)^l] = \int_{-\infty}^{\infty} (x-\mu)^l f(x)\,dx
+\]
+
+\item Examples:
+\begin{itemize}
+\item Expectation: $E[X]$
+\item Variance: $E[(X-\mu)^2]$
+\item Skewness: $S(X) = E\left[\frac{(X-\mu)^3}{\sigma^3}\right]$
+\item Kurtosis: $K(X) = E\left[\frac{(X-\mu)^4}{\sigma^4}\right]$
+\end{itemize}
+
+\end{itemize}
+\end{frame}
+
+% Estimation
+\begin{frame}{Statistical Estimation}
+
+Parametric Statistics:
+
+Observe $x_1, \dots, x_n$ from random variables
+
+\[
+X_1, \dots, X_n \sim f(x;\theta)
+\]
+
+where $\theta$ is unknown.
+
+\vspace{0.5cm}
+
+Goal: Estimate $\theta$ using observations.
+
+\vspace{0.5cm}
+
+Approaches:
+
+\begin{itemize}
+\item Method of Moments (MOM)
+\item Maximum Likelihood Estimation (MLE)
+\end{itemize}
+
+\end{frame}
+
+% Classic estimators
+\begin{frame}{Examples of Classic Estimators}
+
+Given data $\{X_1,\dots,X_n\}$:
+
+\begin{itemize}
+
+\item Sample mean:
+
+\[
+\hat{\mu} = \bar{X} = \frac{1}{n}\sum_{i=1}^{n}X_i
+\]
+
+\item Sample variance:
+
+\[
+\hat{\sigma}^2 =
+\frac{1}{n-1}\sum_{i=1}^{n}(X_i-\hat{\mu})^2
+\]
+
+\end{itemize}
+
+\end{frame}
+\begin{frame}{Examples of Classic Estimators 2}
+
+Given data $\{X_1,\dots,X_n\}$:
+
+\begin{itemize}
+
+\item Sample skewness:
+
+\[
+\hat{S} =
+\frac{1}{(n-1)\hat{\sigma}^3}
+\sum_{i=1}^{n}(X_i-\hat{\mu})^3
+\]
+
+\item Sample kurtosis:
+
+\[
+\hat{K} =
+\frac{1}{(n-1)\hat{\sigma}^4}
+\sum_{i=1}^{n}(X_i-\hat{\mu})^4
+\]
+
+\end{itemize}
+
+\end{frame}
+
+% Sampling distribution
+\begin{frame}{Sampling Distribution of Estimators}
+
+Under normality assumption:
+
+\[
+X_i \sim \mathcal{N}(\mu,\sigma^2)
+\]
+
+\[
+\bar{X} \sim \mathcal{N}(\mu,\sigma^2/n)
+\]
+
+\[
+\frac{(n-1)S^2}{\sigma^2} \sim \chi^2_{n-1}
+\]
+
+Properties:
+
+\begin{itemize}
+\item Unbiasedness
+\item Consistency
+\end{itemize}
+
+\end{frame}
+
+% MOM
+\begin{frame}{Method of Moments Estimation}
+
+Principle:
+
+\[
+E[X^p] =
+\frac{1}{n}
+\sum_{i=1}^{n} X_i^p
+\]
+
+Example:
+
+\[
+X_i \sim \mathcal{N}(\mu,\sigma^2)
+\]
+
+Mean estimator:
+
+\[
+\hat{\mu} =
+\frac{1}{n}\sum X_i
+\]
+
+Variance estimator:
+
+\[
+\hat{\sigma}^2 =
+\frac{1}{n}\sum (X_i-\bar{X})^2
+\]
+
+\end{frame}
+
+% MLE
+\begin{frame}{Maximum Likelihood Estimation}
+
+Likelihood function:
+
+\[
+L(\theta) =
+f(x_1,\dots,x_n;\theta)
+\]
+
+Under independence:
+
+\[
+L(\theta) =
+\prod_{i=1}^{n} f(x_i;\theta)
+\]
+
+MLE estimator:
+
+\[
+\hat{\theta} =
+\arg\max_\theta L(\theta)
+\]
+
+\end{frame}
+
+% Multivariate
+\begin{frame}{Multivariate Distribution}
+
+Joint distribution:
+
+\[
+f(x,y) = f(x|y)f(y)
+\]
+
+For $n$ variables:
+
+\[
+f(x_1,\dots,x_n)
+=
+\prod_{i=1}^{n}
+f(x_i|x_{i-1},\dots,x_1)
+\]
+
+Example normal:
+
+\[
+f(x)
+=
+\prod_{i=1}^{n}
+\frac{1}{\sqrt{2\pi\sigma_i^2}}
+\exp
+\left(
+-\frac{(x_i-\mu_i)^2}{2\sigma_i^2}
+\right)
+\]
+
+\end{frame}
+
+% Inference
+\begin{frame}{Statistical Inference}
+
+Hypothesis testing:
+
+\[
+H_0:\theta=\theta_0
+\quad vs \quad
+H_a:\theta\neq\theta_0
+\]
+
+P-value:
+
+Measure of plausibility of $H_0$
+
+Significance level:
+
+Probability of type I error
+
+Confidence interval:
+
+\[
+\hat{\theta} \pm k
+\]
+
+such that
+
+\[
+P(\theta \in [\hat{\theta}-k,\hat{\theta}+k]) = 1-\alpha
+\]
+
+\end{frame}
+
+\end{document}

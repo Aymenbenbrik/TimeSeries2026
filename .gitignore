@@ -1,0 +1,73 @@
+# =========================
+# LaTeX auxiliaires
+# =========================
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.idx
+*.ilg
+*.ind
+*.lof
+*.log
+*.lot
+*.nav
+*.out
+*.run.xml
+*.snm
+*.synctex.gz
+*.toc
+*.vrb
+*.xdv
+*.dvi
+*.glg
+*.glo
+*.gls
+*.ist
+
+# =========================
+# Python / R / Jupyter
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+.venv/
+venv/
+.Rproj.user/
+.Rhistory
+.Rapp.history
+
+# =========================
+# Sorties Python (figures TPs et projets)
+# =========================
+**/tp*_ex*.png
+**/projet_*.png
+
+# =========================
+# Caches divers
+# =========================
+.DS_Store
+Thumbs.db
+*.swp
+*.tmp
+*.bak
+
+# =========================
+# Build / sortie de tests
+# =========================
+_build_test/*.pdf
+_build_test/*.aux
+_build_test/*.log
+_build_test/*.nav
+_build_test/*.snm
+_build_test/*.toc
+_build_test/*.out
+_build_test/*.synctex.gz
+
+# =========================
+# Artefacts pandoc (vérification de la fiche)
+# =========================
+Fiche Module/check.md

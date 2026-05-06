@@ -1,0 +1,293 @@
+\documentclass[aspectratio=169]{beamer}
+
+\usetheme{Madrid}
+
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Code display settings
+\lstset{
+basicstyle=\ttfamily\small,
+frame=single,
+breaklines=true
+}
+
+\title{Time Series}
+\subtitle{Decomposition: Seasonality Estimation}
+\author{Mr. Aymen Ben Brik}
+\institute{Time Series Course 1GAMMA}
+\date{\today}
+
+\begin{document}
+
+%------------------------------------------------
+\begin{frame}
+\titlepage
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Course Objectives}
+
+By the end of this session, students will be able to:
+
+\begin{itemize}
+
+\item Understand the concept of seasonality in time series
+
+\item Estimate seasonal components using different methods
+
+\item Apply seasonal averaging
+
+\item Apply parametric regression for seasonality estimation
+
+\item Apply cosine-sine models
+
+\item Remove seasonality from time series data
+
+\end{itemize}
+
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Time Series Model}
+
+Time series decomposition:
+
+\[
+Y_t = T_t + S_t + \varepsilon_t
+\]
+
+Where:
+
+\begin{itemize}
+
+\item $T_t$ : trend
+
+\item $S_t$ : seasonality
+
+\item $\varepsilon_t$ : stationary component
+
+\end{itemize}
+
+Goal:
+
+\begin{itemize}
+\item Estimate seasonality
+\item Remove seasonality
+\end{itemize}
+
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Seasonal Average Method}
+
+Seasonal component estimation:
+
+\[
+\hat{S}_k =
+\frac{1}{n_k}
+\sum Y_t
+\]
+
+where observations belong to season $k$
+
+Deseasonalized series:
+
+\[
+Y_t - \hat{S}_k
+\]
+
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}[fragile]{Example: Seasonal Average in R}
+
+\begin{lstlisting}[language=R]
+
+# Monthly data example
+month <- rep(1:12,10)
+y <- 10 + sin(month/12*2*pi) + rnorm(120)
+
+# Estimate seasonal means
+season <- tapply(y, month, mean)
+
+# Remove seasonality
+y_deseason <- y - season[month]
+
+\end{lstlisting}
+
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}[fragile]{Example: Seasonal Average in Python}
+
+\begin{lstlisting}
+
+import numpy as np
+import pandas as pd
+
+month = np.tile(np.arange(1,13),10)
+y = 10 + np.sin(month/12*2*np.pi) + np.random.randn(120)
+
+df = pd.DataFrame({"y":y,"month":month})
+
+season = df.groupby("month").mean()
+
+df["deseason"] = df["y"] - df["month"].map(season["y"])
+
+\end{lstlisting}
+
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Parametric Regression Method}
+
+Model using dummy variables:
+
+\[
+Y_t =
+\beta_0 +
+\beta_1 D_1 +
+\dots +
+\beta_d D_d +
+\varepsilon_t
+\]
+
+Where dummy variables represent seasons.
+
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}[fragile]{Example: Seasonal Regression in R}
+
+\begin{lstlisting}[language=R]
+
+month <- factor(month)
+
+model <- lm(y ~ month)
+
+season <- predict(model)
+
+\end{lstlisting}
+
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}[fragile]{Example: Seasonal Regression in Python}
+
+\begin{lstlisting}
+
+import statsmodels.formula.api as smf
+
+df["month"] = df["month"].astype("category")
+
+model = smf.ols("y ~ C(month)", data=df).fit()
+
+season = model.predict(df)
+
+\end{lstlisting}
+
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Cosine-Sine Model}
+
+Seasonality modeled as:
+
+\[
+S_t =
+a \cos(\omega t)
++
+b \sin(\omega t)
+\]
+
+Where:
+
+\[
+\omega =
+\frac{2\pi}{d}
+\]
+
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}[fragile]{Example: Cosine-Sine Model in R}
+
+\begin{lstlisting}[language=R]
+
+omega <- 2*pi/12
+
+model <- lm(y ~ cos(omega*t) + sin(omega*t))
+
+season <- predict(model)
+
+\end{lstlisting}
+
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}[fragile]{Example: Cosine-Sine Model in Python}
+
+\begin{lstlisting}
+
+omega = 2*np.pi/12
+
+df["cos"] = np.cos(omega*t)
+df["sin"] = np.sin(omega*t)
+
+import statsmodels.api as sm
+
+X = df[["cos","sin"]]
+X = sm.add_constant(X)
+
+model = sm.OLS(y,X).fit()
+
+season = model.predict(X)
+
+\end{lstlisting}
+
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Deseasonalization}
+
+Remove seasonality:
+
+\[
+Y_t^{*} =
+Y_t -
+\hat{S}_t
+\]
+
+Result:
+
+\begin{itemize}
+
+\item Stationary series
+
+\item Ready for time series modeling
+
+\end{itemize}
+
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Summary}
+
+Methods covered:
+
+\begin{itemize}
+
+\item Seasonal averaging
+
+\item Regression with dummy variables
+
+\item Cosine-sine model
+
+\end{itemize}
+
+\end{frame}
+
+%------------------------------------------------
+\end{document}

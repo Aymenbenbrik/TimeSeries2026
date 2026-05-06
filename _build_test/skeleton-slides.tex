@@ -1,0 +1,36 @@
+\documentclass[aspectratio=169]{beamer}
+\input{../preamble/slides-preamble.tex}
+
+\title[\moduleNom]{\moduleNom}
+\subtitle{Skeleton compile test --- Step 1}
+\author{\auteurNom \\ \footnotesize\auteurEmail}
+\institute{\auteurInstitution}
+\date{\anneeUniversitaire}
+
+\begin{document}
+
+\begin{frame}\titlepage\end{frame}
+
+\begin{frame}{Course outline}
+  \begin{enumerate}
+    \item Basic statistics for time series
+    \item Decomposition (trend \& seasonality)
+    \item Stationary time series
+    \item Non-stationary time series \& unit-root tests
+    \item ARMA models
+    \item ARCH and GARCH models
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{Skeleton compiled}
+  \begin{infobox}
+    Preamble \texttt{slides-preamble.tex} and macros load correctly.
+    Theme : Metropolis 16:9.
+  \end{infobox}
+  \[
+    \E[X_t] = \mu, \qquad \Var[X_t] = \sigma^2, \qquad \rho(h) = \Corr(X_t, X_{t+h}).
+  \]
+  Author: \auteurNom\ -- \auteurEmail.
+\end{frame}
+
+\end{document}

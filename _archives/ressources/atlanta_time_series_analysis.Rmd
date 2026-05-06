@@ -1,0 +1,307 @@
+---
+author: Aymen Ben Brik 
+date: "`r Sys.Date()`"
+output: html_document
+title: Time Series Analysis of Atlanta Temperatures
+---
+
+# Introduction
+
+This document analyses monthly temperature data from Atlanta.\
+The objective is to:
+
+-   Import and format the data
+-   Create a time series object
+-   Estimate the **trend**
+-   Estimate the **seasonality**
+-   Remove trend and seasonality
+-   Study the **autocorrelation of residuals**
+
+------------------------------------------------------------------------
+
+# 1. Data Import and Preparation
+
+``` {r}
+# Read the text file containing Atlanta average temperatures
+data = read.table("AvTempAtlanta.txt", header = T)
+
+# Display column names
+names(data)
+
+# Visualize the dataset
+View(data)
+
+# Remove column 1 and 14 (often year and annual average)
+data = data[,-c(1,14)]
+
+# Check the data after removing columns
+View(data)
+
+# Show help for as.vector
+help(as.vector)
+
+# Transpose the matrix and convert it into a vector
+# This ensures observations are ordered month by month
+data = as.vector(t(data))
+
+# View the resulting vector
+View(data)
+```
+
+------------------------------------------------------------------------
+
+# 2. Create the Time Series
+
+``` {r}
+# Create a monthly time series starting in 1879
+temp = ts(data, start = 1879, frequency = 12)
+
+# Verify object class
+class(temp)
+
+# Plot the time series
+ts.plot(temp, ylab = "temperature")
+```
+
+------------------------------------------------------------------------
+
+# 3. Trend Estimation
+
+## Create Time Points
+
+``` {r}
+# Create equally spaced time points
+time.pts = c(1:length(temp))
+
+# Normalize time between 0 and 1 for numerical stability
+time.pts = (time.pts - min(time.pts))/max(time.pts)
+
+# Display time points
+time.pts
+```
+
+------------------------------------------------------------------------
+
+## 3.1 Moving Average Trend
+
+``` {r}
+# Help for kernel smoothing
+help(ksmooth)
+
+# Apply kernel smoothing (box kernel ≈ moving average)
+mav.fit = ksmooth(time.pts, temp, kernel = "box")
+
+# Convert fitted values into a time series
+temp.fit.mav = ts(mav.fit$y, start = 1879, frequency = 12)
+```
+
+### Visualize Trend
+
+``` {r}
+# Plot original series
+ts.plot(temp, ylab = "temperature")
+
+# Add moving average trend
+lines(temp.fit.mav, lwd = 2, col = "purple")
+
+# Horizontal reference line
+abline(temp.fit.mav[1], 0, lwd = 2, col = "blue")
+```
+
+------------------------------------------------------------------------
+
+## 3.2 Parametric Quadratic Trend
+
+``` {r}
+# Linear and quadratic time variables
+x1 = time.pts
+x2 = time.pts^2
+
+# Fit quadratic regression model
+lm.fit = lm(temp ~ x1 + x2)
+
+# Model summary
+summary(lm.fit)
+```
+
+### Plot Trend
+
+``` {r}
+# Extract fitted values
+temp.fit.lm = ts(fitted(lm.fit), start = 1879, frequency = 12)
+
+# Plot original series
+ts.plot(temp, ylab = "temperature")
+
+# Add quadratic trend
+lines(temp.fit.lm, lwd = 2, col = "green")
+
+# Reference line
+abline(temp.fit.lm[1], 0, lwd = 2, col = "blue")
+```
+
+------------------------------------------------------------------------
+
+## 3.3 Local Polynomial Trend (LOESS)
+
+``` {r}
+# Local regression trend estimation
+loc.fit = loess(temp ~ time.pts)
+
+# Extract fitted values
+temp.loc.fit = ts(fitted(loc.fit), start = 1879, frequency = 12)
+```
+
+------------------------------------------------------------------------
+
+## 3.4 Spline Trend Estimation (GAM)
+
+``` {r}
+# Load mgcv package
+library(mgcv)
+
+# Fit GAM model with spline trend
+gam.fit = gam(temp ~ s(time.pts))
+
+# Extract fitted values
+temp.fit.gam = ts(fitted(gam.fit), start = 1879, frequency = 12)
+```
+
+### Plot Nonparametric Trends
+
+``` {r}
+ts.plot(temp, ylab = "temperature")
+
+# LOESS trend
+lines(temp.loc.fit, lwd = 2, col = "red")
+
+# Spline trend
+lines(temp.fit.gam, lwd = 2, col = "yellow")
+
+# Reference line
+abline(temp.loc.fit[1], 0, lwd = 2, col = "blue")
+```
+
+------------------------------------------------------------------------
+
+# 4. Compare Trend Estimates
+
+``` {r}
+# Combine trend values to define plot limits
+all.val = c(temp.fit.mav, temp.fit.mav, temp.loc.fit, temp.fit.gam)
+
+ylim = c(min(all.val), max(all.val))
+
+# Plot moving average trend
+ts.plot(temp.fit.mav, lwd = 2, ylim = ylim, ylab = "temperature", col = "blue")
+
+# Quadratic trend
+lines(temp.fit.lm, lwd = 2, col = "green")
+
+# LOESS trend
+lines(temp.loc.fit, lwd = 2, col = "red")
+
+# Spline trend
+lines(temp.fit.gam, lwd = 2, col = "yellow")
+```
+
+------------------------------------------------------------------------
+
+# 5. Seasonality Estimation
+
+``` {r}
+library(TSA)
+
+# Identify the month of each observation
+month = season(temp)
+```
+
+## Seasonal Means Model
+
+``` {r}
+# Linear model with monthly dummies
+model1 = lm(temp ~ month)
+summary(model1)
+
+# Model without intercept (direct monthly means)
+model2 = lm(temp ~ month - 1)
+summary(model2)
+```
+
+------------------------------------------------------------------------
+
+## Harmonic Seasonal Model
+
+``` {r}
+# First harmonic (sin/cos)
+har1 = harmonic(temp, 1)
+
+model3 = lm(temp ~ har1)
+summary(model3)
+
+# Second harmonic
+har2 = harmonic(temp, 2)
+
+model4 = lm(temp ~ har2)
+summary(model4)
+```
+
+------------------------------------------------------------------------
+
+## Compare Seasonal Models
+
+``` {r}
+# Seasonal means coefficients
+st1 = coef(model2)
+
+# Harmonic seasonal pattern
+st2 = fitted(model4)[1:12]
+
+plot(1:12, st1, lwd = 2, type = "l", xlab = "month", ylab = "Seasonality")
+lines(1:12, st2, lwd = 2, col = "blue")
+```
+
+------------------------------------------------------------------------
+
+# 6. Trend + Seasonality Model
+
+``` {r}
+# Parametric trend + harmonic seasonality
+lm.fit2 = lm(temp ~ x1 + x2 + har2)
+
+summary(lm.fit2)
+
+# Residual process
+dif.fit.lm = ts(temp - fitted(lm.fit2), start = 1879, frequency = 12)
+
+ts.plot(dif.fit.lm, ylab = "Residual Process")
+```
+
+------------------------------------------------------------------------
+
+## Nonparametric Trend + Seasonality
+
+``` {r}
+gam.fit2 = gam(temp ~ s(time.pts) + har2)
+
+dif.gam.fit2 = ts(temp - fitted(gam.fit2), start = 1879, frequency = 12)
+
+#lines(dif.gam.fit2, col = "blue")
+```
+
+------------------------------------------------------------------------
+
+# 7. Autocorrelation Analysis
+
+``` {r}
+par(mfrow = c(3,1))
+
+# ACF of original series
+acf(temp, lag.max = 4*12, main = "")
+
+# ACF of residuals (parametric model)
+acf(dif.fit.lm, lag.max = 4*12)
+
+# ACF of residuals (GAM model)
+acf(dif.gam.fit2, lag.max = 4*12)
+```

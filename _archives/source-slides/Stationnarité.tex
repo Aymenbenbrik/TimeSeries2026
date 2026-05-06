@@ -1,0 +1,1950 @@
+\documentclass[aspectratio=169]{beamer}
+
+% Theme académique professionnel
+\usetheme{Madrid}
+\usecolortheme{default}
+
+% Packages
+\usepackage{amsmath,amsfonts}
+\usepackage[french]{babel}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+
+
+% Informations
+\title{Time Series}
+\subtitle{Stationnary Time Series}
+\author{Mr. Aymen Ben Brik}
+
+\institute{
+Time Series Course 1GAMMA
+}
+
+\date{\today}
+
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstset{
+language=Python,
+basicstyle=\ttfamily\small,
+keywordstyle=\color{blue},
+commentstyle=\color{gray},
+stringstyle=\color{red},
+showstringspaces=false,
+frame=single,
+breaklines=true
+}
+
+
+
+\begin{document}
+
+% Slide titre
+\begin{frame}
+\titlepage
+\end{frame}
+
+% Objectifs
+\begin{frame}{Session Objectives}
+\begin{itemize}
+    \item Understand the concept of stationarity in time series
+    \item Distinguish between strict and weak stationarity
+    \item Learn how to test for stationarity (ADF, KPSS)
+    \item Interpret ACF and PACF plots
+    \item Introduce AR, MA, and ARMA models
+    \item Diagnose model adequacy through residual analysis
+\end{itemize}
+\end{frame}
+
+\section{Les séries temporelles stationnaires}
+
+\subsection{La stationnarité}
+\begin{frame}{What is a Stationary Time Series?}
+\begin{itemize}
+    \item A time series is said to be \textbf{stationary} if its statistical properties do not change over time
+    \vspace{0.3cm}
+    \item In particular, a stationary series has:
+    \begin{itemize}
+        \item Constant mean
+        \item Constant variance
+        \item Constant autocovariance (depends only on the lag)
+    \end{itemize}
+    \vspace{0.3cm}
+    \item Intuitively, the series fluctuates around a stable level with no systematic trend or changing variability
+    \vspace{0.3cm}
+    \item Stationarity is a key assumption for many time series models (AR, MA, ARMA)
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Stationary vs Non-Stationary Series}
+\begin{itemize}
+    \item \textbf{Stationary series:}
+    \begin{itemize}
+        \item Fluctuates around a constant mean
+        \item Variance remains stable over time
+        \item No clear trend or seasonality
+    \end{itemize}
+    
+    \vspace{0.4cm}
+    
+    \item \textbf{Non-stationary series:}
+    \begin{itemize}
+        \item Presence of trend (upward or downward)
+        \item Changing variance over time
+        \item Possible seasonality or structural changes
+    \end{itemize}
+    
+    \vspace{0.4cm}
+    
+    \item \textbf{Examples:}
+    \begin{itemize}
+        \item Stationary: white noise
+        \item Non-stationary: random walk, trending data
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Visual Illustration: Stationary vs Non-Stationary}
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.9\textwidth,
+    height=0.65\textheight,
+    xlabel={Time},
+    ylabel={Value},
+    legend style={at={(0.5,-0.2)}, anchor=north, legend columns=2},
+    ymin=-1, ymax=8,
+    xmin=0, xmax=10,
+    samples=100,
+    domain=0:10,
+    grid=both
+]
+
+% Stationary series
+\addplot[blue, thick] {2 + 0.4*sin(deg(4*x)) + 0.2*sin(deg(11*x))};
+\addlegendentry{Stationary series}
+
+% Non-stationary series
+\addplot[red, thick] {0.5*x + 0.6*sin(deg(3*x)) + 1};
+\addlegendentry{Non-stationary series}
+
+\end{axis}
+\end{tikzpicture}
+
+\vspace{0.2cm}
+\begin{itemize}
+    \item The \textcolor{blue}{blue series} fluctuates around a constant mean
+    \item The \textcolor{red}{red series} shows an upward trend over time
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Simulation of a White Noise Process}
+\small
+\textbf{Definition:} A white noise process is a sequence of uncorrelated random variables with zero mean and constant variance.
+
+\vspace{0.2cm}
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textbf{R}
+\begin{verbatim}
+set.seed(123)
+n <- 200
+wn <- rnorm(n, 0, 1)
+plot.ts(wn, col="blue",
+ main="White Noise in R")
+\end{verbatim}
+\end{column}
+
+\begin{column}{0.48\textwidth}
+\textbf{Python}
+\begin{verbatim}
+import numpy as np
+import matplotlib.pyplot as plt
+np.random.seed(123)
+wn = np.random.normal(0, 1, 200)
+plt.plot(wn)
+plt.title("White Noise in Python")
+plt.show()
+\end{verbatim}
+\end{column}
+\end{columns}
+
+\vspace{0.1cm}
+\textbf{Observation:} The series fluctuates randomly around zero.
+\end{frame}
+
+\begin{frame}[fragile]{Random Walk Simulation}
+\small
+\textbf{Model:}
+\[
+X_t = X_{t-1} + \varepsilon_t, \qquad \varepsilon_t \sim WN(0,\sigma^2)
+\]
+
+\vspace{0.2cm}
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{block}{R}
+\begin{verbatim}
+set.seed(123)
+n <- 200
+eps <- rnorm(n, 0, 1)
+rw <- cumsum(eps)
+
+plot.ts(rw, col="red",
+ main="Random Walk (R)")
+\end{verbatim}
+\end{block}
+\end{column}
+
+\begin{column}{0.48\textwidth}
+\begin{block}{Python}
+\begin{verbatim}
+import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(123)
+eps = np.random.normal(0, 1, 200)
+rw = np.cumsum(eps)
+
+plt.plot(rw)
+plt.title("Random Walk (Python)")
+plt.show()
+\end{verbatim}
+\end{block}
+\end{column}
+\end{columns}
+
+\vspace{0.2cm}
+\textbf{Key idea:} The accumulation of shocks makes the process non-stationary.
+\end{frame}
+
+
+
+\begin{frame}{Strong Stationarity}
+\textbf{Definition:}
+
+\vspace{0.3cm}
+
+A time series $\{X_t\}$ is said to be \textbf{strictly (strongly) stationary} if:
+
+\begin{itemize}
+    \item For any integer $k$, any time points $t_1, \dots, t_k$, and any shift $h$,
+    \item The joint distribution of 
+    \[
+    (X_{t_1}, X_{t_2}, \dots, X_{t_k})
+    \]
+    is identical to that of
+    \[
+    (X_{t_1+h}, X_{t_2+h}, \dots, X_{t_k+h})
+    \]
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Key idea:}
+\begin{itemize}
+    \item The probabilistic behavior of the series does not change over time
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Intuition of Strong Stationarity}
+
+\textbf{Interpretation:}
+\begin{itemize}
+    \item The entire probabilistic structure of the series is invariant over time
+    \item Not only mean and variance, but \textbf{all distributions} remain unchanged
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Example (Stationary):}
+\begin{itemize}
+    \item White noise process:
+    \[
+    X_t \sim \mathcal{N}(0, \sigma^2)
+    \]
+    \item Same distribution at all times
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Counterexample (Non-Stationary):}
+\begin{itemize}
+    \item Time-varying variance:
+    \[
+    X_t \sim \mathcal{N}(0, t)
+    \]
+    \item Distribution changes over time
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Key takeaway:}
+\begin{itemize}
+    \item Strong stationarity is a very strict condition, rarely verified in practice
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Weak Stationarity (Covariance Stationarity)}
+
+\textbf{Definition:}
+
+\vspace{0.3cm}
+
+A time series $\{X_t\}$ is said to be \textbf{weakly stationary} if:
+
+\begin{itemize}
+    \item $\mathbb{E}[X_t] = \mu$ (constant mean)
+    \item $\text{Var}(X_t) = \sigma^2$ (constant variance)
+    \item $\text{Cov}(X_t, X_{t+h}) = \gamma(h)$ depends only on the lag $h$
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Interpretation:}
+\begin{itemize}
+    \item The first two moments are time-invariant
+    \item The dependence structure depends only on the time gap, not on time itself
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Key insight:}
+\begin{itemize}
+    \item Weak stationarity is sufficient for most models (AR, MA, ARMA)
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Strong vs Weak Stationarity}
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Property} & \textbf{Strong Stationarity} & \textbf{Weak Stationarity} \\
+\hline
+Distribution & Unchanged over time & Not required \\
+\hline
+Mean & Constant & Constant \\
+\hline
+Variance & Constant & Constant \\
+\hline
+Autocovariance & Implicitly constant & Depends only on lag \\
+\hline
+Conditions & Very restrictive & Less restrictive \\
+\hline
+Practical use & Rare in practice & Widely used (AR, MA, ARMA) \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{0.4cm}
+
+\textbf{Key takeaway:}
+\begin{itemize}
+    \item Strong stationarity $\Rightarrow$ Weak stationarity (under finite variance)
+    \item In practice, we usually assume \textbf{weak stationarity}
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{How to Check Stationarity (Graphical Intuition)}
+
+\textbf{Visual Inspection:}
+\begin{itemize}
+    \item Plot the time series and observe its behavior over time
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Signs of Stationarity:}
+\begin{itemize}
+    \item Fluctuates around a constant mean
+    \item Constant variance (no increasing/decreasing spread)
+    \item No visible trend or seasonality
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Signs of Non-Stationarity:}
+\begin{itemize}
+    \item Upward or downward trend
+    \item Changing variance over time
+    \item Presence of seasonal patterns
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Tools:}
+\begin{itemize}
+    \item Time series plot
+    \item Rolling mean and rolling variance
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{Rolling Statistics (Mean and Variance)}
+
+\small
+\textbf{Idea: Compute statistics over a moving window}
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{block}{R}
+\begin{verbatim}
+library(zoo)
+
+n <- 200
+x <- cumsum(rnorm(n))  # example
+
+roll_mean <- rollmean(x, k=20,
+ fill=NA)
+roll_var <- rollapply(x, 20,
+ var, fill=NA)
+
+plot(x, type="l")
+lines(roll_mean, col="blue")
+\end{verbatim}
+\end{block}
+\end{column}
+
+\begin{column}{0.48\textwidth}
+\begin{block}{Python}
+\begin{verbatim}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+x = np.cumsum(
+ np.random.normal(0,1,200))
+
+s = pd.Series(x)
+roll_mean = s.rolling(20).mean()
+roll_var = s.rolling(20).var()
+
+plt.plot(s)
+plt.plot(roll_mean)
+plt.show()
+\end{verbatim}
+\end{block}
+\end{column}
+\end{columns}
+
+\vspace{0.2cm}
+\textbf{Interpretation:}
+\begin{itemize}
+    \item Constant rolling mean/variance → likely stationary
+    \item Changing statistics → non-stationary
+\end{itemize}
+
+\end{frame}
+\begin{frame}{Theoretical Exercise}
+
+\textbf{Exercise:}
+
+Consider the following time series:
+
+\begin{enumerate}
+    \item $X_t = \varepsilon_t$, where $\varepsilon_t \sim WN(0,\sigma^2)$
+    \item $X_t = t + \varepsilon_t$
+    \item $X_t = X_{t-1} + \varepsilon_t$
+    \item $X_t = \varepsilon_t + 0.5\,\varepsilon_{t-1}$
+\end{enumerate}
+
+\vspace{0.4cm}
+
+\textbf{Questions:}
+\begin{itemize}
+    \item Which of these processes are stationary?
+    \item Justify your answer (mean, variance, dependence structure)
+\end{itemize}
+
+\vspace{0.4cm}
+\end{frame}
+
+
+
+\subsection{Les tests de stationnarité}
+
+\begin{frame}{ADF Test (Augmented Dickey-Fuller)}
+
+\textbf{Objective:}
+\begin{itemize}
+    \item Test whether a time series is \textbf{stationary}
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Key idea:}
+\begin{itemize}
+    \item Detect the presence of a \textbf{unit root}
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Why important?}
+\begin{itemize}
+    \item A unit root implies \textbf{non-stationarity}
+    \item Many models (ARMA) require stationarity
+\end{itemize}
+\end{frame}
+
+\begin{frame}{ADF Test: Model}
+
+\textbf{Basic idea:}
+
+\vspace{0.3cm}
+
+Start from an AR(1) model:
+\[
+X_t = \rho X_{t-1} + \varepsilon_t
+\]
+
+\vspace{0.3cm}
+
+Rewriting:
+\[
+\Delta X_t = \gamma X_{t-1} + \varepsilon_t
+\quad \text{with } \gamma = \rho - 1
+\]
+
+\vspace{0.4cm}
+
+\textbf{Augmented version:}
+\[
+\Delta X_t = \gamma X_{t-1} + \sum_{i=1}^{p} \alpha_i \Delta X_{t-i} + \varepsilon_t
+\]
+
+\vspace{0.3cm}
+
+\textbf{Goal:} Test whether $\gamma = 0$
+
+\end{frame}
+
+\begin{frame}{ADF Test: Hypotheses}
+
+\textbf{Null hypothesis:}
+\begin{itemize}
+    \item $H_0: \gamma = 0$
+    \item The series has a \textbf{unit root}
+    \item $\Rightarrow$ Non-stationary
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Alternative hypothesis:}
+\begin{itemize}
+    \item $H_1: \gamma < 0$
+    \item The series is \textbf{stationary}
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Interpretation:}
+\begin{itemize}
+    \item Reject $H_0$ $\Rightarrow$ Stationary series
+    \item Fail to reject $H_0$ $\Rightarrow$ Non-stationary
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{ADF Test: Decision Rule}
+
+\textbf{Based on p-value:}
+
+\begin{itemize}
+    \item p-value $< 0.05$ $\Rightarrow$ Reject $H_0$ $\Rightarrow$ Stationary
+    \item p-value $> 0.05$ $\Rightarrow$ Fail to reject $H_0$ $\Rightarrow$ Non-stationary
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Important:}
+\begin{itemize}
+    \item The test is sensitive to:
+    \begin{itemize}
+        \item Lag selection
+        \item Trend or intercept specification
+    \end{itemize}
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{ADF Test: Implementation in R and Python}
+\small
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{block}{R}
+\begin{verbatim}
+library(tseries)
+
+x <- cumsum(rnorm(200))   # example series
+
+adf.test(x)
+\end{verbatim}
+
+\vspace{0.2cm}
+\textbf{Output:}
+\begin{itemize}
+    \item test statistic
+    \item p-value
+\end{itemize}
+\end{block}
+\end{column}
+
+\begin{column}{0.48\textwidth}
+\begin{block}{Python}
+\begin{verbatim}
+import numpy as np
+from statsmodels.tsa.stattools import adfuller
+
+x = np.cumsum(np.random.normal(0, 1, 200))
+
+result = adfuller(x)
+
+print("ADF Statistic:", result[0])
+print("p-value:", result[1])
+\end{verbatim}
+
+\vspace{0.2cm}
+\textbf{Output:}
+\begin{itemize}
+    \item ADF statistic
+    \item p-value
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+
+\end{frame}
+
+\begin{frame}{ADF Test: Interpretation of Results}
+
+\textbf{Decision rule based on the p-value:}
+\begin{itemize}
+    \item If p-value $< 0.05$: reject $H_0$
+    \item If p-value $> 0.05$: fail to reject $H_0$
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Interpretation:}
+\begin{itemize}
+    \item Rejecting $H_0$ means that the series is likely \textbf{stationary}
+    \item Failing to reject $H_0$ suggests the presence of a \textbf{unit root}
+    \item Therefore, the series is likely \textbf{non-stationary}
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Reminder:}
+\begin{itemize}
+    \item $H_0$: the series has a unit root
+    \item $H_1$: the series is stationary
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{KPSS Test (Kwiatkowski-Phillips-Schmidt-Shin)}
+
+\textbf{Objective:}
+\begin{itemize}
+    \item Test whether a time series is \textbf{stationary}
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Key difference from ADF:}
+\begin{itemize}
+    \item The KPSS test takes \textbf{stationarity} as the null hypothesis
+    \item It is therefore complementary to the ADF test
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Why useful?}
+\begin{itemize}
+    \item Using both ADF and KPSS provides a more reliable conclusion
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{KPSS Test: Hypotheses}
+
+\textbf{Null hypothesis:}
+\begin{itemize}
+    \item $H_0$: the series is \textbf{stationary}
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Alternative hypothesis:}
+\begin{itemize}
+    \item $H_1$: the series is \textbf{non-stationary}
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Interpretation:}
+\begin{itemize}
+    \item Reject $H_0$ $\Rightarrow$ evidence of non-stationarity
+    \item Fail to reject $H_0$ $\Rightarrow$ the series may be stationary
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{ADF vs KPSS}
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Test} & \textbf{Null Hypothesis} & \textbf{Alternative} \\
+\hline
+ADF & Unit root / Non-stationary & Stationary \\
+\hline
+KPSS & Stationary & Non-stationary \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{0.4cm}
+
+\textbf{Practical interpretation:}
+\begin{itemize}
+    \item ADF rejects + KPSS does not reject $\Rightarrow$ likely stationary
+    \item ADF does not reject + KPSS rejects $\Rightarrow$ likely non-stationary
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{KPSS Test: Implementation in R and Python}
+\small
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{block}{R}
+\begin{verbatim}
+library(tseries)
+
+x <- cumsum(rnorm(200))   # example series
+
+kpss.test(x)
+\end{verbatim}
+\end{block}
+\end{column}
+
+\begin{column}{0.48\textwidth}
+\begin{block}{Python}
+\begin{verbatim}
+import numpy as np
+from statsmodels.tsa.stattools import kpss
+
+x = np.cumsum(np.random.normal(0, 1, 200))
+
+stat, p_value, _, _ = kpss(x)
+
+print("KPSS Statistic:", stat)
+print("p-value:", p_value)
+\end{verbatim}
+\end{block}
+\end{column}
+\end{columns}
+
+\end{frame}
+
+\subsection{ACF / PACF}
+
+\begin{frame}{ACF and PACF}
+
+\textbf{Objective:}
+\begin{itemize}
+    \item Analyze the dependence structure of a time series
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Key tools:}
+\begin{itemize}
+    \item ACF: Autocorrelation Function
+    \item PACF: Partial Autocorrelation Function
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Why important?}
+\begin{itemize}
+    \item Identify the structure of time series models
+    \item Help determine AR and MA orders
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Autocorrelation Function (ACF)}
+
+\textbf{Definition:}
+\begin{itemize}
+    \item The ACF measures the correlation between $X_t$ and $X_{t+h}$
+\end{itemize}
+
+\vspace{0.3cm}
+
+\[
+\rho(h) = \frac{\mathrm{Cov}(X_t, X_{t+h})}{\mathrm{Var}(X_t)}
+\]
+
+\vspace{0.4cm}
+
+\textbf{Interpretation:}
+\begin{itemize}
+    \item Measures linear dependence at lag $h$
+    \item Values between $-1$ and $1$
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Key idea:}
+\begin{itemize}
+    \item High autocorrelation $\Rightarrow$ strong dependence
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{ACF: Intuition}
+
+\textbf{What does ACF tell us?}
+
+\begin{itemize}
+    \item How past values influence current values
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Examples:}
+\begin{itemize}
+    \item White noise:
+    \begin{itemize}
+        \item No correlation $\Rightarrow$ ACF $\approx 0$ for all lags
+    \end{itemize}
+    
+    \vspace{0.2cm}
+    
+    \item Persistent series:
+    \begin{itemize}
+        \item Slowly decreasing ACF
+    \end{itemize}
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Graph:}
+\begin{itemize}
+    \item ACF is typically represented as a bar plot
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Partial Autocorrelation Function (PACF)}
+
+\textbf{Definition:}
+\begin{itemize}
+    \item The PACF measures the direct correlation between $X_t$ and $X_{t+h}$
+    \item Removing the effect of intermediate lags
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Key idea:}
+\begin{itemize}
+    \item PACF isolates the \textbf{pure effect} of lag $h$
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Interpretation:}
+\begin{itemize}
+    \item Helps identify the order of AR models
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{ACF vs PACF}
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Function} & \textbf{Measures} & \textbf{Use} \\
+\hline
+ACF & Total correlation & Identify MA(q) \\
+\hline
+PACF & Direct correlation & Identify AR(p) \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{0.4cm}
+
+\textbf{Key idea:}
+\begin{itemize}
+    \item ACF includes indirect effects
+    \item PACF removes indirect effects
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{Simulation of an AR(2): ACF and PACF}
+\small
+\textbf{AR(2) model:}
+\[
+X_t = 0.6X_{t-1} - 0.3X_{t-2} + \varepsilon_t,
+\qquad \varepsilon_t \sim WN(0,1)
+\]
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{block}{R}
+\begin{verbatim}
+set.seed(123)
+x <- arima.sim(n = 200,
+ model = list(ar = c(0.6, -0.3)))
+
+par(mfrow = c(1,2))
+acf(x, main = "ACF of AR(2)")
+pacf(x, main = "PACF of AR(2)")
+\end{verbatim}
+\end{block}
+\end{column}
+
+\begin{column}{0.48\textwidth}
+\begin{block}{Python}
+\begin{verbatim}
+import numpy as np
+from statsmodels.tsa.arima_process import ArmaProcess
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+import matplotlib.pyplot as plt
+
+np.random.seed(123)
+ar = np.array([1, -0.6, 0.3])
+ma = np.array([1])
+x = ArmaProcess(ar, ma).generate_sample(200)
+
+fig, ax = plt.subplots(1, 2, figsize=(10,4))
+plot_acf(x, ax=ax[0], lags=20)
+plot_pacf(x, ax=ax[1], lags=20, method="ywm")
+plt.show()
+\end{verbatim}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Interpretation of ACF and PACF for an AR(2)}
+
+\textbf{Typical pattern of an AR(2):}
+\begin{itemize}
+    \item The \textbf{ACF} decreases gradually
+    \item The \textbf{PACF} cuts off after lag 2
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Why?}
+\begin{itemize}
+    \item In an AR(p) process, the PACF truncates at lag $p$
+    \item For an AR(2), only lags 1 and 2 have direct effects
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Key takeaway:}
+\begin{itemize}
+    \item Slowly decaying ACF + PACF cutoff at lag 2
+    \item This is the signature of an \textbf{AR(2)} process
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{Simulation of an MA(3): ACF and PACF}
+\small
+\textbf{MA(3) model:}
+\[
+X_t = \varepsilon_t + 0.5\,\varepsilon_{t-1} + 0.3\,\varepsilon_{t-2} + 0.2\,\varepsilon_{t-3},
+\qquad \varepsilon_t \sim WN(0,1)
+\]
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{block}{R}
+\begin{verbatim}
+set.seed(123)
+x <- arima.sim(n = 200,
+ model = list(ma = c(0.5, 0.3, 0.2)))
+
+par(mfrow = c(1,2))
+acf(x, main = "ACF of MA(3)")
+pacf(x, main = "PACF of MA(3)")
+\end{verbatim}
+\end{block}
+\end{column}
+
+\begin{column}{0.48\textwidth}
+\begin{block}{Python}
+\begin{verbatim}
+import numpy as np
+from statsmodels.tsa.arima_process import ArmaProcess
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+import matplotlib.pyplot as plt
+
+np.random.seed(123)
+ar = np.array([1])
+ma = np.array([1, 0.5, 0.3, 0.2])
+x = ArmaProcess(ar, ma).generate_sample(200)
+
+fig, ax = plt.subplots(1, 2, figsize=(10,4))
+plot_acf(x, ax=ax[0], lags=20)
+plot_pacf(x, ax=ax[1], lags=20, method="ywm")
+plt.show()
+\end{verbatim}
+\end{block}
+\end{column}
+\end{columns}
+
+\end{frame}
+
+\begin{frame}{Interpretation of ACF and PACF for an MA(3)}
+
+\textbf{Typical pattern of an MA(3):}
+\begin{itemize}
+    \item The \textbf{ACF} cuts off after lag 3
+    \item The \textbf{PACF} decreases gradually
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Why?}
+\begin{itemize}
+    \item In an MA(q) process, the ACF truncates at lag $q$
+    \item Dependence exists only through past shocks up to lag 3
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Key takeaway:}
+\begin{itemize}
+    \item ACF cutoff + PACF decay $\Rightarrow$ MA process
+    \item Here: cutoff at lag 3 $\Rightarrow$ MA(3)
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Summary: ACF/PACF Patterns (AR vs MA vs ARMA)}
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Model} & \textbf{ACF} & \textbf{PACF} \\
+\hline
+AR(p) & Gradual decay & Cuts off after lag $p$ \\
+\hline
+MA(q) & Cuts off after lag $q$ & Gradual decay \\
+\hline
+ARMA(p,q) & Gradual decay & Gradual decay \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{0.4cm}
+
+\textbf{Key identification rules:}
+\begin{itemize}
+    \item Sharp cutoff in PACF $\Rightarrow$ AR model
+    \item Sharp cutoff in ACF $\Rightarrow$ MA model
+    \item No clear cutoff $\Rightarrow$ ARMA model
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Important:}
+\begin{itemize}
+    \item In practice, patterns are not always perfectly clear
+    \item Use ACF/PACF together with model selection criteria (AIC, BIC)
+\end{itemize}
+
+\end{frame}
+
+\subsection{Les modèles AR / MA / ARMA}
+\begin{frame}{Autoregressive Model AR(p)}
+
+\textbf{Definition:}
+
+\vspace{0.3cm}
+
+An autoregressive process of order $p$, denoted AR($p$), is defined as:
+
+\[
+X_t = \phi_1 X_{t-1} + \phi_2 X_{t-2} + \cdots + \phi_p X_{t-p} + \varepsilon_t
+\]
+
+\vspace{0.3cm}
+
+where:
+\begin{itemize}
+    \item $\phi_1, \dots, \phi_p$ are parameters
+    \item $\varepsilon_t \sim WN(0,\sigma^2)$
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Key idea:}
+\begin{itemize}
+    \item The current value depends on its \textbf{past values}
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{AR(p): Intuition}
+
+\textbf{How does it work?}
+
+\begin{itemize}
+    \item The present is a linear combination of the past
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Example: AR(1)}
+\[
+X_t = \phi X_{t-1} + \varepsilon_t
+\]
+
+\begin{itemize}
+    \item If $|\phi| < 1$: the process is stationary
+    \item The series tends to return to its mean (mean reversion)
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Interpretation:}
+\begin{itemize}
+    \item Large $\phi$ $\Rightarrow$ strong persistence
+    \item Small $\phi$ $\Rightarrow$ weak dependence
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{AR(p): Example}
+
+\textbf{Example: AR(2)}
+
+\[
+X_t = 0.6 X_{t-1} - 0.3 X_{t-2} + \varepsilon_t
+\]
+
+\vspace{0.4cm}
+
+\textbf{Interpretation:}
+\begin{itemize}
+    \item $X_{t-1}$ has a positive influence
+    \item $X_{t-2}$ has a negative influence
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Key idea:}
+\begin{itemize}
+    \item The structure captures dynamic dependence over time
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Stationarity Condition of AR(p)}
+
+\textbf{AR($p$) model:}
+\[
+X_t = \phi_1 X_{t-1} + \cdots + \phi_p X_{t-p} + \varepsilon_t
+\]
+
+\vspace{0.4cm}
+
+\textbf{Characteristic polynomial:}
+\[
+\Phi(z) = 1 - \phi_1 z - \phi_2 z^2 - \cdots - \phi_p z^p
+\]
+
+\vspace{0.4cm}
+
+\textbf{Stationarity condition:}
+\begin{itemize}
+    \item The process is stationary if all roots of $\Phi(z)=0$ lie \textbf{outside the unit circle}
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Equivalent condition:}
+\begin{itemize}
+    \item All roots satisfy $|z_i| > 1$
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Stationarity Condition: AR(1)}
+
+\textbf{Model:}
+\[
+X_t = \phi X_{t-1} + \varepsilon_t
+\]
+
+\vspace{0.4cm}
+
+\textbf{Characteristic equation:}
+\[
+1 - \phi z = 0 \quad \Rightarrow \quad z = \frac{1}{\phi}
+\]
+
+\vspace{0.4cm}
+
+\textbf{Stationarity condition:}
+\[
+|z| > 1 \quad \Rightarrow \quad \left|\frac{1}{\phi}\right| > 1
+\]
+
+\[
+\Rightarrow \quad |\phi| < 1
+\]
+
+\vspace{0.4cm}
+
+\textbf{Interpretation:}
+\begin{itemize}
+    \item If $|\phi| < 1$: stationary (mean-reverting)
+    \item If $|\phi| \geq 1$: non-stationary
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Moving Average Model MA(q)}
+
+\textbf{Definition:}
+
+\vspace{0.3cm}
+
+A moving average process of order $q$, denoted MA($q$), is defined as:
+
+\[
+X_t = \varepsilon_t + \theta_1 \varepsilon_{t-1} + \theta_2 \varepsilon_{t-2} + \cdots + \theta_q \varepsilon_{t-q}
+\]
+
+\vspace{0.3cm}
+
+where:
+\begin{itemize}
+    \item $\varepsilon_t \sim WN(0,\sigma^2)$
+    \item $\theta_1,\dots,\theta_q$ are constants
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Key idea:}
+\begin{itemize}
+    \item The current value depends on the \textbf{current and past shocks}
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{MA(q): Intuition}
+
+\textbf{How does it work?}
+
+\begin{itemize}
+    \item A shock affects the series immediately
+    \item Its effect persists only for a limited number of periods
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Interpretation:}
+\begin{itemize}
+    \item In an MA($q$) process, a shock at time $t$ influences:
+    \begin{itemize}
+        \item $X_t$
+        \item $X_{t+1}$
+        \item \dots
+        \item $X_{t+q}$
+    \end{itemize}
+    \item After lag $q$, the effect disappears
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Key difference from AR(p):}
+\begin{itemize}
+    \item AR: depends on past values
+    \item MA: depends on past shocks
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{MA(q): Example}
+
+\textbf{Example: MA(2)}
+
+\[
+X_t = \varepsilon_t + 0.6\,\varepsilon_{t-1} + 0.3\,\varepsilon_{t-2}
+\]
+
+\vspace{0.4cm}
+
+\textbf{Interpretation:}
+\begin{itemize}
+    \item The current shock $\varepsilon_t$ affects $X_t$
+    \item The previous shock $\varepsilon_{t-1}$ still affects $X_t$
+    \item The shock $\varepsilon_{t-2}$ also affects $X_t$
+    \item Older shocks have no effect
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Key idea:}
+\begin{itemize}
+    \item The memory of the process is finite
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Stationarity of MA(q)}
+
+\textbf{Important property:}
+\begin{itemize}
+    \item Every MA($q$) process is \textbf{stationary}
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Why?}
+\begin{itemize}
+    \item $X_t$ is a finite linear combination of white noise terms
+    \item Its mean is constant
+    \item Its variance is constant
+    \item Its autocovariance depends only on the lag
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Conclusion:}
+\begin{itemize}
+    \item MA models are always weakly stationary
+\end{itemize}
+
+\end{frame}
+\begin{frame}{Mean and Variance of an MA(q)}
+
+For
+\[
+X_t = \varepsilon_t + \theta_1\varepsilon_{t-1} + \cdots + \theta_q\varepsilon_{t-q},
+\qquad \varepsilon_t \sim WN(0,\sigma^2),
+\]
+
+\vspace{0.3cm}
+
+\textbf{Mean:}
+\[
+\mathbb{E}[X_t]=0
+\]
+
+\vspace{0.3cm}
+
+\textbf{Variance:}
+\[
+\mathrm{Var}(X_t)=\sigma^2\left(1+\theta_1^2+\theta_2^2+\cdots+\theta_q^2\right)
+\]
+
+\vspace{0.4cm}
+
+\textbf{Remark:}
+\begin{itemize}
+    \item The variance is constant over time
+\end{itemize}
+
+\end{frame}
+\begin{frame}{Autocovariance of MA(q)}
+
+\textbf{Model:}
+\[
+X_t = \varepsilon_t + \theta_1 \varepsilon_{t-1} + \cdots + \theta_q \varepsilon_{t-q},
+\qquad \varepsilon_t \sim WN(0,\sigma^2)
+\]
+
+\vspace{0.4cm}
+
+\textbf{Autocovariance function $\gamma(h)$:}
+
+\begin{itemize}
+    \item For $h = 0$:
+    \[
+    \gamma(0) = \sigma^2 \left(1 + \theta_1^2 + \cdots + \theta_q^2 \right)
+    \]
+    
+    \vspace{0.3cm}
+    
+    \item For $1 \leq h \leq q$:
+    \[
+    \gamma(h) = \sigma^2 \left( \theta_h + \theta_1 \theta_{h+1} + \cdots + \theta_{q-h} \theta_q \right)
+    \]
+    
+    \vspace{0.3cm}
+    
+    \item For $h > q$:
+    \[
+    \gamma(h) = 0
+    \]
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Key property:}
+\begin{itemize}
+    \item The autocovariance function cuts off after lag $q$
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Invertibility of MA(q)}
+
+\textbf{Model:}
+\[
+X_t = \varepsilon_t + \theta_1 \varepsilon_{t-1} + \cdots + \theta_q \varepsilon_{t-q}
+\]
+
+\vspace{0.4cm}
+
+\textbf{Objective:}
+\begin{itemize}
+    \item Express $\varepsilon_t$ as a function of past values of $X_t$
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Key idea:}
+\begin{itemize}
+    \item An MA(q) process is \textbf{invertible} if it can be written as an AR($\infty$) process
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{ARMA(p,q) Model}
+
+\textbf{Definition:}
+
+\vspace{0.3cm}
+
+An ARMA($p,q$) process combines autoregressive and moving average components:
+
+\[
+X_t = \phi_1 X_{t-1} + \cdots + \phi_p X_{t-p}
++ \varepsilon_t + \theta_1 \varepsilon_{t-1} + \cdots + \theta_q \varepsilon_{t-q}
+\]
+
+\vspace{0.3cm}
+
+where:
+\begin{itemize}
+    \item $\varepsilon_t \sim WN(0,\sigma^2)$
+    \item $\phi_i$: AR parameters
+    \item $\theta_j$: MA parameters
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{ARMA(p,q): Compact Representation}
+
+\textbf{Using the lag operator $B$:}
+
+\vspace{0.3cm}
+
+\[
+\Phi(B)X_t = \Theta(B)\varepsilon_t
+\]
+
+\vspace{0.3cm}
+
+where:
+
+\[
+\Phi(B) = 1 - \phi_1 B - \cdots - \phi_p B^p
+\]
+
+\[
+\Theta(B) = 1 + \theta_1 B + \cdots + \theta_q B^q
+\]
+
+\vspace{0.4cm}
+
+\textbf{Key idea:}
+\begin{itemize}
+    \item ARMA combines dependence on past values and past shocks
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{ARMA(p,q): Conditions}
+
+\textbf{Stationarity:}
+\begin{itemize}
+    \item All roots of $\Phi(z)=0$ lie outside the unit circle
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Invertibility:}
+\begin{itemize}
+    \item All roots of $\Theta(z)=0$ lie outside the unit circle
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Conclusion:}
+\begin{itemize}
+    \item ARMA is well-defined when both conditions are satisfied
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{ARMA(p,q): Intuition}
+
+\textbf{How does it work?}
+
+\begin{itemize}
+    \item AR part: captures persistence (dependence on past values)
+    \item MA part: captures shocks (dependence on past errors)
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Key idea:}
+\begin{itemize}
+    \item ARMA provides a flexible model for time series dynamics
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Special cases:}
+\begin{itemize}
+    \item ARMA($p,0$) = AR($p$)
+    \item ARMA($0,q$) = MA($q$)
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{ARMA(p,q): ACF and PACF}
+
+\textbf{Typical behavior:}
+
+\begin{itemize}
+    \item ACF: gradual decay
+    \item PACF: gradual decay
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Key implication:}
+\begin{itemize}
+    \item No clear cutoff in ACF or PACF
+    \item Harder to identify than AR or MA models
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{In practice:}
+\begin{itemize}
+    \item Use AIC / BIC for model selection
+\end{itemize}
+
+\end{frame}
+
+
+\subsection{Analyse des résidus}
+
+\begin{frame}{Residual Analysis}
+
+\textbf{Objective:}
+\begin{itemize}
+    \item Check whether the fitted model is adequate
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Key idea:}
+\begin{itemize}
+    \item The residuals should behave like \textbf{white noise}
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Why?}
+\begin{itemize}
+    \item If residuals contain structure, the model is not sufficient
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Properties of Good Residuals}
+
+\textbf{A good model should produce residuals that:}
+
+\begin{itemize}
+    \item Have zero mean
+    \item Have constant variance
+    \item Are uncorrelated (no autocorrelation)
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{In other words:}
+\begin{itemize}
+    \item Residuals $\sim$ White Noise
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Residual Diagnostics: Graphical Tools}
+
+\textbf{Common plots:}
+\begin{itemize}
+    \item Residual time series plot
+    \item Histogram of residuals
+    \item Q-Q plot (normality check)
+    \item ACF of residuals
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{What to check:}
+\begin{itemize}
+    \item No visible pattern
+    \item No trend or seasonality
+    \item No significant autocorrelation
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{ACF of Residuals}
+
+\textbf{Key idea:}
+\begin{itemize}
+    \item Residuals should have no autocorrelation
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Interpretation:}
+\begin{itemize}
+    \item All autocorrelations should lie within confidence bounds
+    \item Significant spikes $\Rightarrow$ model misspecification
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Conclusion:}
+\begin{itemize}
+    \item If ACF shows structure, the model is not adequate
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{Ljung-Box Test}
+
+\textbf{Objective:}
+\begin{itemize}
+    \item Test whether residuals are uncorrelated
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Hypotheses:}
+\begin{itemize}
+    \item $H_0$: residuals are independent (white noise)
+    \item $H_1$: residuals are autocorrelated
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Decision:}
+\begin{itemize}
+    \item p-value $< 0.05$ $\Rightarrow$ reject $H_0$ (bad model)
+    \item p-value $> 0.05$ $\Rightarrow$ good model
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{Residual Diagnostics in R}
+\small
+
+\begin{block}{R}
+\begin{verbatim}
+model <- arima(x, order=c(1,0,1))
+
+res <- residuals(model)
+
+acf(res)
+Box.test(res, type="Ljung")
+\end{verbatim}
+\end{block}
+
+\vspace{0.3cm}
+
+\textbf{Goal:}
+\begin{itemize}
+    \item Check if residuals behave like white noise
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{Residual Diagnostics in Python}
+\small
+
+\begin{block}{Python}
+\begin{verbatim}
+from statsmodels.tsa.arima.model import ARIMA
+from statsmodels.stats.diagnostic import acorr_ljungbox
+
+model = ARIMA(x, order=(1,0,1)).fit()
+res = model.resid
+
+acorr_ljungbox(res, lags=[10])
+\end{verbatim}
+\end{block}
+
+\vspace{0.3cm}
+
+\textbf{Goal:}
+\begin{itemize}
+    \item Test residual independence using Ljung-Box
+\end{itemize}
+
+\end{frame}
+
+
+
+\begin{frame}{Model Validation Checklist}
+
+\textbf{A good model satisfies:}
+
+\begin{itemize}
+    \item Residuals $\sim$ white noise
+    \item No autocorrelation (ACF flat)
+    \item Ljung-Box test not rejected
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{If not:}
+\begin{itemize}
+    \item Try a different model (change $p$, $q$)
+    \item Consider transformations or differencing
+\end{itemize}
+
+\end{frame}
+
+
+
+
+\subsection{Forecasting}
+
+\begin{frame}{Forecasting in Time Series}
+
+\textbf{Objective:}
+\begin{itemize}
+    \item Predict future values of a time series
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Key idea:}
+\begin{itemize}
+    \item Use past observations and a fitted model (AR, MA, ARMA)
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Applications:}
+\begin{itemize}
+    \item Economics (GDP, inflation)
+    \item Finance (stock prices)
+    \item Energy demand
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{One-Step Ahead Forecast}
+
+\textbf{Definition:}
+
+\[
+\hat{X}_{t+1} = \mathbb{E}[X_{t+1} \mid X_t, X_{t-1}, \dots]
+\]
+
+\vspace{0.4cm}
+
+\textbf{Example: AR(1)}
+\[
+X_t = \phi X_{t-1} + \varepsilon_t
+\]
+
+\[
+\Rightarrow \hat{X}_{t+1} = \phi X_t
+\]
+
+\vspace{0.4cm}
+
+\textbf{Key idea:}
+\begin{itemize}
+    \item Future noise has zero expectation
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Multi-Step Forecast}
+
+\textbf{Example: AR(1)}
+
+\[
+\hat{X}_{t+2} = \phi \hat{X}_{t+1} = \phi^2 X_t
+\]
+
+\[
+\hat{X}_{t+h} = \phi^h X_t
+\]
+
+\vspace{0.4cm}
+
+\textbf{Key idea:}
+\begin{itemize}
+    \item Forecasts converge to the mean when $|\phi|<1$
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Interpretation:}
+\begin{itemize}
+    \item The further ahead, the less precise the forecast
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Forecast Uncertainty}
+
+\textbf{Important:}
+\begin{itemize}
+    \item Forecasts are not exact values
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Prediction intervals:}
+\begin{itemize}
+    \item Provide a range of possible future values
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Key idea:}
+\begin{itemize}
+    \item Uncertainty increases with the forecast horizon
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Example:}
+\begin{itemize}
+    \item Confidence intervals become wider over time
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{Forecasting in R}
+\small
+
+\begin{block}{R}
+\begin{verbatim}
+library(forecast)
+
+model <- arima(x, order=c(1,0,1))
+
+fc <- forecast(model, h=10)
+
+plot(fc)
+\end{verbatim}
+\end{block}
+
+\vspace{0.3cm}
+
+\textbf{Output:}
+\begin{itemize}
+    \item Forecast values
+    \item Confidence intervals
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{Forecasting in Python}
+\small
+
+\begin{block}{Python}
+\begin{verbatim}
+from statsmodels.tsa.arima.model import ARIMA
+
+model = ARIMA(x, order=(1,0,1)).fit()
+
+forecast = model.get_forecast(steps=10)
+
+mean = forecast.predicted_mean
+conf_int = forecast.conf_int()
+\end{verbatim}
+\end{block}
+
+\vspace{0.3cm}
+
+\textbf{Output:}
+\begin{itemize}
+    \item Forecast values
+    \item Confidence intervals
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Forecasting: Summary}
+
+\textbf{Steps:}
+\begin{itemize}
+    \item Fit a model (AR, MA, ARMA)
+    \item Check residuals
+    \item Generate forecasts
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Key idea:}
+\begin{itemize}
+    \item Good forecasts require a well-specified model
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Important:}
+\begin{itemize}
+    \item Forecast uncertainty increases over time
+\end{itemize}
+
+\end{frame}
+\end{document}

@@ -1,0 +1,414 @@
+\documentclass[aspectratio=169]{beamer}
+
+% Theme académique professionnel
+\usetheme{Madrid}
+\usecolortheme{default}
+
+% Packages
+\usepackage{amsmath,amsfonts}
+\usepackage[french]{babel}
+
+% Informations
+\title{Time Series}
+\subtitle{Decomposition: Trend Estimation}
+\author{Mr. Aymen Ben Brik}
+
+\institute{
+Time Series Course 1GAMMA
+}
+
+\date{\today}
+
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstset{
+language=Python,
+basicstyle=\ttfamily\small,
+keywordstyle=\color{blue},
+commentstyle=\color{gray},
+stringstyle=\color{red},
+showstringspaces=false,
+frame=single,
+breaklines=true
+}
+
+
+
+\begin{document}
+
+% Slide titre
+\begin{frame}
+\titlepage
+\end{frame}
+
+% Objectifs
+\begin{frame}{Session Objectives}
+
+By the end of this session, you will be able to:
+
+\begin{itemize}
+\item Understand time series decomposition
+\item Understand the trend component
+\item Estimate and remove trend from time series
+\item Apply moving average methods
+\item Apply parametric regression methods
+\item Understand non-parametric regression methods
+\item Select appropriate trend estimation methods
+\end{itemize}
+
+\end{frame}
+
+% Basics
+\begin{frame}{Time Series: Basics}
+
+Time series data:
+
+\[
+Y_t, \quad t = 1,2,\dots,T
+\]
+
+Model decomposition:
+
+\[
+Y_t = T_t + S_t + \varepsilon_t
+\]
+
+where:
+
+\begin{itemize}
+
+\item $T_t$ : trend component
+
+\item $S_t$ : seasonal component
+
+\item $\varepsilon_t$ : stationary component
+
+\end{itemize}
+
+Goal:
+
+\begin{itemize}
+
+\item Estimate $T_t$ and $S_t$
+
+\item Remove them to obtain stationary process
+
+\end{itemize}
+
+\end{frame}
+
+% Trend estimation overview
+\begin{frame}{Trend Estimation}
+
+Goal: eliminate trend component
+
+Approaches:
+
+\begin{itemize}
+
+\item Estimate trend and subtract it
+
+\item Difference the data
+
+\end{itemize}
+
+Methods:
+
+\begin{itemize}
+
+\item Moving Average
+
+\item Parametric Regression
+
+\item Non-Parametric Regression
+
+\end{itemize}
+
+\end{frame}
+
+% Moving average
+\begin{frame}{Trend Estimation: Moving Average}
+
+Trend estimate:
+
+\[
+\hat{T}_t =
+\frac{1}{2d +1}
+\sum_{i=-k}^{k} Y_{t+i}
+\]
+
+where:
+
+\begin{itemize}
+
+\item $d$ : window size
+
+\item used to smooth time series
+
+\end{itemize}
+
+Properties:
+
+\begin{itemize}
+
+\item Simple
+
+\item Effective smoothing
+
+\item Removes noise
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Example: Moving Average in R}
+
+Example: Estimate trend using moving average
+
+\begin{lstlisting}[language=R]
+
+# Generate example time series
+t <- 1:100
+y <- 0.5*t + rnorm(100,0,5)
+
+# Moving average with window size 5
+trend <- filter(y, rep(1/5,5), sides=2)
+
+# Plot
+plot(t,y,type="l",col="gray",
+     main="Moving Average Trend Estimation")
+lines(t,trend,col="blue",lwd=2)
+
+\end{lstlisting}
+
+\end{frame}
+\begin{frame}[fragile]{Example: Moving Average in Python}
+
+\begin{lstlisting}
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Generate time series
+t = np.arange(100)
+y = 0.5*t + np.random.normal(0,5,100)
+
+# Moving average
+trend = pd.Series(y).rolling(window=5).mean()
+
+# Plot
+plt.plot(t,y,color='gray')
+plt.plot(t,trend,color='blue',linewidth=2)
+plt.title("Moving Average Trend Estimation")
+plt.show()
+\end{lstlisting}
+
+\end{frame}
+
+
+
+% Parametric regression
+\begin{frame}{Trend Estimation: Parametric Regression}
+
+Assume polynomial model:
+
+\[
+T_t =
+\beta_0
++
+\beta_1 t
++
+\beta_2 t^2
++
+\dots
++
+\beta_p t^p
+\]
+
+Estimation using regression:
+
+\begin{itemize}
+
+\item Linear trend ($p=1$)
+
+\item Quadratic trend ($p=2$)
+
+\end{itemize}
+
+Model selection used to choose order.
+
+\end{frame}
+
+\begin{frame}[fragile]{Example: Linear Trend Estimation in R}
+
+\begin{lstlisting}[language=R]
+
+# Linear regression
+model <- lm(y ~ t)
+
+# Estimated trend
+trend <- predict(model)
+
+# Plot
+plot(t,y,type="l",col="gray")
+lines(t,trend,col="red",lwd=2)
+
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]{Example: Linear Trend Estimation in Python}
+
+\begin{lstlisting}
+
+from sklearn.linear_model import LinearRegression
+
+# reshape for sklearn
+X = t.reshape(-1,1)
+
+model = LinearRegression()
+model.fit(X,y)
+
+trend = model.predict(X)
+
+plt.plot(t,y,color='gray')
+plt.plot(t,trend,color='red',linewidth=2)
+plt.title("Linear Trend Estimation")
+plt.show()
+
+\end{lstlisting}
+
+\end{frame}
+
+
+
+% Non-parametric regression
+\begin{frame}{Trend Estimation: Non-Parametric Regression}
+
+Kernel regression:
+
+\[
+\hat{T}_t =
+\sum w_i Y_i
+\]
+
+Local polynomial regression:
+
+\begin{itemize}
+
+\item Fit polynomial locally
+
+\item Flexible
+
+\item Accurate
+
+\end{itemize}
+
+Other methods:
+
+\begin{itemize}
+
+\item Splines
+
+\item Wavelets
+
+\end{itemize}
+
+\end{frame}
+
+% Method comparison
+\begin{frame}{Method Selection}
+
+Preferred methods:
+
+\begin{itemize}
+
+\item Local polynomial regression
+
+\item Splines regression
+
+\end{itemize}
+
+Advantages:
+
+\begin{itemize}
+
+\item Better accuracy
+
+\item Handles boundaries well
+
+\item Flexible modeling
+
+\end{itemize}
+
+Choice depends on smoothness of trend.
+
+\end{frame}
+
+\begin{frame}[fragile]{Example: Local Regression (LOESS) in R}
+
+Local regression estimates the trend using local polynomial fitting.
+
+\begin{lstlisting}[language=R]
+# Generate example time series
+t <- 1:100
+y <- 0.5*t + 10*sin(t/10) + rnorm(100,0,5)
+# Local regression using LOESS
+model <- loess(y ~ t, span=0.2)
+# Estimated trend
+trend <- predict(model)
+# Plot results
+plot(t, y, type="l", col="gray",
+     main="Local Regression (LOESS) Trend Estimation",
+     xlab="Time", ylab="Value")
+lines(t, trend, col="blue", lwd=2)
+legend("topleft",
+       legend=c("Original Series","LOESS Trend"),
+       col=c("gray","blue"),lwd=2)
+
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]{Example: Non-Parametric Trend (Python)}
+
+\begin{lstlisting}
+
+from statsmodels.nonparametric.smoothers_lowess import lowess
+
+trend = lowess(y,t,frac=0.1)
+
+plt.plot(t,y,color='gray')
+plt.plot(trend[:,0],trend[:,1],
+         color='green',linewidth=2)
+plt.title("LOWESS Trend Estimation")
+plt.show()
+
+\end{lstlisting}
+
+\end{frame}
+
+
+% Summary
+\begin{frame}{Summary}
+
+In this session, we covered:
+
+\begin{itemize}
+
+\item Time series decomposition
+
+\item Trend component
+
+\item Moving average estimation
+
+\item Parametric regression
+
+\item Non-parametric regression
+
+\end{itemize}
+
+\end{frame}
+
+\end{document}

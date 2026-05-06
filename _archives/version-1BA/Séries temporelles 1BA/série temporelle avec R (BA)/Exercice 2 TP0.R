@@ -1,0 +1,37 @@
+class(co2)
+co2
+plot(co2, main = 'Atmospheric CO2 concentration', lwd = 2) 
+(co2.linear.model = lm(co2~time(co2)))
+summary(co2.linear.model)
+abline(co2.linear.model,lwd=2, col= 'red') 
+co2.residual = resid(co2.linear.model)
+hist(co2.residual, col = 'blue',main = 'Histogram of residuals')
+qqnorm(co2.residual)
+qqline(co2.residual)
+plot(co2.residual~time(co2), xlim = c(1960, 1963), main ='Residuals')
+
+
+
+loc.fit = loess(co2~time(co2))
+co2.loc.fit = ts(fitted(loc.fit) , start = 1959 , frequency = 12)
+lines(co2.loc.fit , lwd= 2 , col = 'blue')
+co2.residual.loc = resid(loc.fit)
+qqnorm(co2.residual.loc)
+qqline(co2.residual.loc)
+plot(co2.residual.loc~time(co2), main ='Residuals')
+plot(co2.residual.loc~time(co2), xlim = c(1960, 1963), main ='Residuals')
+
+t1= time(co2)
+t2 = t1^2
+(co2.qm = lm(co2~t1+t2))
+summary(co2.qm)
+co2.qm.fit = fitted.values(co2.qm)
+co2.qm.fitted = ts(co2.qm.fit, start = 1959, frequency = 12)
+lines(co2.qm.fitted, col = "green", lwd= 2)
+co2.residual.qm = resid(co2.qm)
+hist(co2.residual.qm)
+qqnorm(co2.residual.qm)
+qqline(co2.residual.qm)
+plot(co2.residual.qm~time(co2), xlim = c(1960, 1963), main ='Residuals')
+mean(co2.residual.qm)
+sd(co2.residual.loc)

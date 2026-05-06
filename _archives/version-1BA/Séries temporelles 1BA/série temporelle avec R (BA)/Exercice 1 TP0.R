@@ -1,0 +1,20 @@
+require(faraway)
+help("coagulation")
+data(package ='faraway')
+data(coagulation, package = 'faraway')
+summary(coagulation)
+class(coagulation)
+names(coagulation)
+plot(coag~diet, data = coagulation ) 
+lm(coag~diet-1,data = coagulation)
+summary(lm(coag~diet-1,data = coagulation))
+
+data(rats, package= 'faraway')
+rats
+summary(rats)
+plot(time~poison, data = rats)
+plot(time~treat, data= rats)
+
+my_data = c(91,49,76,112,97,42,70, 100, 8, 112, 95, 90, 78, 62, 56, 94, 65, 58, 109, 70, 109, 91, 71, 76, 68, 62, 134, 57, 83, 66)
+hist(my_data, xlab = "my data points", main = "Histogramme of my data set",breaks=10, freq =F, col = "green") 
+lines(density(my_data), col = "red", lwd =4) 

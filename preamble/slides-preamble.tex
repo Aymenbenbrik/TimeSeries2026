@@ -1,0 +1,117 @@
+% =========================================================
+% Beamer preamble — Time Series Analysis module
+% Theme : Metropolis, aspect ratio 16:9
+% Author : Aymen Ben Brik (aymen.benbrik@esprit.tn)
+% Esprit School of Business
+%
+% Include from each chapterX/slides.tex via :
+%   \input{../preamble/slides-preamble.tex}
+% AFTER the line \documentclass[aspectratio=169]{beamer}.
+% =========================================================
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{lmodern}
+\usepackage{amsmath, amssymb, mathtools, bm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, calc, shapes, fit, backgrounds, matrix, decorations.pathreplacing}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+
+% --- Theme ---
+\usetheme{metropolis}
+\setbeamertemplate{navigation symbols}{}
+\metroset{block=fill}
+
+% --- Esprit colour palette ---
+\definecolor{espritBlue}{RGB}{30, 60, 110}
+\definecolor{espritAccent}{RGB}{200, 80, 30}
+\setbeamercolor{progress bar}{fg=espritAccent}
+\setbeamercolor{title separator}{fg=espritAccent}
+\setbeamercolor{frametitle}{bg=espritBlue}
+
+% --- Code listings (Python + R, with UTF-8 literate) ---
+\definecolor{codebg}{RGB}{248,248,248}
+\definecolor{codeframe}{RGB}{220,220,220}
+\definecolor{keyword}{RGB}{0,82,155}
+\definecolor{comment}{RGB}{88,110,117}
+\definecolor{string}{RGB}{133,153,0}
+
+\lstdefinestyle{pythonstyle}{
+  language=Python,
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{keyword}\bfseries,
+  commentstyle=\color{comment}\itshape,
+  stringstyle=\color{string},
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  frameround=tttt,
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2,
+  literate=
+    {é}{{\'e}}1 {è}{{\`e}}1 {ê}{{\^e}}1 {à}{{\`a}}1 {â}{{\^a}}1
+    {ç}{{\c{c}}}1 {²}{{$^2$}}1 {°}{{${}^\circ$}}1
+    {α}{{$\alpha$}}1 {β}{{$\beta$}}1 {γ}{{$\gamma$}}1
+    {δ}{{$\delta$}}1 {θ}{{$\theta$}}1 {λ}{{$\lambda$}}1
+    {μ}{{$\mu$}}1 {σ}{{$\sigma$}}1 {ε}{{$\varepsilon$}}1
+    {ρ}{{$\rho$}}1 {τ}{{$\tau$}}1 {φ}{{$\phi$}}1
+    {≤}{{$\leq$}}1 {≥}{{$\geq$}}1 {≈}{{$\approx$}}1
+}
+\lstdefinestyle{Rstyle}{
+  language=R,
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{keyword}\bfseries,
+  commentstyle=\color{comment}\itshape,
+  stringstyle=\color{string},
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  frameround=tttt,
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2
+}
+\lstset{style=pythonstyle}
+
+% --- Common macros ---
+\input{../preamble/macros.tex}
+
+% --- tcolorbox boxes for slides ---
+\definecolor{boxTh}{RGB}{120, 30, 30}
+\definecolor{boxProp}{RGB}{30, 100, 60}
+\definecolor{boxDef}{RGB}{30, 60, 110}
+\definecolor{boxEx}{RGB}{180, 120, 0}
+
+\newtcolorbox{infobox}[1][]{enhanced, colback=espritBlue!5, colframe=espritBlue,
+  fonttitle=\bfseries\small,
+  title={\ifstrempty{#1}{}{#1}},
+  boxrule=0.4pt, arc=2pt, left=4pt, right=4pt, top=2pt, bottom=2pt}
+\newtcolorbox{warnbox}[1][]{enhanced, colback=espritAccent!5, colframe=espritAccent,
+  fonttitle=\bfseries\small,
+  title={\ifstrempty{#1}{}{#1}},
+  boxrule=0.4pt, arc=2pt, left=4pt, right=4pt, top=2pt, bottom=2pt}
+\newtcolorbox{thbox}[1][]{enhanced, colback=boxTh!5, colframe=boxTh,
+  fonttitle=\bfseries\small,
+  title={Theorem\ifstrempty{#1}{}{ -- #1}},
+  boxrule=0.5pt, arc=2pt, left=4pt, right=4pt, top=2pt, bottom=2pt}
+\newtcolorbox{propbox}[1][]{enhanced, colback=boxProp!5, colframe=boxProp,
+  fonttitle=\bfseries\small,
+  title={Proposition\ifstrempty{#1}{}{ -- #1}},
+  boxrule=0.5pt, arc=2pt, left=4pt, right=4pt, top=2pt, bottom=2pt}
+\newtcolorbox{defbox}[1][]{enhanced, colback=boxDef!5, colframe=boxDef,
+  fonttitle=\bfseries\small,
+  title={Definition\ifstrempty{#1}{}{ -- #1}},
+  boxrule=0.5pt, arc=2pt, left=4pt, right=4pt, top=2pt, bottom=2pt}
+\newtcolorbox{exbox}[1][]{enhanced, colback=boxEx!5, colframe=boxEx,
+  fonttitle=\bfseries\small,
+  title={Example\ifstrempty{#1}{}{ -- #1}},
+  boxrule=0.5pt, arc=2pt, left=4pt, right=4pt, top=2pt, bottom=2pt}

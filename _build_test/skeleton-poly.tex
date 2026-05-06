@@ -1,0 +1,53 @@
+\documentclass[a4paper,11pt,oneside]{book}
+\input{../preamble/poly-preamble.tex}
+
+\title{\moduleNom}
+\author{\auteurNom\\\auteurEmail\\\auteurInstitution}
+\date{\anneeUniversitaire}
+
+\begin{document}
+\frontmatter
+\maketitle
+\tableofcontents
+
+\mainmatter
+
+\chapter*{Skeleton --- Step 1}
+\addcontentsline{toc}{chapter}{Skeleton --- Step 1}
+
+This file validates the lecture-notes compilation chain:
+\begin{itemize}
+  \item \texttt{book} class,
+  \item preamble \texttt{poly-preamble.tex},
+  \item macros \texttt{macros.tex},
+  \item \texttt{tcolorbox} environments
+        (\texttt{defbox}, \texttt{thbox}, \texttt{propbox},
+         \texttt{exbox}, \texttt{rembox}, \texttt{warnbox}),
+  \item \texttt{fancyhdr} headers.
+\end{itemize}
+
+\begin{defbox}[Stationarity]
+A time series $(X_t)_{t \in \Z}$ is \emph{strictly stationary} if for any
+$h \in \Z$ and $t_1, \dots, t_n$, the joint distribution of
+$(X_{t_1}, \dots, X_{t_n})$ equals the joint distribution of
+$(X_{t_1+h}, \dots, X_{t_n+h})$.
+\end{defbox}
+
+\begin{thbox}[Wold decomposition]
+Any covariance-stationary process can be written uniquely as the sum
+of a deterministic component and an infinite moving-average process
+of uncorrelated innovations.
+\end{thbox}
+
+\begin{exbox}[White noise]
+$X_t \iid \mathcal{N}(0, \sigma^2)$ has $\E[X_t] = 0$, $\Var[X_t] = \sigma^2$,
+and $\rho(h) = 0$ for all $h \neq 0$.
+\end{exbox}
+
+\begin{rembox}
+Stationarity is the foundation of classical time-series modelling.
+ARCH/GARCH (Chapter~6) handle the case where conditional variance is
+itself time-varying.
+\end{rembox}
+
+\end{document}

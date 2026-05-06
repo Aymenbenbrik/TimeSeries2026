@@ -1,0 +1,6 @@
+help(trees)
+summary(trees)
+help(pairs)
+pairs(trees, pch = 21 , bg = 'red')
+cov(trees)
+cor(trees)

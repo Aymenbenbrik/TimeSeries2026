@@ -1,0 +1,118 @@
+% =========================================================
+% Tutorial / lab preamble — Time Series Analysis module
+% article class + fancyhdr + tcolorbox + listings (English)
+% Author : Aymen Ben Brik (aymen.benbrik@esprit.tn)
+% =========================================================
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{lmodern}
+\usepackage{amsmath, amssymb, amsthm, mathtools, bm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, calc, shapes, fit, backgrounds, matrix}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{geometry}
+\geometry{a4paper, margin=2cm, headheight=15pt}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+\usepackage{enumitem}
+
+% --- Colours ---
+\definecolor{espritBlue}{RGB}{30, 60, 110}
+\definecolor{espritAccent}{RGB}{200, 80, 30}
+\definecolor{boxEx}{RGB}{30, 60, 110}
+\definecolor{boxQ}{RGB}{180, 120, 0}
+\definecolor{boxC}{RGB}{30, 100, 60}
+\definecolor{boxAtt}{RGB}{200, 80, 30}
+
+% --- Listings ---
+\definecolor{codebg}{RGB}{248,248,248}
+\definecolor{codeframe}{RGB}{220,220,220}
+\definecolor{keyword}{RGB}{0,82,155}
+\definecolor{comment}{RGB}{88,110,117}
+\definecolor{string}{RGB}{133,153,0}
+
+\lstdefinestyle{pythonstyle}{
+  language=Python,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{keyword}\bfseries,
+  commentstyle=\color{comment}\itshape,
+  stringstyle=\color{string},
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  frameround=tttt,
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2
+}
+\lstdefinestyle{Rstyle}{
+  language=R,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{keyword}\bfseries,
+  commentstyle=\color{comment}\itshape,
+  stringstyle=\color{string},
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  frameround=tttt,
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2
+}
+\lstset{style=pythonstyle}
+
+% --- Common macros (configurable path) ---
+\providecommand{\macrosPath}{../../preamble/macros.tex}
+\input{\macrosPath}
+
+% --- Exercise counter ---
+\newcounter{excounter}
+\renewcommand{\theexcounter}{\arabic{excounter}}
+
+\newtcolorbox[use counter=excounter]{exercise}[1][]{
+  enhanced, breakable,
+  colback=boxEx!5, colframe=boxEx, fonttitle=\bfseries,
+  title={Exercise~\theexcounter\ifstrempty{#1}{}{ -- #1}},
+  arc=2pt, boxrule=0.6pt
+}
+\newtcolorbox{question}[1][]{
+  enhanced, breakable,
+  colback=boxQ!5, colframe=boxQ, fonttitle=\bfseries,
+  title={Question\ifstrempty{#1}{}{ -- #1}},
+  arc=2pt, boxrule=0.5pt
+}
+\newtcolorbox{solution}[1][]{
+  enhanced, breakable,
+  colback=boxC!5, colframe=boxC, fonttitle=\bfseries,
+  title={Solution\ifstrempty{#1}{}{ -- #1}},
+  arc=2pt, boxrule=0.5pt
+}
+\newtcolorbox{warning}[1][]{
+  enhanced, breakable,
+  colback=boxAtt!5, colframe=boxAtt, fonttitle=\bfseries,
+  title={Warning\ifstrempty{#1}{}{ -- #1}},
+  arc=2pt, boxrule=0.5pt
+}
+
+% --- Headers / footers ---
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textsc{\moduleNom} -- \auteurNom}
+\fancyhead[R]{\TPnumero}
+\fancyfoot[C]{\thepage}
+\fancyfoot[L]{\auteurInstitution}
+\fancyfoot[R]{\auteurEmail}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.2pt}
+
+% --- Placeholder ---
+\providecommand{\TPnumero}{Lab}
