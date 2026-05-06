@@ -1,0 +1,130 @@
+\documentclass[a4paper,11pt]{article}
+
+\newcommand{\TPnumero}{Project 2}
+\newcommand{\macrosPath}{../../preamble/macros.tex}
+\input{../../preamble/td-tp-preamble.tex}
+
+\title{Project 2: Decomposition of monthly souvenir sales\\
+\large Trend, seasonality and multiplicative model selection}
+\author{\auteurNom\\\auteurEmail\\\auteurInstitution}
+\date{\anneeUniversitaire}
+
+\begin{document}
+\maketitle
+
+\section*{Context}
+
+The dataset \texttt{data/SouvenirSales.csv} contains the monthly
+sales (in Australian dollars) of a souvenir shop on the beach of
+Queensland (Australia), from January 1995 to December 2001. The series
+exhibits both a strong upward trend and a marked seasonal pattern with
+a Christmas spike — a textbook example of a \emph{multiplicative}
+time series.
+
+\section*{Deliverables}
+\begin{itemize}
+  \item A reproducible Python script (\texttt{project2\_<name>.py},
+        seed $42$).
+  \item A 4--6 page PDF report with figures, tables and discussion.
+  \item Optional 5-minute oral defence.
+\end{itemize}
+
+% =========================================================
+\begin{exercise}[Exploratory analysis]
+\textbf{(1)} Load the data, parse the dates, plot $Y_t$ vs.\ time.
+
+\textbf{(2)} Comment on:
+\begin{itemize}
+  \item the trend (is it roughly linear, exponential, or something else?);
+  \item the seasonal amplitude (constant or growing with the level?);
+  \item the presence of any obvious outliers.
+\end{itemize}
+
+\textbf{(3)} Compute and report descriptive statistics (mean, std, min,
+max, skewness, kurtosis).
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Additive vs.\ multiplicative]
+\textbf{(1)} Apply an additive decomposition with
+\texttt{statsmodels.tsa.seasonal\_decompose(y, period=12, model="additive")}
+and plot the four panels.
+
+\textbf{(2)} Same with \texttt{model="multiplicative"}.
+
+\textbf{(3)} Compare the residuals of the two models. Which is more
+homoscedastic?
+
+\textbf{(4)} Conclude: which model is more appropriate for this series,
+and why?
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Log transform and additive workflow]
+\textbf{(1)} Take $\log Y_t$. Plot the log-series.
+
+\textbf{(2)} On $\log Y_t$, apply the full additive workflow:
+\begin{itemize}
+  \item estimate the trend (LOESS, frac = 0.3, or polynomial degree 2);
+  \item detrend;
+  \item estimate seasonality with seasonal averaging \emph{and} a
+        cosine--sine model with one harmonic;
+  \item compute the residual.
+\end{itemize}
+
+\textbf{(3)} Diagnose the residual: histogram, QQ-plot, time-vs-residual
+plot. Is it stationary?
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Forecasting]
+\textbf{(1)} Split the data: train = 1995-01 to 2000-12 (72 months),
+test = 2001-01 to 2001-12 (12 months).
+
+\textbf{(2)} On the train set, fit a model
+$\log Y_t = \beta_0 + \beta_1\,t + \sum_{j=1}^{2}[a_j \cos(j\omega t)
++ b_j \sin(j\omega t)] + \varepsilon_t$ ($\omega = 2\pi/12$).
+Use OLS.
+
+\textbf{(3)} Predict $\widehat{\log Y}_t$ for $t$ in the test range.
+Convert back: $\widehat{Y}_t = \exp(\widehat{\log Y}_t)$.
+
+\textbf{(4)} Compute the test MSE and MAPE. Plot observed vs.\ predicted
+on the test period.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Bonus: residual modelling]
+\textbf{(1)} Plot the autocorrelation function of the train residual
+(\texttt{statsmodels.graphics.tsaplots.plot\_acf}).
+
+\textbf{(2)} Are there significant autocorrelations beyond lag $0$?
+This would suggest that the residual is not white noise — and
+motivates the ARMA modelling of Chapter~5.
+\end{exercise}
+
+% =========================================================
+\section*{Marking grid (out of 100)}
+
+\begin{center}
+\begin{tabular}{p{8cm}rl}
+\toprule
+\textbf{Criterion} & \textbf{Points} & \\
+\midrule
+Exploratory plots + descriptive statistics            & 15 \\
+Additive vs.\ multiplicative comparison + discussion  & 20 \\
+Log + full additive workflow + residual diagnostic    & 25 \\
+Forecast on test set: train/test split, OLS, MAPE     & 20 \\
+ACF of residual + ARMA motivation (bonus)             & 10 \\
+Reproducibility + report quality                      & 10 \\
+\midrule
+\textbf{Total}                                        & \textbf{100} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\bigskip
+\hfill\auteurNom\par
+\hfill\auteurEmail\par
+
+\end{document}

@@ -1,0 +1,110 @@
+\documentclass[a4paper,11pt]{article}
+
+\newcommand{\TPnumero}{Lab 2 -- Solution}
+\input{../../preamble/td-tp-preamble.tex}
+
+\title{Lab 2: Decomposition\\\large \emph{Reference solution}}
+\author{\auteurNom\\\auteurEmail\\\auteurInstitution}
+\date{\anneeUniversitaire}
+
+\begin{document}
+\maketitle
+
+\noindent\emph{Reference Python code is in \texttt{correction.py}; this
+document gives the analytical answers and expected numerical values.}
+
+\setcounter{excounter}{0}
+\begin{exercise}[Synthetic decomposition]\end{exercise}
+
+\begin{solution}
+The 4-panel figure shows the observed series with a clear linear drift
+and a regular 12-month sinusoidal pattern of constant amplitude $5$ —
+the visual signature of an \emph{additive} model.
+\end{solution}
+
+\begin{exercise}[Trend estimation: three methods]\end{exercise}
+
+\begin{solution}
+Reference RMSE values (over $T = 240$, seed 42):
+\begin{center}
+\begin{tabular}{lc}
+\toprule
+\textbf{Method}                                  & \textbf{RMSE vs.\ true trend} \\
+\midrule
+Centred MA, $k = 6$                              & $\approx 0.39$ \\
+Linear regression (correctly specified)          & $\approx 0.07$ \\
+LOESS, $\mathrm{frac} = 0.2$                     & $\approx 0.31$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+The linear regression is the best estimator here because it matches
+the true generating model. The MA loses a few observations at each
+end and absorbs some sinusoidal residual at length 13. LOESS provides
+flexibility but adds variance. The polynomial estimate is a clean
+straight line; LOESS wiggles slightly around it.
+\end{solution}
+
+\begin{exercise}[Seasonality estimation: three methods]\end{exercise}
+
+\begin{solution}
+After LOESS detrending, the three methods produce visually similar
+estimates of the 12-month seasonal pattern. RMSE versus the truth
+$5 \sin(2\pi k / 12)$ (seed 42):
+\begin{itemize}
+  \item Seasonal averaging: $\approx 0.31$.
+  \item Dummy regression (11 dummies): $\approx 0.31$ (mathematically
+        identical to averaging when no other regressor is present).
+  \item Cosine--sine model (1 harmonic): $\approx 0.16$ — \textbf{best},
+        using only 2 parameters.
+\end{itemize}
+The Fourier model wins here because the truth is a \emph{pure}
+sinusoid, exactly captured by the 1-harmonic basis (which lets the
+estimator pool all 240 observations into 2 coefficients). Averaging
+and dummies estimate 12 independent indices, with one degree of
+freedom per index and therefore higher variance. With more harmonics
+($J \geq 2$), the Fourier model can fit more complex seasonal shapes;
+with all $J = \lfloor d/2 \rfloor$ harmonics it is equivalent to the
+dummies (Proposition~2.5 of the lecture).
+\end{solution}
+
+\begin{exercise}[Application to Atlanta temperatures]\end{exercise}
+
+\begin{solution}
+\textbf{(1)} Period $d = 12$ (annual seasonality). The amplitude of
+the seasonal swing looks roughly constant over the 138-year span,
+supporting an additive model.
+
+\textbf{(2)} Visual decomposition: the trend (centred MA, $k = 6$)
+sits around $61.8^\circ$F. The 12 monthly seasonal indices, in
+$^\circ$F, are
+\[
+\begin{array}{rrrrrrrrrrrr}
+\text{Jan} & \text{Feb} & \text{Mar} & \text{Apr} & \text{May} & \text{Jun}
+& \text{Jul} & \text{Aug} & \text{Sep} & \text{Oct} & \text{Nov} & \text{Dec}\\
+-19.9 & -17.1 & -9.5 & -0.3 & +8.7 & +16.2 & +18.6 & +17.7 & +12.2 & +1.2 & -9.9 & -17.9
+\end{array}
+\]
+Peak in July (+18.6), trough in January ($-19.9$), peak-to-peak
+amplitude $\sim 38^\circ$F. The residual has std $\approx 2.9^\circ$F
+— mostly weather noise.
+
+\textbf{(3)} \texttt{statsmodels.seasonal\_decompose(y, period=12,
+model="additive")} gives the same monthly seasonal indices (within
+floating-point tolerance) when using the same $2 \times 12$ MA filter.
+\end{solution}
+
+\begin{exercise}[Bonus: additive vs multiplicative]\end{exercise}
+
+\begin{solution}
+The multiplicative simulated series shows a seasonal amplitude that
+\emph{grows} with the trend level. The additive workflow on $Y_t$
+leaves a clearly heteroscedastic residual (funnel-shaped), whereas
+the same workflow on $\log Y_t$ gives an approximately stationary
+residual.
+
+\textbf{Conclusion:} prefer the multiplicative model (or work on
+$\log Y_t$) when the seasonal amplitude scales with the level — typical
+of sales, GDP, population, financial volume.
+\end{solution}
+
+\end{document}

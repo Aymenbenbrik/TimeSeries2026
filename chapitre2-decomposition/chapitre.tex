@@ -1,0 +1,356 @@
+% =========================================================
+% Chapter 2 — Time series decomposition
+% Author : Aymen Ben Brik (aymen.benbrik@esprit.tn)
+% =========================================================
+
+\chapter{Time series decomposition}
+\label{ch:decomposition}
+
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
+
+The first step in time-series analysis is to \emph{decompose} the
+observed data into structural components: a slowly varying
+\emph{trend} $T_t$, a periodic \emph{seasonality} $S_t$, and a
+stationary residual $\varepsilon_t$. The trend and seasonality carry
+the deterministic structure; the residual captures the stochastic
+fluctuations and is the input to the modelling techniques of
+Chapters~\ref{ch:stationarity}--\ref{ch:arch-garch}.
+
+This chapter presents:
+\begin{enumerate}
+  \item the additive and multiplicative decomposition models;
+  \item three trend-estimation strategies (moving average, parametric
+        polynomial regression, non-parametric LOESS / splines);
+  \item three seasonality-estimation strategies (seasonal averaging,
+        dummy regression, cosine--sine Fourier models);
+  \item residual diagnostics and the full decomposition workflow.
+\end{enumerate}
+
+% =========================================================
+\section{The decomposition model}
+\label{sec:decomp-model}
+
+\begin{defbox}[Additive vs.\ multiplicative model]
+\label{def:decomp}
+For an observed time series $(Y_t)_{t=1}^{T}$ with seasonal period $d$:
+\[
+  \text{Additive:}\quad Y_t = T_t + S_t + \varepsilon_t,
+  \qquad
+  \text{Multiplicative:}\quad Y_t = T_t \cdot S_t \cdot \varepsilon_t.
+\]
+Here $T_t$ is a slowly varying \emph{trend}, $S_t$ is a periodic
+\emph{seasonal component} of period $d$ (i.e.\ $S_{t + d} = S_t$), and
+$\varepsilon_t$ is a zero-mean stationary residual (additive case) or
+a positive multiplicative perturbation with $\E[\varepsilon_t] = 1$
+(multiplicative case).
+\end{defbox}
+
+\begin{rembox}
+The two models differ qualitatively:
+\begin{itemize}
+  \item In the additive model, the seasonal swing has a
+        \emph{constant amplitude} regardless of the level of the series.
+  \item In the multiplicative model, the swing \emph{grows
+        proportionally to $T_t$}.
+  \item Taking logarithms converts a multiplicative model into an
+        additive one:
+        $\log Y_t = \log T_t + \log S_t + \log \varepsilon_t$.
+\end{itemize}
+This log transform is standard for positive series with growing
+amplitude (sales, population, GDP).
+\end{rembox}
+
+\paragraph{Identifiability.} Without further constraints the
+decomposition is not unique (a constant can move from $T$ to $S$).
+Two standard normalisations:
+\begin{itemize}
+  \item $\sum_{k = 1}^{d} S_k = 0$ in the additive case (seasonality
+        sums to zero over a full cycle);
+  \item $\sum_{k = 1}^{d} S_k = d$ in the multiplicative case
+        (seasonality averages to one).
+\end{itemize}
+
+% =========================================================
+\section{Trend estimation}
+\label{sec:trend}
+
+\subsection{Symmetric (centred) moving average}
+
+\begin{defbox}[Centred moving average]
+\label{def:ma}
+For an odd window $2k + 1$ with $k \in \N$:
+\[
+  \widehat{T}_t \;=\; \frac{1}{2k + 1}\sum_{i=-k}^{k} Y_{t+i},
+  \qquad t = k+1, \dots, T - k.
+\]
+Boundary points $t = 1, \dots, k$ and $t = T - k + 1, \dots, T$ are
+not estimated.
+\end{defbox}
+
+\begin{propbox}[The centred MA preserves linear trends]
+\label{prop:ma-linear}
+If $Y_t = a + b\,t$ exactly, then $\widehat{T}_t = a + b\,t$ for all
+interior $t$.
+\end{propbox}
+
+\begin{proof}
+Substitute $Y_{t+i} = a + b(t + i)$:
+\[
+  \widehat{T}_t = \tfrac{1}{2k+1}\sum_{i = -k}^{k}\bigl(a + b(t+i)\bigr)
+  = a + b\,t + \tfrac{b}{2k+1}\underbrace{\sum_{i=-k}^{k} i}_{= 0}
+  = a + b\,t.
+\]
+\end{proof}
+
+\begin{propbox}[The centred MA cancels period-$(2k+1)$ seasonality]
+\label{prop:ma-season}
+If $S_t$ has period $d = 2k + 1$ and $\sum_{k=1}^{d} S_k = 0$, then
+$\sum_{i = -k}^{k} S_{t + i} = 0$ for all $t$, hence the MA filters out
+$S_t$ exactly.
+\end{propbox}
+
+\begin{rembox}
+For \emph{even} period $d$ (e.g.\ $d = 12$ for monthly data), one uses
+a $2 \times d$ centred MA:
+$\widehat{T}_t = \tfrac{1}{2d}\bigl(\tfrac{1}{2}Y_{t-d/2} + Y_{t-d/2+1}
++ \dots + Y_{t+d/2-1} + \tfrac{1}{2}Y_{t+d/2}\bigr)$.
+This combines two consecutive symmetric MAs of length $d$ to yield a
+window of length $d + 1$ with end-points down-weighted.
+\end{rembox}
+
+\begin{exbox}[Numerical illustration]
+$Y = (10, 12, 15, 14, 16, 18, 20)$, $k = 1$ (window 3):
+\[
+  \widehat{T}_2 = \tfrac{37}{3} \approx 12.33, \quad
+  \widehat{T}_3 = \tfrac{41}{3} \approx 13.67, \quad
+  \widehat{T}_4 = \tfrac{45}{3} = 15.00,
+\]
+\[
+  \widehat{T}_5 = 16.00, \quad
+  \widehat{T}_6 = 18.00.
+\]
+The estimated trend follows the upward drift of the series; $t = 1$
+and $t = 7$ are lost.
+\end{exbox}
+
+\subsection{Parametric polynomial regression}
+
+\begin{defbox}[Polynomial trend]
+$T_t = \beta_0 + \beta_1\, t + \beta_2\, t^2 + \dots + \beta_p\, t^p$
+estimated by ordinary least squares (OLS) on $(t, Y_t)$.
+\end{defbox}
+
+\begin{rembox}
+\begin{itemize}
+  \item $p = 1$ : straight line. Use only when the eyeball plot is
+        consistent with a linear pattern.
+  \item $p = 2, 3$ : flexible enough for most economic / climate data
+        on a moderate horizon.
+  \item $p \geq 4$ : usually overfit and behave poorly outside the
+        sample range. Prefer LOESS or splines.
+\end{itemize}
+Use AIC / BIC, cross-validation or out-of-sample MSE to select $p$.
+\end{rembox}
+
+\subsection{Non-parametric regression}
+
+\begin{defbox}[LOESS / local polynomial regression]
+At each $t$ fit a low-degree polynomial on a \emph{neighbourhood} of
+$t$, with weights decreasing in $\abs{t' - t}$ (e.g.\ tricube kernel).
+The fraction of data used in each local fit is the \emph{span}
+parameter $\alpha \in (0, 1)$.
+\end{defbox}
+
+\paragraph{Why non-parametric?}
+\begin{itemize}
+  \item Captures arbitrary smooth trends without imposing a global
+        functional form.
+  \item Robust variants (\texttt{loess(\dots, family="symmetric")}) are
+        less affected by outliers.
+  \item Span $\alpha$ small $\Rightarrow$ wiggly fit; large $\Rightarrow$
+        over-smooth. Default $\alpha = 0.75$ is often too aggressive
+        for time-series trend extraction; $\alpha = 0.1$--$0.3$ is
+        usually preferred.
+\end{itemize}
+
+\begin{rembox}[Other smoothers]
+Cubic smoothing splines minimise
+$\sum (Y_t - g(t))^2 + \lambda \int g''(s)^2\,ds$ over twice-differentiable
+$g$. The penalty $\lambda$ trades off fidelity vs.\ smoothness;
+$\lambda \to 0$ recovers interpolation, $\lambda \to \infty$ a linear
+fit. Wavelets offer multi-resolution alternatives but are seldom needed
+for a one-step decomposition.
+\end{rembox}
+
+% =========================================================
+\section{Seasonality estimation}
+\label{sec:seasonality}
+
+\subsection{Seasonal averaging}
+
+\begin{defbox}[Seasonal averaging after detrending]
+\label{def:seas-avg}
+Let $\widetilde{Y}_t = Y_t - \widehat{T}_t$ be the detrended series.
+For each season $k = 1, \dots, d$ define
+\[
+  \widehat{S}_k \;=\; \frac{1}{n_k}\sum_{t : \text{season}(t) = k}
+                    \widetilde{Y}_t,
+\]
+where $n_k$ is the number of observations falling in season $k$.
+Re-centre by subtracting the overall mean to ensure $\sum_k \widehat{S}_k = 0$.
+\end{defbox}
+
+\begin{exbox}[Monthly seasonal index]
+With monthly data ($d = 12$) over 10 years, $n_k = 10$ for each $k$.
+The estimate $\widehat{S}_{\text{July}}$ is the average of the
+ten July deviations from the trend.
+\end{exbox}
+
+\subsection{Dummy-variable regression}
+
+\begin{defbox}[Seasonal dummies]
+\label{def:dummies}
+Let $D_{k,t} = \mathbf{1}_{\{\text{season}(t) = k\}}$ for $k = 2, \dots, d$.
+Estimate by OLS:
+\[
+  Y_t = \beta_0 + \sum_{k=2}^{d} \beta_k\, D_{k,t} + \varepsilon_t.
+\]
+The omitted season ($k = 1$) is the \emph{baseline}; $\beta_k$
+measures the seasonal deviation of season $k$ from the baseline.
+\end{defbox}
+
+\begin{rembox}[Why $d - 1$ dummies?]
+Including all $d$ dummies plus an intercept produces perfect
+multicollinearity ($\sum_k D_{k,t} = 1$ for all $t$). Drop one season
+or drop the intercept.
+\end{rembox}
+
+\begin{rembox}[Combining trend and seasonality]
+A standard ``one-shot'' specification estimates trend and seasonality
+\emph{jointly}:
+\[
+  Y_t = \beta_0 + \beta_1\, t + \sum_{k=2}^{d} \gamma_k\, D_{k,t} + \varepsilon_t.
+\]
+This avoids the residual contamination that arises when one estimates
+the trend first by MA then the seasonality from the detrended series.
+\end{rembox}
+
+\subsection{Cosine--sine (Fourier) model}
+
+\begin{defbox}[Trigonometric seasonality]
+\label{def:fourier}
+With angular frequency $\omega_d = 2\pi / d$:
+\[
+  S_t = \sum_{j=1}^{J}\bigl[a_j \cos(j\,\omega_d\, t) + b_j \sin(j\,\omega_d\, t)\bigr],
+  \qquad J \leq \lfloor d / 2 \rfloor.
+\]
+The coefficients $(a_j, b_j)$ are estimated by OLS in the regression
+$Y_t = \beta_0 + S_t + \varepsilon_t$ (or jointly with a trend).
+\end{defbox}
+
+\begin{propbox}[Equivalence with dummies]
+\label{prop:fourier-equiv}
+With $J = \lfloor d/2 \rfloor$ harmonics (and the constant), the
+trigonometric basis spans the same subspace as the seasonal dummies,
+hence yields the same fitted seasonal pattern.
+\end{propbox}
+
+\begin{rembox}
+The Fourier model is \emph{parsimonious}: with $J = 1$ harmonic only,
+seasonal swings are described by 2 parameters instead of $d - 1$. This
+helps when $d$ is large (e.g.\ $d = 365$ for daily data with annual
+seasonality).
+\end{rembox}
+
+% =========================================================
+\section{Residuals and diagnostics}
+\label{sec:residuals}
+
+After decomposition, the residual is
+\[
+  \widehat{\varepsilon}_t \;=\; Y_t - \widehat{T}_t - \widehat{S}_t.
+\]
+
+\begin{rembox}[What to check]
+\begin{itemize}
+  \item \textbf{No remaining trend.} Plot $\widehat{\varepsilon}_t$ vs.\ $t$;
+        any systematic drift means under-fit trend.
+  \item \textbf{No remaining seasonality.} Compute the autocorrelation
+        function (Chapter 3) and look for spikes at lag $d$ (and its
+        multiples).
+  \item \textbf{Constant variance (homoscedasticity).} A funnel-shaped
+        plot signals heteroscedasticity, suggesting a multiplicative
+        rather than additive model — or ARCH/GARCH effects (Chapter 6).
+  \item \textbf{Approximate normality.} Histogram + QQ-plot. Important
+        for the validity of $t$-based confidence intervals.
+\end{itemize}
+\end{rembox}
+
+\begin{warnbox}
+A common mistake is to declare the decomposition successful as soon as
+the residual ``looks small''. The residual must be \emph{structureless}
+— that is, free of autocorrelation, of remaining seasonality and of
+heteroscedasticity. The next chapters provide the formal tools to
+check this.
+\end{warnbox}
+
+% =========================================================
+\section{Decomposition workflow}
+\label{sec:workflow}
+
+The full pipeline:
+
+\begin{enumerate}
+  \item \textbf{Plot} $Y_t$ versus $t$. Decide additive vs.\ multiplicative
+        from the visual amplitude pattern.
+  \item If multiplicative, apply the log transform.
+  \item \textbf{Estimate the trend} $\widehat{T}_t$:
+        \begin{itemize}
+          \item moving average (centred, $2 \times d$ for even $d$);
+          \item polynomial regression ($p = 1, 2$ or $3$);
+          \item LOESS / spline.
+        \end{itemize}
+  \item \textbf{Detrend:} $\widetilde{Y}_t = Y_t - \widehat{T}_t$.
+  \item \textbf{Estimate the seasonality} $\widehat{S}_t$ from $\widetilde{Y}_t$:
+        \begin{itemize}
+          \item seasonal averaging (re-centred);
+          \item dummy regression;
+          \item cosine--sine model.
+        \end{itemize}
+  \item \textbf{Residual:}
+        $\widehat{\varepsilon}_t = Y_t - \widehat{T}_t - \widehat{S}_t$.
+  \item \textbf{Diagnostics} on $\widehat{\varepsilon}_t$ (Section~\ref{sec:residuals}).
+  \item If diagnostics pass: model the residual with ARMA (Chapter 5).
+\end{enumerate}
+
+% =========================================================
+\section*{Summary}
+\addcontentsline{toc}{section}{Summary}
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Component} & \textbf{Method} & \textbf{Pros / Cons} \\
+\midrule
+Trend       & Moving average ($2k+1$)      & simple, loses $k$ ends \\
+            & Polynomial regression        & global, risk of overfit \\
+            & LOESS / splines              & flexible, span tuning \\
+\midrule
+Seasonality & Seasonal averaging           & simple, no model \\
+            & Dummy regression             & joint with trend \\
+            & Cosine--sine (Fourier)       & parsimonious, multi-harmonic \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\medskip
+\noindent\textbf{What to remember.}
+\begin{itemize}
+  \item Decomposition is the \emph{first step} of any time-series
+        analysis; the rest of the course works on the residual.
+  \item Choose additive or multiplicative based on the amplitude
+        pattern of the seasonality.
+  \item Estimate trend and seasonality jointly (dummy or Fourier
+        regression) when feasible — it controls residual contamination.
+\end{itemize}

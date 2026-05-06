@@ -1,0 +1,131 @@
+% =========================================================
+% Lab 2 — Decomposition (statement)
+% =========================================================
+\documentclass[a4paper,11pt]{article}
+
+\newcommand{\TPnumero}{Lab 2 -- Decomposition}
+\input{../../preamble/td-tp-preamble.tex}
+
+\title{Lab 2: Time series decomposition\\
+\large Trend and seasonality on a synthetic series and on Atlanta temperatures}
+\author{\auteurNom\\\auteurEmail\\\auteurInstitution}
+\date{\anneeUniversitaire}
+
+\begin{document}
+\maketitle
+
+\section*{Goals}
+\begin{itemize}
+  \item Implement and compare three trend estimators
+        (centred moving average, polynomial regression, LOESS).
+  \item Implement and compare three seasonality estimators
+        (seasonal averaging, dummy regression, Fourier model).
+  \item Apply the full workflow to the Atlanta monthly
+        temperature dataset.
+  \item Compare additive and multiplicative decomposition models.
+\end{itemize}
+
+\section*{Setup}
+\begin{itemize}
+  \item Python 3 with \texttt{numpy}, \texttt{pandas}, \texttt{scipy},
+        \texttt{statsmodels}, \texttt{matplotlib}.
+  \item Reproducibility: \texttt{numpy.random.seed(42)}.
+  \item Dataset: \texttt{data/AvTempAtlanta.txt}.
+  \item Skeleton: \texttt{seed.py} provides function signatures.
+\end{itemize}
+
+% =========================================================
+\begin{exercise}[Synthetic decomposition]
+Generate $T = 240$ months ($20$ years) of a synthetic series:
+\[
+  Y_t = \underbrace{20 + 0.05\, t}_{\text{trend}}
+      + \underbrace{5 \sin(2\pi t / 12)}_{\text{seasonality}}
+      + \underbrace{\varepsilon_t}_{\mathcal{N}(0, 1)}.
+\]
+
+\textbf{(1)} Plot $Y_t$ along with the true components on a 4-panel figure
+(observed $Y_t$, true $T_t$, true $S_t$, true $\varepsilon_t$).
+
+\textbf{(2)} Comment on the visual signature of the additive model
+(constant seasonal amplitude).
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Trend estimation: three methods]
+\textbf{(1)} Implement the centred moving average
+\texttt{centred\_ma(y, k)} of window $2k + 1$.
+
+\textbf{(2)} Apply three methods to $Y_t$ from Exercise 1:
+\begin{itemize}
+  \item centred MA with $k = 6$ (window 13);
+  \item linear regression (\texttt{sklearn.LinearRegression});
+  \item LOESS (\texttt{statsmodels.nonparametric.smoothers\_lowess}, frac=0.2).
+\end{itemize}
+Plot the three estimated trends together with the true trend
+$\widehat T_t = 20 + 0.05\,t$.
+
+\textbf{(3)} Compute the RMSE of each estimator versus the true trend.
+Comment.
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Seasonality estimation: three methods]
+\textbf{(1)} Detrend $Y_t$ from Exercise 1 using LOESS, then estimate
+the seasonality by:
+\begin{itemize}
+  \item seasonal averaging (12 monthly indices);
+  \item OLS regression with 11 dummy variables;
+  \item cosine--sine model with one harmonic ($\omega = 2\pi / 12$).
+\end{itemize}
+
+\textbf{(2)} Plot the three estimated seasonal patterns
+($\widehat S_k, k = 1, \dots, 12$) along with the truth
+$5 \sin(2\pi k / 12)$.
+
+\textbf{(3)} Compute the RMSE of each estimator versus the truth.
+Which method performs best, and why?
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Application to Atlanta temperatures]
+Load \texttt{data/AvTempAtlanta.txt} (138 years $\times$ 12 months
+= 1656 observations, time index $t = 1, \dots, 1656$).
+
+\textbf{(1)} Plot the series. What is the seasonal period? Does the
+amplitude look constant over time?
+
+\textbf{(2)} Decompose using the workflow:
+\begin{itemize}
+  \item estimate the trend with a $2 \times 12$ centred MA;
+  \item compute the detrended series;
+  \item estimate seasonality by averaging (12 monthly indices, re-centred);
+  \item compute the residual.
+\end{itemize}
+Plot the four components on a 4-panel figure.
+
+\textbf{(3)} Compare with \texttt{statsmodels.tsa.seasonal\_decompose(y,
+period=12, model="additive")}. Do you get the same components?
+\end{exercise}
+
+% =========================================================
+\begin{exercise}[Bonus: additive vs multiplicative]
+\textbf{(1)} Generate a multiplicative series:
+\[
+  Y_t = (20 + 0.1\, t) \cdot \bigl(1 + 0.3 \sin(2\pi t / 12)\bigr) \cdot e^{\eta_t},
+  \quad \eta_t \sim \mathcal{N}(0, 0.05).
+\]
+Plot it. Comment on the seasonal amplitude.
+
+\textbf{(2)} Apply the additive workflow on $Y_t$ \emph{vs}.\ the
+additive workflow on $\log Y_t$. Compare the residuals.
+
+\textbf{(3)} Conclude: when should you use the multiplicative model?
+\end{exercise}
+
+\bigskip
+\begin{warning}
+For each plot, save a PNG (\texttt{lab2\_ex1\_synth.png}, etc.). Set
+the seed at the top of every script.
+\end{warning}
+
+\end{document}
